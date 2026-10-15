@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" width="160" height="200">
+  <defs>
+    <filter id="pen-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="2" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+    <linearGradient id="nib-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="45%" stop-color="#cbd5e1"/>
+      <stop offset="55%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Die-cut outer white border -->
+  <path d="M 80 10 L 140 100 L 115 175 L 45 175 L 20 100 Z" 
+        fill="#FFFFFF" filter="url(#pen-shadow)"/>
+  
+  <!-- Outer metallic stroke / base -->
+  <path d="M 80 18 L 132 98 L 108 168 L 52 168 L 28 98 Z" 
+        fill="#1e293b"/>
+
+  <!-- Inner nib gradient surface -->
+  <path d="M 80 26 L 126 96 L 104 160 L 56 160 L 34 96 Z" 
+        fill="url(#nib-grad)"/>
+
+  <!-- Nib split line and breather hole -->
+  <line x1="80" y1="26" x2="80" y2="100" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="80" cy="100" r="10" fill="#0f172a"/>
+
+  <!-- Horizontal grip line -->
+  <line x1="56" y1="140" x2="104" y2="140" stroke="#64748b" stroke-width="3"/>
+</svg>

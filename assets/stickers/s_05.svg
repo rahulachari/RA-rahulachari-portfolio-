@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000000" flood-opacity="0.5"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+    <radialGradient id="gloss" cx="40%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Die-Cut Vinyl Outer Border with Drop Shadow -->
+  <rect x="24" y="24" width="464" height="464" rx="96" fill="#FFFFFF" filter="url(#shadow)"/>
+  
+  <!-- Inner Badge Container -->
+  <rect x="36" y="36" width="440" height="440" rx="84" fill="#082f49" stroke="#38bdf8" stroke-width="8"/>
+  <rect x="36" y="36" width="440" height="440" rx="84" fill="url(#gloss)"/>
+
+  <!-- Top Accent Tag -->
+  <rect x="80" y="56" width="352" height="32" rx="16" fill="#38bdf8" fill-opacity="0.2"/>
+  <text x="256" y="78" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="14" font-weight="700" fill="#38bdf8" letter-spacing="3" text-anchor="middle">RAHUL ACHARI // STACK 2026</text>
+
+  <!-- Central Graphic Icon -->
+  <g transform="translate(0, 0)">
+    <path d="M150 250 h24 v24 h-24 z M180 250 h24 v24 h-24 z M210 250 h24 v24 h-24 z M180 220 h24 v24 h-24 z M210 220 h24 v24 h-24 z M240 220 h24 v24 h-24 z M240 250 h24 v24 h-24 z M270 250 h24 v24 h-24 z" fill="#38bdf8"/>
+           <path d="M130 280 C130 350 210 360 260 360 C330 360 380 310 390 280 C360 270 330 285 310 280 C310 280 290 275 130 280 Z" fill="#0284c7" stroke="#38bdf8" stroke-width="6"/>
+           <circle cx="360" cy="295" r="5" fill="#ffffff"/>
+  </g>
+
+  <!-- Title & Subtitle Badge -->
+  <rect x="64" y="396" width="384" height="60" rx="16" fill="#090a0f" fill-opacity="0.8" stroke="#38bdf8" stroke-width="2"/>
+  <text x="256" y="424" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="22" font-weight="800" fill="#FFFFFF" letter-spacing="1.5" text-anchor="middle">DOCKER CI/CD</text>
+  <text x="256" y="444" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600" fill="#0284c7" letter-spacing="2" text-anchor="middle">CONTAINERIZED APPS</text>
+
+  <!-- Vintage Vinyl Stamp Ring -->
+  <circle cx="430" cy="80" r="24" fill="#38bdf8"/>
+  <text x="430" y="86" font-family="monospace" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">#05</text>
+</svg>

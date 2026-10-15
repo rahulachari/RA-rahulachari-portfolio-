@@ -1,0 +1,740 @@
+/* ==========================================================================
+   INTERACTIVE DEVELOPER BOARDING PASS & RETRO HARDWARE READER GATE
+   Inspired by mikes.cv — Software & AI Engineering Edition
+   ========================================================================== */
+
+:root {
+  --gate-bg: #f5f4ef;
+  --gate-ink: #171612;
+  --gate-ink-hint: #6e6d65;
+  --gate-ink-faint: #98968d;
+  --gate-accent-green: #22c55e;
+  --gate-accent-amber: #f59e0b;
+  --gate-accent-blue: #0284c7;
+}
+
+/* Base Gate Overlay */
+.dev-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background-color: var(--gate-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.75s ease;
+}
+
+.dev-gate.is-unlocked {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Background Subtle Grid & Ambient Lighting */
+.gate-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: 
+    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.9) 0%, rgba(245, 244, 239, 0.5) 65%, rgba(235, 233, 224, 0.95) 100%),
+    radial-gradient(circle at 50% 80%, rgba(2, 132, 199, 0.03) 0%, transparent 50%);
+}
+
+.gate-stage {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+}
+
+/* ==========================================================================
+   1. THE SOFTWARE DEVELOPER BOARDING PASS
+   ========================================================================== */
+.card-wrapper {
+  position: absolute;
+  top: 60px;
+  width: 440px;
+  height: 220px;
+  cursor: grab;
+  z-index: 20;
+  touch-action: none;
+  transform-style: preserve-3d;
+  will-change: transform, filter;
+  transition: transform 0.08s ease-out;
+}
+
+.card-wrapper.is-dragging {
+  cursor: grabbing;
+  z-index: 25;
+  transition: none !important;
+}
+
+.card-wrapper.is-in-slot {
+  z-index: 15; /* Sits behind front reader bezel (z-index: 18) */
+}
+
+/* Card Visual Body — Personal Software ID Badge */
+.dev-pass.software-id-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 
+    0 24px 48px -12px rgba(30, 32, 38, 0.18),
+    0 12px 24px -8px rgba(30, 32, 38, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 18px 12px 18px;
+  overflow: hidden;
+  transition: box-shadow 0.25s ease;
+}
+
+.card-wrapper.is-dragging .dev-pass.software-id-card {
+  box-shadow: 
+    0 36px 72px -16px rgba(30, 32, 38, 0.24),
+    0 16px 32px -8px rgba(30, 32, 38, 0.14),
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Subtle Circuit/Tech Ambient Pattern */
+.dev-pass.software-id-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(circle at 85% 15%, rgba(2, 132, 199, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(34, 197, 94, 0.05) 0%, transparent 40%);
+  opacity: 0.9;
+}
+
+/* Lanyard Punch Slot */
+.id-lanyard-slot {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 4.5px;
+  background: #c8c5b9;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.7);
+  z-index: 5;
+}
+
+/* Card Header */
+.id-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 8px;
+  margin-top: 2px;
+}
+
+.id-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.id-logo-badge {
+  width: 24px;
+  height: 24px;
+  background: #0284c7;
+  color: #ffffff;
+  border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.5px;
+}
+
+.id-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.id-brand-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #171612;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+}
+
+.id-brand-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 600;
+  color: #0284c7;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.id-clearance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.id-clearance-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+}
+
+.id-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+/* Card Body (Avatar + Credentials) */
+.id-body {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 6px 0;
+}
+
+/* Visual Column: Avatar Photo & Smart Chip */
+.id-visual-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 78px;
+  flex-shrink: 0;
+}
+
+.id-avatar-frame {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  background: #18191c;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.id-avatar-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.id-avatar-symbol {
+  font-size: 24px;
+  color: #0284c7;
+  text-shadow: 0 0 10px rgba(2, 132, 199, 0.6);
+}
+
+.id-avatar-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+}
+
+/* Corner Reticle Brackets */
+.id-corner {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-color: #0284c7;
+  border-style: solid;
+}
+.id-corner.tl { top: 3px; left: 3px; border-width: 1.5px 0 0 1.5px; }
+.id-corner.tr { top: 3px; right: 3px; border-width: 1.5px 1.5px 0 0; }
+.id-corner.bl { bottom: 3px; left: 3px; border-width: 0 0 1.5px 1.5px; }
+.id-corner.br { bottom: 3px; right: 3px; border-width: 0 1.5px 1.5px 0; }
+
+/* Golden Smart Chip */
+.id-smart-chip {
+  position: relative;
+  width: 32px;
+  height: 24px;
+  background: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #aa820a 100%);
+  border-radius: 4px;
+  border: 1px solid #997300;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 1px 2px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.chip-line {
+  position: absolute;
+  background: rgba(120, 80, 0, 0.5);
+}
+.chip-line.h1 { top: 7px; left: 0; right: 0; height: 1px; }
+.chip-line.h2 { bottom: 7px; left: 0; right: 0; height: 1px; }
+.chip-line.v1 { top: 0; bottom: 0; left: 15px; width: 1px; }
+
+.chip-pad.center {
+  position: absolute;
+  top: 5px;
+  left: 9px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(120, 80, 0, 0.4);
+}
+
+.id-contactless svg {
+  width: 14px;
+  height: 14px;
+  color: #8b8a82;
+}
+
+/* Info Column */
+.id-info-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.id-meta-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #0284c7;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.id-name {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #171612;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin: 1px 0 2px 0;
+}
+
+.id-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.id-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 12px;
+  margin-top: 8px;
+  background: #f8fafc;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.id-spec-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.id-spec-item.col-span-2 {
+  grid-column: span 2;
+}
+
+.spec-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.spec-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.spec-val.highlight {
+  color: #16a34a;
+}
+
+/* Card Footer */
+.id-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 6px;
+  margin-top: 2px;
+}
+
+.id-barcode-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.barcode-svg {
+  height: 18px;
+  width: 170px;
+}
+
+.id-hash-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7.5px;
+  color: #8b8a82;
+  letter-spacing: 0.1em;
+  margin-top: 1px;
+}
+
+.id-seal-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+  padding: 3px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+.seal-icon {
+  font-size: 9px;
+}
+
+/* ==========================================================================
+   2. RETRO HARDWARE CARD READER
+   ========================================================================== */
+.reader-wrapper {
+  position: absolute;
+  bottom: 120px;
+  width: 380px;
+  height: 130px;
+  transform-style: preserve-3d;
+}
+
+/* Back casing (sits behind the card) */
+.reader-back {
+  position: absolute;
+  inset: 0;
+  background: #c8c3b4;
+  border-radius: 18px 18px 24px 24px;
+  box-shadow: 
+    0 30px 60px -15px rgba(20, 22, 28, 0.22),
+    0 15px 30px -10px rgba(20, 22, 28, 0.14),
+    inset 0 2px 4px rgba(255, 255, 255, 0.6);
+  z-index: 10;
+}
+
+/* Realistic Internal Slot Well */
+.reader-slot-well {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  right: 20px;
+  height: 18px;
+  background: #141412;
+  border-radius: 6px;
+  box-shadow: 
+    inset 0 3px 6px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.4);
+  z-index: 12;
+}
+
+/* Front casing of the Reader (sits in front of the card: z-index 18) */
+.reader-front {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #dfdacb 0%, #d4cfbe 60%, #c9c3b1 100%);
+  border-radius: 12px 12px 22px 22px;
+  box-shadow: 
+    inset 0 2px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.08);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.6);
+  z-index: 18;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 22px 16px 22px;
+}
+
+/* Top Grill Slits */
+.reader-grill {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.grill-row {
+  display: flex;
+  gap: 4px;
+}
+
+.grill-slit {
+  width: 2.5px;
+  height: 10px;
+  background: #999484;
+  border-radius: 1px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Recessed LED Display Window */
+.reader-display-unit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111210;
+  padding: 10px 18px;
+  border-radius: 8px;
+  box-shadow: 
+    inset 0 3px 6px rgba(0, 0, 0, 0.85),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.4);
+  margin-top: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* CRT Scanlines on the Display */
+.reader-display-unit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.25) 0px,
+    rgba(0, 0, 0, 0.25) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  opacity: 0.7;
+}
+
+.reader-screen-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #7d857c;
+  text-shadow: 0 0 6px rgba(125, 133, 124, 0.4);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+  z-index: 2;
+}
+
+/* Screen States */
+.reader-display-unit.is-reading .reader-screen-text {
+  color: var(--gate-accent-amber);
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.75);
+}
+
+.reader-display-unit.is-granted .reader-screen-text {
+  color: #35c56d;
+  text-shadow: 0 0 12px rgba(53, 197, 109, 0.85);
+}
+
+/* LED Jewel Indicator */
+.reader-led {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #414541;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+  position: relative;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  z-index: 2;
+}
+
+.reader-led.is-active {
+  background: var(--gate-accent-amber);
+  box-shadow: 0 0 8px var(--gate-accent-amber), inset 0 1px 1px #fff;
+  animation: led-pulse 0.4s ease-in-out infinite alternate;
+}
+
+.reader-led.is-granted {
+  background: #35c56d;
+  box-shadow: 0 0 12px #35c56d, inset 0 1px 1px #fff;
+  animation: none;
+}
+
+@keyframes led-pulse {
+  from { opacity: 0.6; }
+  to { opacity: 1.0; }
+}
+
+/* ==========================================================================
+   3. HINT TEXT & SKIP BUTTON
+   ========================================================================== */
+.gate-hint {
+  position: absolute;
+  bottom: 50px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--gate-ink-hint);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0.88;
+  white-space: nowrap;
+}
+
+.gate-hint strong {
+  font-weight: 700;
+  color: inherit;
+}
+
+/* Shimmer Animation Across Hint Text */
+.gate-hint.shimmer {
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    var(--gate-ink-hint) 0%,
+    var(--gate-ink-hint) 42%,
+    var(--gate-ink) 50%,
+    var(--gate-ink-hint) 58%,
+    var(--gate-ink-hint) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: hint-shimmer 2.2s linear infinite;
+}
+
+@keyframes hint-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0% 0; }
+}
+
+/* Skip Link */
+.gate-skip-link {
+  position: absolute;
+  right: 40px;
+  bottom: 40px;
+  color: var(--gate-ink-faint);
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14.5px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: color 0.2s ease, background 0.2s ease;
+  z-index: 100;
+}
+
+.gate-skip-link:hover {
+  color: var(--gate-ink);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.gate-skip-link:focus-visible {
+  outline: 2px solid #0284c7;
+  outline-offset: 2px;
+}
+
+/* Re-swipe subtle button on the main portfolio (if user wants to play again) */
+.gate-replay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--label-3);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gate-replay-btn:hover {
+  color: var(--label-1);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================================================
+   4. RESPONSIVE DESIGN (Tablets & Mobile)
+   ========================================================================== */
+@media (max-width: 600px) {
+  .gate-stage {
+    transform: scale(0.85);
+    height: 520px;
+  }
+  .card-wrapper {
+    width: 380px;
+    height: 195px;
+    top: 40px;
+  }
+  .reader-wrapper {
+    width: 340px;
+    bottom: 90px;
+  }
+  .gate-hint {
+    bottom: 30px;
+    font-size: 13.5px;
+  }
+  .gate-skip-link {
+    right: 20px;
+    bottom: 20px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 420px) {
+  .gate-stage {
+    transform: scale(0.72);
+  }
+}

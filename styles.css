@@ -1,0 +1,2397 @@
+/* ==========================================================================
+   HAOQI©2026 EXACT DESIGN SYSTEM — RAHUL ACHARI PORTFOLIO
+   Pixel-Perfect Match for Layout, Deep Midnight Blue, Grid Crosshairs,
+   Typography, Specular 3D Lighting, and Mobile Responsiveness
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono-2: 'JetBrains Mono', monospace;
+
+  /* Theme tokens - Deep Dark Black Base with Luminous Royal Cobalt Lighting in Hero & Footer */
+  color-scheme: dark;
+  --background-deep: 0, 0, 0;
+  --background-1: #000000;
+  --background-radial: #000000;
+  --background-elevated: #08090d;
+  --label-1: #FFFFFF;
+  --label-2: rgba(230, 232, 232, 0.65);
+  --label-3: rgba(230, 232, 232, 0.35);
+  --label-4: rgba(230, 232, 232, 0.18);
+  --line: rgba(255, 255, 255, 0.12);
+  --site-margin: clamp(1.25rem, 3.5vw, 3.5rem);
+  --grid-line: rgba(255, 255, 255, 0.12);
+  --grid-cross: rgba(255, 255, 255, 0.38);
+  --selection-bg: #C0FE04;
+  --accent-blue: #009dff;
+  --accent-cyan: #64c3ff;
+  --cubic-66: cubic-bezier(0.66, 0, 0.01, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+html.light {
+  color-scheme: light;
+  --background-deep: 251, 250, 244;
+  --background-1: #FBFAF4;
+  --background-radial: #FBFAF4;
+  --background-elevated: #efede7;
+  --label-1: #000000;
+  --label-2: rgba(54, 54, 48, 0.65);
+  --label-3: rgba(54, 54, 48, 0.35);
+  --label-4: rgba(54, 54, 48, 0.18);
+  --line: rgba(0, 0, 0, 0.12);
+  --grid-line: rgba(0, 0, 0, 0.12);
+  --grid-cross: rgba(0, 0, 0, 0.38);
+  --selection-bg: #C0FE04;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+::selection {
+  background-color: var(--selection-bg);
+  color: #000000;
+}
+
+html {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: clip;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: clip;
+  position: relative;
+  background-color: #000000;
+  color: var(--label-1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+html.light body {
+  background-color: #FBFAF4;
+}
+
+/* Confine blue halos to Hero and Footer, so remaining sections stay dark deep black */
+body::after {
+  display: none !important;
+}
+
+/* Lenis Smooth Scroll Foundation */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   PAGE-WIDE ARCHITECTURAL BIG GRID BOX SYSTEM (Exact Haoqi Reproduction)
+   Continuous Full-Page Vertical Column Lines & Precision Crosshairs (+)
+   ========================================================================== */
+.site-big-grid-system {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 20;
+  mix-blend-mode: difference;
+}
+
+.site-big-grid-system svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  shape-rendering: crispEdges;
+}
+
+/* Middle Horizontal Grid Divider in Hero (Forming 3x2 Big Modular Grid Boxes) */
+.hero-mid-divider {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Reusable Full-Width Horizontal Grid Divider with Precision Crosshairs (+) */
+.grid-row-divider {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  background-color: transparent !important;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.grid-divider-segment {
+  position: absolute;
+  top: 0;
+  height: 1px;
+  background-color: var(--grid-line);
+  pointer-events: none;
+}
+
+/* 3 Equal Uniform Column Segments across (100% - 2 * var(--site-margin)) */
+/* Each segment leaves a crisp 14px gap on both sides of every '+' crosshair */
+.grid-divider-segment.seg-1 {
+  left: calc(var(--site-margin) + 14px);
+  width: calc((100% - 2 * var(--site-margin)) * 0.333333 - 28px);
+}
+
+.grid-divider-segment.seg-2 {
+  left: calc(var(--site-margin) + (100% - 2 * var(--site-margin)) * 0.333333 + 14px);
+  width: calc((100% - 2 * var(--site-margin)) * 0.333333 - 28px);
+}
+
+.grid-divider-segment.seg-3 {
+  left: calc(var(--site-margin) + (100% - 2 * var(--site-margin)) * 0.666667 + 14px);
+  width: calc((100% - 2 * var(--site-margin)) * 0.333333 - 28px);
+}
+
+@media (max-width: 767px) {
+  .grid-divider-segment.seg-2,
+  .grid-divider-segment.seg-3 {
+    display: none;
+  }
+  .grid-divider-segment.seg-1 {
+    width: calc(100% - 2 * var(--site-margin) - 28px);
+  }
+}
+
+.grid-row-divider .grid-cross {
+  position: absolute;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--grid-cross);
+  background-color: transparent !important;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  pointer-events: none;
+  z-index: 16;
+}
+
+.grid-row-divider .cross-0 {
+  left: var(--site-margin);
+}
+
+.grid-row-divider .cross-1 {
+  left: calc(var(--site-margin) + (100% - 2 * var(--site-margin)) * 0.333333);
+}
+
+.grid-row-divider .cross-2 {
+  left: calc(var(--site-margin) + (100% - 2 * var(--site-margin)) * 0.666667);
+}
+
+.grid-row-divider .cross-3 {
+  right: var(--site-margin);
+  left: auto;
+  transform: translate(50%, -50%);
+}
+
+@media (max-width: 767px) {
+  .grid-row-divider .cross-1,
+  .grid-row-divider .cross-2 {
+    display: none;
+  }
+}
+
+/* Neon Lime Intersection Accent Square (Exact Haoqi Grid Feature) */
+.intersection-accent-square {
+  position: absolute;
+  top: 0;
+  left: calc(var(--site-margin) + (100% - 2 * var(--site-margin)) * 0.333333);
+  width: 14px;
+  height: 14px;
+  background-color: #C0FE04;
+  border-radius: 2px;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  box-shadow: 0 0 14px rgba(192, 254, 4, 0.55);
+  pointer-events: none;
+}
+
+/* Atmospheric Blueprint Dot-Matrix Pattern in Empty Grid Boxes */
+.dot-matrix-cluster {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1.5px, transparent 1.5px);
+  background-size: 8px 8px;
+  pointer-events: none;
+  opacity: 0.65;
+  z-index: 2;
+}
+
+html.light .dot-matrix-cluster {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.18) 1.5px, transparent 1.5px);
+}
+
+/* ==========================================================================
+   PRELOADER (Floating System Pill matching haoqi.design)
+   ========================================================================== */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.35s var(--cubic-66), visibility 0.35s;
+}
+
+.preloader.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none !important;
+  display: none !important;
+}
+
+.preloader-bar-wrap {
+  position: relative;
+  width: 140px;
+  height: 5px;
+  background-color: var(--label-4);
+  border-radius: 9999px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.preloader-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  background-color: var(--label-1);
+  border-radius: 9999px;
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   FIXED WEBGL BACKGROUND CANVAS & ATMOSPHERIC LIGHTING
+   ========================================================================== */
+.canvas-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none !important;
+  overflow: hidden;
+}
+
+.canvas-container.hs-in-front {
+  z-index: 25 !important;
+}
+
+.hero-atmosphere {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-color: #01061a;
+  background-image:
+    /* Layer 1: Core vibrant royal cobalt bloom centered behind 3D text */
+    radial-gradient(circle at 48% 52%, rgba(18, 64, 215, 0.95) 0%, rgba(12, 45, 175, 0.85) 30%, rgba(6, 26, 120, 0.70) 55%, rgba(2, 12, 65, 0.50) 75%, transparent 100%),
+    /* Layer 2: Radiant cyan ambient highlight */
+    radial-gradient(circle at 72% 38%, rgba(0, 157, 255, 0.35) 0%, rgba(30, 80, 220, 0.18) 40%, transparent 65%),
+    /* Layer 3: Perimeter vignette shadow */
+    radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(1, 6, 26, 0.85) 80%, #01061a 100%),
+    /* Layer 4: Deep royal cobalt base */
+    linear-gradient(180deg, #010820 0%, #05195e 25%, #0b329f 52%, #05195e 82%, #01061a 100%);
+  background-repeat: no-repeat;
+  transition: opacity 0.4s ease;
+}
+
+/* Dynamic Interactive Spotlight Layer (Follows mouse cursor) */
+.hero-atmosphere::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle 700px at var(--mouse-x, 48%) var(--mouse-y, 52%),
+    rgba(0, 157, 255, 0.28) 0%,
+    rgba(44, 85, 235, 0.16) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+}
+
+html.light .hero-atmosphere {
+  background-color: #f7f3ea;
+  background-image:
+    radial-gradient(circle at 45% 58%, rgba(255, 234, 214, 0.95) 0%, rgba(172, 255, 185, 0.35) 45%, transparent 70%),
+    radial-gradient(circle at 75% 35%, rgba(97, 150, 255, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(240, 235, 222, 0.8) 85%, #efeade 100%),
+    linear-gradient(180deg, #faf7ef 0%, #f6f0e2 40%, #efe7d5 80%, #FBFAF4 100%);
+}
+
+.footer-atmosphere {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 50%, #0d2870 0%, #061545 45%, #020718 100%);
+  transition: opacity 0.3s ease;
+}
+
+html.light .footer-atmosphere {
+  background: radial-gradient(circle at 50% 50%, #d8e5ff 0%, #bcd3ff 45%, #9abcf5 100%);
+}
+
+#webgl-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  z-index: 2;
+  pointer-events: none !important;
+}
+
+/* ==========================================================================
+   FIXED SYSTEM HEADER & FOOTER OVERLAY (Exact Haoqi Alignment)
+   ========================================================================== */
+.site-header {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  font-family: var(--font-mono-2);
+  color: var(--label-1);
+  padding: 1.5rem var(--site-margin);
+}
+
+.header-top, .header-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.header-brand {
+  pointer-events: auto;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 1.125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.6rem;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.dotted-box {
+  position: relative;
+  pointer-events: auto;
+}
+
+.dotted-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.5px dotted transparent;
+  pointer-events: none;
+  transition: border-color 0.2s ease;
+}
+
+.dotted-box:hover::before,
+.dotted-box:focus-visible::before {
+  border-color: var(--label-1);
+}
+
+.header-nav {
+  display: none;
+  align-items: center;
+  gap: 2.5rem;
+  pointer-events: auto;
+  font-size: 0.9375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+@media (min-width: 1024px) {
+  .header-nav {
+    display: flex;
+  }
+}
+
+.nav-item {
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.nav-item:hover {
+  color: #FFFFFF;
+}
+
+.theme-btn {
+  font-family: var(--font-mono-2);
+  font-weight: 600;
+}
+
+.pass-gate-trigger {
+  background: none;
+  border: none;
+  font-family: var(--font-mono-2);
+  font-weight: 600;
+  font-size: inherit;
+  color: inherit;
+}
+
+.header-time {
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  color: var(--label-2);
+  font-family: var(--font-mono);
+}
+
+.header-coords {
+  display: none;
+  position: fixed;
+  bottom: 1.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+  padding: 0.35rem 0.75rem;
+  pointer-events: auto;
+  color: var(--label-2);
+  font-family: var(--font-mono);
+}
+
+@media (min-width: 1024px) {
+  .header-coords {
+    display: inline-block;
+  }
+}
+
+/* Wireframe Globe Icon at Bottom Right */
+.header-globe-wrap {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  pointer-events: auto;
+}
+
+@media (min-width: 1024px) {
+  .header-globe-wrap {
+    display: flex;
+  }
+}
+
+.wireframe-globe {
+  width: 26px;
+  height: 26px;
+  stroke: var(--label-2);
+  stroke-width: 1.2;
+  fill: none;
+  animation: globeSpin 16s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes globeSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile Hamburger Menu */
+.mobile-menu-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+@media (min-width: 1024px) {
+  .mobile-menu-btn {
+    display: none;
+  }
+}
+
+.hamburger-line {
+  width: 24px;
+  height: 2px;
+  background-color: var(--label-1);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.mobile-nav-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--background-1);
+  background-image: var(--background-radial);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2.25rem;
+  font-family: var(--font-sans);
+  font-size: 2.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+}
+
+.mobile-nav-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   MAIN SCROLL CONTENT WRAPPER
+   ========================================================================== */
+.site-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  width: 100%;
+}
+
+/* ==========================================================================
+   HERO SECTION (Exact Haoqi Alignment, Transparent Canvas Passthrough)
+   ========================================================================== */
+.hero-section {
+  position: relative;
+  min-height: 100dvh;
+  width: 100%;
+  padding: 6.5rem var(--site-margin) 3.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  background: transparent !important;
+}
+
+@media (min-width: 1024px) {
+  .hero-section {
+    min-height: 100vh;
+    padding: 7rem var(--site-margin) 4.5rem;
+  }
+}
+
+/* 3-Column Meta Row */
+.hero-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.hero-col-left {
+  grid-column: span 12;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  color: var(--label-1);
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-section {
+    padding: 6.5rem 2rem 3rem;
+  }
+  .hero-col-left {
+    grid-column: span 4;
+    font-size: 1.85rem;
+  }
+  .hero-col-mid {
+    display: block !important;
+    grid-column: span 4 !important;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--label-2);
+  }
+  .hero-col-right {
+    grid-column: span 4 !important;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-section {
+    padding: 5.5rem 1.25rem 2rem;
+  }
+  .hero-col-left {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+  .hero-col-right {
+    font-size: 0.875rem;
+    line-height: 1.55;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-col-left {
+    grid-column: span 3;
+    font-size: 2.25rem;
+    line-height: 1.1;
+  }
+}
+
+.hero-col-mid {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-col-mid {
+    display: block;
+    grid-column: 5 / span 3;
+    font-family: var(--font-mono);
+    font-size: 1.0625rem;
+    line-height: 1.45;
+    color: var(--label-2);
+  }
+}
+
+.hero-col-right {
+  grid-column: span 12;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--label-2);
+  max-width: 540px;
+}
+
+@media (min-width: 1024px) {
+  .hero-col-right {
+    grid-column: 9 / span 4;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+/* Interactive Cursor Pointing Badge (In Hero Bio) */
+.cursor-pointer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  margin: 0.25rem 0;
+  border-radius: 4px;
+  background-color: rgba(37, 99, 235, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  font-family: var(--font-mono-2);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.cursor-pointer-badge:hover {
+  border-color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.25);
+}
+
+.badge-pointer-icon {
+  width: 13px;
+  height: 13px;
+  fill: #38bdf8;
+  display: inline-block;
+  transform: rotate(-35deg);
+  animation: cursorBob 2.4s ease-in-out infinite;
+}
+
+@keyframes cursorBob {
+  0%, 100% { transform: rotate(-35deg) translate(0, 0); }
+  50% { transform: rotate(-35deg) translate(2px, -3px); }
+}
+
+.badge-name-wrong {
+  color: #ff5252;
+  text-decoration: line-through;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.badge-name-correct {
+  color: #C0FE04;
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+
+/* Giant Bottom Headline — Content is First on Top of 3D Canvas */
+.hero-headline-wrap {
+  margin-top: auto;
+  padding-top: 3rem;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.hero-headline {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: clamp(2.6rem, 7.2vw, 7.6rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  color: #FFFFFF;
+  word-break: break-word;
+  user-select: text;
+}
+
+@media (max-width: 767px) {
+  .hero-headline-wrap {
+    padding-top: 1.5rem;
+  }
+  .hero-headline {
+    font-size: clamp(2.2rem, 9.2vw, 3.4rem);
+    line-height: 0.94;
+  }
+}
+
+/* ==========================================================================
+   PHILOSOPHY & SIGNATURE SECTION (Dark Deep Black)
+   ========================================================================== */
+/* ==========================================================================
+   PHILOSOPHY & SIGNATURE SECTION (Dark Deep Black, Exact Haoqi Reproduction)
+   ========================================================================== */
+.philosophy-section {
+  position: relative;
+  width: 100%;
+  padding: 5rem var(--site-margin) 6rem;
+  background-color: #000000 !important;
+  background-image: none !important;
+  z-index: 10;
+}
+
+html.light .philosophy-section {
+  background-color: #FBFAF4 !important;
+}
+
+.philosophy-section .grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 3rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .philosophy-section .grid-12 {
+    column-gap: 2.5rem;
+  }
+}
+
+.signature-col {
+  grid-column: span 12;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .signature-col {
+    grid-column: span 4;
+  }
+}
+
+@media (min-width: 1024px) {
+  .signature-col {
+    grid-column: span 3;
+  }
+}
+
+/* Portrait Photo & Calligraphy Signature (Exact Haoqi Reproduction) */
+.portrait-container {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  padding-top: 2rem;
+}
+
+/* Remove colliding vertical dot strip next to portrait */
+.portrait-container::after {
+  display: none !important;
+}
+
+.portrait-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #060910;
+  overflow: hidden;
+  display: block;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  z-index: 2;
+  transition: transform 0.4s var(--cubic-66), border-color 0.4s ease;
+}
+
+.portrait-frame:hover {
+  border-color: rgba(192, 254, 4, 0.4);
+  transform: translateY(-2px);
+}
+
+.portrait-frame img.portrait-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+}
+
+.portrait-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  color: var(--label-3);
+  text-align: center;
+  padding: 2rem 1.5rem;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.portrait-corner {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--label-3);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.portrait-corner.c-tl { top: 12px; left: 12px; }
+.portrait-corner.c-tr { top: 12px; right: 12px; }
+.portrait-corner.c-bl { bottom: 12px; left: 12px; }
+.portrait-corner.c-br { bottom: 12px; right: 12px; }
+
+.portrait-icon {
+  font-size: 3rem;
+  color: var(--label-2);
+  opacity: 0.85;
+}
+
+.portrait-hint {
+  font-family: var(--font-mono-2);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--label-1);
+}
+
+.portrait-subhint {
+  font-family: var(--font-mono-2);
+  font-size: 0.75rem;
+  color: var(--selection-bg);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Calligraphy SVG Signature Layer (Neon Lime #C0FE04) positioned above and overlapping top-left of photo */
+.svg-sign {
+  position: absolute;
+  top: -24px;
+  left: -20px;
+  width: 120%;
+  max-width: 380px;
+  height: auto;
+  pointer-events: none;
+  z-index: 25;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 12px rgba(192, 254, 4, 0.55));
+}
+
+.svg-sign__path {
+  stroke: #C0FE04;
+  stroke-width: 3.5;
+  fill: none !important;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 1 !important;
+  stroke-dashoffset: 0 !important;
+}
+
+.philosophy-text-col {
+  grid-column: span 12;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+@media (min-width: 640px) {
+  .philosophy-text-col {
+    grid-column: 6 / span 7;
+  }
+}
+
+@media (min-width: 1024px) {
+  .philosophy-text-col {
+    grid-column: 5 / span 8;
+  }
+}
+
+/* Giant Imposing Modernist Typography (Exact Haoqi Reproduction matching Image) */
+.manifesto-lead {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(1.65rem, 5vw, 2.5rem);
+  line-height: 1.12;
+  color: #FFFFFF;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  margin: 0;
+}
+
+.manifesto-sub {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(1.65rem, 5vw, 2.5rem);
+  line-height: 1.12;
+  color: rgba(255, 255, 255, 0.42);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .manifesto-lead {
+    font-size: 4.2svw;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+
+  .manifesto-sub {
+    font-size: 4.2svw;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+}
+
+.manifesto-sub a {
+  color: #FFFFFF;
+  text-decoration: underline;
+  text-decoration-thickness: 0.055em;
+  text-underline-offset: 0.14em;
+  text-decoration-color: rgba(255, 255, 255, 0.6);
+  transition: text-decoration-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.manifesto-sub a:hover {
+  text-decoration-color: #C0FE04;
+}
+
+/* Multi-Shade Chartreuse Accent Pixels (Exact Haoqi Reproduction: 10px pixels with 2px gap) */
+.portrait-accent-pixels {
+  position: absolute;
+  top: 36%;
+  right: -24px;
+  display: grid;
+  grid-template-columns: repeat(5, 10px);
+  grid-template-rows: repeat(8, 10px);
+  gap: 2px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.portrait-accent-pixels .pixel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 0;
+  box-shadow: 0 0 6px rgba(192, 254, 4, 0.25);
+}
+
+/* ==========================================================================
+   SELECTED WORK / PROJECTS (Exact Haoqi 12-Column Architectural Grid in Dark Deep Black)
+   ========================================================================== */
+.work-section {
+  position: relative;
+  width: 100%;
+  padding: 5rem var(--site-margin) 8rem;
+  background-color: #000000 !important;
+  background-image: none !important;
+  z-index: 10;
+}
+
+html.light .work-section {
+  background-color: #FBFAF4 !important;
+}
+
+.work-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 2.5rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--grid-line);
+  font-family: var(--font-mono-2);
+  font-size: 0.8125rem;
+  color: var(--label-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.work-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 0;
+  position: relative;
+}
+
+/* 12-Column Responsive Grid Classes (Matching Haoqi Architecture) */
+.col-span-12 { grid-column: span 12 / span 12; }
+.col-span-8  { grid-column: span 8 / span 8; }
+.col-span-6  { grid-column: span 6 / span 6; }
+.col-span-5  { grid-column: span 5 / span 5; }
+.col-span-4  { grid-column: span 4 / span 4; }
+.col-span-3  { grid-column: span 3 / span 3; }
+.col-start-1 { grid-column-start: 1; }
+.col-start-5 { grid-column-start: 5; }
+.col-start-6 { grid-column-start: 6; }
+.col-start-7 { grid-column-start: 7; }
+.col-start-9 { grid-column-start: 9; }
+.col-start-10{ grid-column-start: 10; }
+
+@media (min-width: 1024px) {
+  .lg\:col-span-8 { grid-column: span 8 / span 8 !important; }
+  .lg\:col-span-6 { grid-column: span 6 / span 6 !important; }
+  .lg\:col-span-4 { grid-column: span 4 / span 4 !important; }
+  .lg\:col-start-1 { grid-column-start: 1 !important; }
+  .lg\:col-start-5 { grid-column-start: 5 !important; }
+  .lg\:col-start-7 { grid-column-start: 7 !important; }
+  .lg\:col-start-9 { grid-column-start: 9 !important; }
+}
+
+@media (min-width: 1280px) {
+  .xl\:col-span-5 { grid-column: span 5 / span 5 !important; }
+  .xl\:col-span-4 { grid-column: span 4 / span 4 !important; }
+  .xl\:col-span-3 { grid-column: span 3 / span 3 !important; }
+  .xl\:col-start-1 { grid-column-start: 1 !important; }
+  .xl\:col-start-5 { grid-column-start: 5 !important; }
+  .xl\:col-start-6 { grid-column-start: 6 !important; }
+  .xl\:col-start-7 { grid-column-start: 7 !important; }
+  .xl\:col-start-9 { grid-column-start: 9 !important; }
+  .xl\:col-start-10{ grid-column-start: 10 !important; }
+}
+
+/* ==========================================================================
+   PROJECT CARDS — EXACT HAOQI BOX DESIGN
+   ========================================================================== */
+.project-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition: opacity 0.25s ease;
+}
+
+.project-card:focus-visible {
+  outline: 2px solid #C0FE04;
+  outline-offset: 4px;
+}
+
+/* ==========================================================================
+   PROJECT CARDS — HEADER ABOVE IMAGE (Title, Description, GitHub, Live)
+   ========================================================================== */
+.project-header-above {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+  width: 100%;
+}
+
+.project-title-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.project-title-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.project-title-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.project-header-above .project-title {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.35vw, 1.25rem);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--label-1);
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.1;
+  transition: color 0.2s ease;
+}
+
+.project-card:hover .project-header-above .project-title {
+  color: #C0FE04;
+}
+
+.project-header-above .project-year {
+  font-family: var(--font-mono-2);
+  font-size: 0.75rem;
+  color: var(--label-3);
+  letter-spacing: 0.04em;
+}
+
+.project-header-above .project-tag {
+  font-family: var(--font-mono-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.12rem 0.45rem;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--label-2);
+  border: 1px solid var(--line);
+}
+
+.project-header-above .project-desc {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--label-2);
+  margin: 0;
+}
+
+.project-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+  flex-wrap: wrap;
+}
+
+.project-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.7rem;
+  font-family: var(--font-mono-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  z-index: 5;
+  cursor: pointer;
+}
+
+.btn-github {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--label-2);
+  border: 1px solid var(--line);
+}
+
+.btn-github:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-live {
+  background: rgba(192, 254, 4, 0.08);
+  color: #C0FE04;
+  border: 1px solid rgba(192, 254, 4, 0.35);
+}
+
+.btn-live:hover {
+  background: #C0FE04;
+  color: #000000;
+  border-color: #C0FE04;
+  box-shadow: 0 0 14px rgba(192, 254, 4, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-live-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #C0FE04;
+  box-shadow: 0 0 6px #C0FE04;
+  animation: live-dot-pulse 1.5s infinite ease-in-out;
+}
+
+.btn-live:hover .btn-live-pulse {
+  background: #000000;
+  box-shadow: none;
+}
+
+@keyframes live-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.project-visual-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+}
+
+/* Card Visual Box (Fits perfectly between the grid lines, exact Haoqi match) */
+.project-visual-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background-color: #141414;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+html.light .project-visual-box {
+  background-color: #E3E1DC;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.aspect-hero {
+  aspect-ratio: 16 / 10 !important;
+}
+
+.aspect-square {
+  aspect-ratio: 1 / 1 !important;
+}
+
+.aspect-pair {
+  aspect-ratio: 16 / 10 !important;
+}
+
+.project-visual-box img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  display: block;
+  transition: transform 0.5s var(--cubic-66), filter 0.35s ease;
+  filter: contrast(105%) saturate(100%);
+}
+
+.project-card:hover .project-visual-box {
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+html.light .project-card:hover .project-visual-box {
+  border-color: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.project-card:hover .project-visual-box img {
+  transform: scale(1.04);
+  filter: contrast(110%) saturate(115%);
+}
+
+/* Iconic Neon Lime Category Badge (Top-Right Flush) */
+.project-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+  background-color: #C0FE04;
+  color: #000000;
+  font-family: var(--font-mono-2);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0;
+  line-height: 1.2;
+}
+
+/* Two-Level Meta Bar: Ticker + Title (Left), Year + Globe (Right) */
+.project-meta-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  gap: 1rem;
+  padding: 0 0.15rem;
+}
+
+.project-meta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.project-meta-kicker {
+  font-family: var(--font-mono-2);
+  font-size: 0.75rem;
+  color: var(--label-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--label-1);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.project-card:hover .project-title {
+  color: var(--selection-bg);
+}
+
+.project-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-mono-2);
+  font-size: 0.8125rem;
+  color: var(--label-2);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.project-year {
+  font-family: var(--font-mono-2);
+  font-size: 0.8125rem;
+  color: var(--label-2);
+  white-space: nowrap;
+}
+
+.project-tag-arrow {
+  color: var(--label-3);
+  font-family: var(--font-mono-2);
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  text-transform: lowercase;
+}
+
+/* Wireframe Globe Icon next to Year */
+.meta-globe-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--label-2);
+  opacity: 0.85;
+  transition: transform 0.6s var(--cubic-66), opacity 0.2s ease, color 0.2s ease;
+}
+
+.project-card:hover .meta-globe-icon {
+  transform: rotate(45deg);
+  opacity: 1;
+  color: var(--label-1);
+}
+
+/* Center Neon Lime Square Marker on Grid Line (Matching Haoqi screenshot) */
+.grid-center-lime-badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background-color: #C0FE04;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   PINNED MULTI-STAGE HYPERSPACE TRANSITION SECTION (650vh Track matching Haoqi)
+   Cursor Entrance -> Portal Formation -> Innovate With Purpose ->
+   Innovate With a Human Touch -> Manifesto & Cyber Rings -> Future-First Always
+   ========================================================================== */
+.hyperspace-scroll-track {
+  position: relative;
+  width: 100%;
+  height: 650vh;
+  z-index: 5;
+}
+
+.sticky-quote-section {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  overflow: hidden;
+  background: transparent;
+  z-index: 10;
+}
+
+/* LightTunnel Mount hidden - transition streaks now run strictly inside the 3D cursor mesh */
+.light-tunnel-mount {
+  display: none !important;
+}
+
+/* Hyperspace 12-Column Architectural Grid Overlay */
+.hyperspace-grid-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 0 var(--site-margin);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hyperspace-grid-col {
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  height: 100%;
+}
+
+.hyperspace-grid-col:first-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+html.light .hyperspace-grid-col {
+  border-right-color: rgba(0, 0, 0, 0.04);
+}
+
+html.light .hyperspace-grid-col:first-child {
+  border-left-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Stages Container */
+.hs-stages-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Individual Stages */
+.hs-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  pointer-events: none;
+}
+
+.hs-stage.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Giant Typography for Stages (0A, 0B, End) */
+.hs-giant-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: clamp(3.2rem, 7.8vw, 8.5rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  color: var(--label-1);
+  text-shadow: 0 0 40px rgba(0, 0, 0, 0.85), 0 0 80px rgba(0, 157, 255, 0.35);
+  text-align: center;
+  user-select: none;
+}
+
+.hs-line {
+  display: block;
+  white-space: nowrap;
+}
+
+/* Staggered Characters (Exact Haoqi Reproduction) */
+.hsst-char {
+  display: inline-block;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.hs-stage.is-active .hsst-char {
+  animation: hsstFadeIn 0.24s linear forwards;
+  animation-delay: calc(var(--char-idx, 0) * 0.022s);
+}
+
+.hs-stage.is-leaving .hsst-char {
+  animation: hsstFadeOut 0.22s linear forwards;
+  animation-delay: calc(var(--char-idx, 0) * 0.018s);
+}
+
+@keyframes hsstFadeIn {
+  0% { opacity: 0; transform: translateY(4px); }
+  32% { opacity: 0.22; }
+  62% { opacity: 0.55; }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hsstFadeOut {
+  0% { opacity: 1; transform: translateY(0); }
+  38% { opacity: 0.62; }
+  72% { opacity: 0.28; }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+
+/* Stage 1: Central Concentric Cyber Rings + 4 Manifesto Statements */
+.hs-stage-manifesto {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+  padding: 4.5rem var(--site-margin);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Central Cyber Rings (c7 Exact Haoqi size 344x344) */
+.hs-portal-rings-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 344px;
+  height: 344px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hs-portal-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 18px rgba(192, 254, 4, 0.55));
+}
+
+.portal-ring {
+  fill: none;
+  stroke: #C0FE04;
+  stroke-width: 2.2;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 10px rgba(192, 254, 4, 0.8));
+}
+
+
+/* 4 Manifesto Items in 12-col 6-row Grid (Exact Haoqi Placement - Perfectly Spaced) */
+.hs-manifesto-grid {
+  display: contents;
+}
+
+.hs-manifesto-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.5rem;
+  z-index: 5;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.35s ease, transform 0.35s var(--cubic-66);
+}
+
+.hs-manifesto-item.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hs-item-title {
+  font-family: var(--font-sans);
+  font-size: clamp(1.4rem, 2.05vw, 2.1rem);
+  font-weight: 500;
+  line-height: 1.22;
+  letter-spacing: -0.025em;
+  color: #FFFFFF;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.95), 0 0 30px rgba(0, 0, 0, 0.9);
+}
+
+/* Exact Haoqi Placement: Each item has its own dedicated row and column span */
+/* 1. Building tomorrow's digital products */
+.hs-manifesto-item.item-1 {
+  grid-column: 7 / span 4;
+  grid-row: 2;
+  text-align: left;
+}
+
+/* 2. Independent by design & engineering */
+.hs-manifesto-item.item-2 {
+  grid-column: 9 / span 4;
+  grid-row: 3;
+  text-align: left;
+}
+
+/* 3. Clarity first. Delight second */
+.hs-manifesto-item.item-3 {
+  grid-column: 2 / span 4;
+  grid-row: 4;
+  text-align: left;
+}
+
+/* 4. Ship in small loops. Aim for long arcs */
+.hs-manifesto-item.item-4 {
+  grid-column: 4 / span 4;
+  grid-row: 5;
+  text-align: left;
+}
+
+@media (max-width: 1023px) {
+  .hs-manifesto-item.item-1 { grid-column: 1 / span 8; grid-row: 2; }
+  .hs-manifesto-item.item-2 { grid-column: 5 / span 8; grid-row: 3; }
+  .hs-manifesto-item.item-3 { grid-column: 1 / span 8; grid-row: 4; }
+  .hs-manifesto-item.item-4 { grid-column: 5 / span 8; grid-row: 5; }
+  .hs-item-title { font-size: clamp(1.2rem, 5.2vw, 1.8rem); }
+}
+
+/* Scroll Travel Hint */
+.hyperspace-scroll-hint {
+  position: absolute;
+  bottom: 2.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono-2);
+  font-size: 0.75rem;
+  color: var(--label-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.hyperspace-scroll-hint .hint-brackets {
+  color: var(--selection-bg);
+}
+
+/* ==========================================================================
+   FOOTER SECTION (Exact Matching Royal Cobalt Light & Shadow Atmosphere)
+   ========================================================================== */
+.footer-section {
+  position: relative;
+  min-height: 100dvh;
+  width: 100%;
+  padding: 5rem var(--site-margin) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-top: 1px solid var(--grid-line);
+  overflow: hidden;
+  background-color: #00000d;
+  background-image:
+    /* Layer 1: Core vibrant royal cobalt bloom centered behind the giant CTA headline */
+    radial-gradient(circle at 50% 48%, rgba(44, 75, 213, 0.84) 0%, rgba(26, 52, 185, 0.58) 30%, rgba(10, 32, 120, 0.35) 55%, transparent 75%),
+    /* Layer 2: Radiant cyan ambient highlight */
+    radial-gradient(circle at 76% 32%, rgba(0, 157, 255, 0.30) 0%, rgba(44, 75, 213, 0.15) 40%, transparent 65%),
+    /* Layer 3: Perimeter vignette shadow */
+    radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(0, 0, 13, 0.82) 76%, #00000d 100%),
+    /* Layer 4: Linear gradient emerging from #000000 at top and deepening at bottom */
+    linear-gradient(180deg, #000000 0%, #030c2a 20%, #0d277d 58%, #051445 88%, #010410 100%);
+  background-repeat: no-repeat;
+}
+
+.footer-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle 650px at var(--mouse-x, 50%) var(--mouse-y, 45%),
+    rgba(0, 157, 255, 0.16) 0%,
+    rgba(44, 75, 213, 0.08) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+}
+
+html.light .footer-section {
+  background-color: #f7f3ea;
+  background-image:
+    radial-gradient(circle at 50% 45%, rgba(255, 234, 214, 0.95) 0%, rgba(172, 255, 185, 0.32) 45%, transparent 72%),
+    radial-gradient(circle at 78% 30%, rgba(97, 150, 255, 0.20) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(240, 235, 222, 0.8) 85%, #efeade 100%),
+    linear-gradient(180deg, #FBFAF4 0%, #f6f0e2 25%, #efe7d5 70%, #eae1cc 100%);
+}
+
+@media (min-width: 1024px) {
+  .footer-section {
+    min-height: 100vh;
+    padding: 7rem var(--site-margin) 3rem;
+  }
+}
+
+.footer-heading-grid {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  row-gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: clamp(2.6rem, 7.2vw, 7.2rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: -0.035em;
+  color: var(--label-1);
+}
+
+.footer-line-1 {
+  grid-column: span 12;
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer-line-2 {
+  grid-column: span 12;
+  text-align: left;
+}
+
+.footer-line-3 {
+  grid-column: span 12;
+  text-align: right;
+}
+
+/* Hero Floating Die-Cut Stickers (Exact Haoqi Reproduction) */
+.hero-sticker-badge {
+  position: absolute;
+  left: 21%;
+  top: 57%;
+  width: clamp(75px, 7vw, 110px);
+  z-index: 8;
+  pointer-events: auto;
+  user-select: none;
+  cursor: grab;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+  transition: transform 0.35s var(--cubic-66);
+  transform: rotate(8deg);
+  animation: stickerFloat1 6.5s ease-in-out infinite;
+}
+
+.hero-sticker-badge:hover {
+  transform: scale(1.1) rotate(12deg) !important;
+}
+
+.hero-sticker-pen {
+  position: absolute;
+  right: 14%;
+  top: 45%;
+  width: clamp(75px, 7vw, 110px);
+  z-index: 15;
+  pointer-events: auto;
+  user-select: none;
+  cursor: grab;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+  transition: transform 0.35s var(--cubic-66);
+  transform: rotate(-24deg);
+  animation: stickerFloat2 7s ease-in-out infinite;
+}
+
+.hero-sticker-pen:hover {
+  transform: scale(1.1) rotate(-16deg) !important;
+}
+
+.hero-sticker-star {
+  position: absolute;
+  right: 18%;
+  top: 61%;
+  width: clamp(75px, 7vw, 110px);
+  z-index: 15;
+  pointer-events: auto;
+  user-select: none;
+  cursor: grab;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+  transition: transform 0.35s var(--cubic-66);
+  transform: rotate(14deg);
+  animation: stickerFloat3 7.5s ease-in-out infinite;
+}
+
+.hero-sticker-star:hover {
+  transform: scale(1.1) rotate(20deg) !important;
+}
+
+.hero-sticker-badge img,
+.hero-sticker-pen img,
+.hero-sticker-star img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+}
+
+/* Footer Floating Die-Cut Stickers (Image 3) */
+.footer-sticker-bolt {
+  position: absolute;
+  top: 14%;
+  left: 42%;
+  transform: translateX(-50%);
+  width: clamp(55px, 5.5vw, 85px);
+  z-index: 12;
+  pointer-events: none;
+  animation: stickerFloat2 5.5s ease-in-out infinite;
+}
+
+.footer-sticker-orb {
+  position: absolute;
+  top: 48%;
+  left: 48%;
+  transform: translate(-50%, -50%);
+  width: clamp(65px, 6.5vw, 100px);
+  z-index: 12;
+  pointer-events: none;
+  animation: stickerFloat1 6.5s ease-in-out infinite;
+}
+
+.footer-sticker-moon {
+  position: absolute;
+  top: 40%;
+  right: 15%;
+  width: clamp(60px, 6vw, 90px);
+  z-index: 12;
+  pointer-events: none;
+  animation: stickerFloat3 7.5s ease-in-out infinite;
+}
+
+@keyframes stickerFloat1 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-3deg); }
+}
+
+@keyframes stickerFloat2 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(4deg); }
+}
+
+@keyframes stickerFloat3 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(-4deg); }
+}
+
+.footer-bottom-bar {
+  position: relative;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: var(--font-mono-2);
+  font-size: 0.9375rem;
+  margin-top: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .footer-bottom-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.footer-meta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.footer-copy-tag {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  color: var(--label-2);
+}
+
+.footer-email-link {
+  font-size: 1.125rem;
+  color: var(--label-1);
+  padding: 0.4rem 0.6rem;
+}
+
+.footer-social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.footer-social-link {
+  padding: 0.4rem 0.6rem;
+  text-transform: uppercase;
+  color: var(--label-2);
+  transition: color 0.2s ease;
+}
+
+.footer-social-link:hover {
+  color: var(--label-1);
+}
+
+/* ==========================================================================
+   INTERACTIVE CUSTOM CURSOR EFFECT (Exact Modernist Design)
+   ========================================================================== */
+.custom-cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background-color: #C0FE04;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease, transform 0.15s ease, background-color 0.25s ease;
+  opacity: 0;
+}
+
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid rgba(192, 254, 4, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.28s var(--cubic-66), height 0.28s var(--cubic-66), border-color 0.25s ease, background-color 0.25s ease, opacity 0.2s ease;
+  opacity: 0;
+}
+
+.custom-cursor-ring.is-hovering {
+  width: 62px;
+  height: 62px;
+  border-color: #C0FE04;
+  background-color: rgba(192, 254, 4, 0.08);
+  backdrop-filter: blur(2px);
+}
+
+.custom-cursor-ring.is-clicking {
+  transform: translate(-50%, -50%) scale(0.85);
+}
+
+html.light .custom-cursor-dot {
+  background-color: #0066FF;
+}
+
+html.light .custom-cursor-ring {
+  border-color: rgba(0, 102, 255, 0.45);
+}
+
+html.light .custom-cursor-ring.is-hovering {
+  border-color: #0066FF;
+  background-color: rgba(0, 102, 255, 0.08);
+}
+
+/* ==========================================================================
+   ACCESSIBILITY & REDUCED MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Responsive Alignment matching haoqi.design exactly */
+@media (max-width: 767px) {
+  .hero-section {
+    min-height: 100svh;
+    padding: 5.5rem 1.25rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .hero-meta-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    order: 1;
+  }
+  .hero-col-left {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    display: block;
+  }
+  .hero-col-mid {
+    display: none;
+  }
+  .hero-col-right {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--label-2);
+  }
+  .hero-headline-wrap {
+    order: 2;
+    margin-top: auto;
+    padding-top: 2rem;
+  }
+  .hero-headline {
+    font-size: clamp(2.4rem, 11vw, 3.8rem);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+  }
+  .work-section { padding: 4.5rem 1.25rem 5rem; }
+  .work-grid { display: grid; grid-template-columns: 1fr; row-gap: 2.5rem; perspective: 1200px; }
+  .work-grid .project-card { grid-column: 1 / -1; }
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    min-height: 100vh;
+    padding: 7rem 3.5rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .hero-meta-grid {
+    order: 1;
+    margin-top: 0;
+  }
+  .hero-headline-wrap {
+    order: 2;
+    margin-top: auto;
+  }
+  .hero-headline {
+    font-size: clamp(3.5rem, 6.8vw, 7.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+  }
+}
+
+.cursor-pointer-badge { cursor: default; }
+.badge-name-correct { color: #fff; }
+.custom-cursor-dot { background: #f0f4ff; mix-blend-mode: difference; }
+.custom-cursor-ring { border-color: rgba(183, 203, 255, .45); mix-blend-mode: difference; }
+.custom-cursor-ring.is-hovering { border-color: #fff; background: rgba(255,255,255,.08); }
+
+/* ==========================================================================
+   FOOTER / CONTACT SECTION (Exact Haoqi Reproduction with 3D Inflatable Mesh)
+   ========================================================================== */
+.footer-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 6rem var(--site-margin) 4rem;
+  overflow: hidden;
+  background: transparent !important;
+  color: #FFFFFF;
+  z-index: 10;
+}
+
+html.light .footer-section {
+  background: transparent !important;
+  color: #000000;
+}
+
+/* Floating Die-Cut Stickers */
+.footer-sticker {
+  position: absolute;
+  pointer-events: auto;
+  user-select: none;
+  z-index: 15;
+  transition: transform 0.35s var(--cubic-66);
+  cursor: grab;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.45));
+}
+
+.footer-sticker:hover {
+  transform: scale(1.1) rotate(6deg) !important;
+}
+
+.footer-sticker.sticker-smiley-top {
+  top: 18%;
+  right: 28%;
+  transform: rotate(14deg);
+}
+
+.footer-sticker.sticker-smiley-bottom {
+  bottom: -40px;
+  left: calc(var(--site-margin) + 20px);
+  transform: rotate(-10deg);
+}
+
+.footer-sticker.sticker-pointer-bottom {
+  bottom: 50px;
+  left: 58%;
+  transform: rotate(18deg);
+}
+
+/* Typography Grid (LET'S CREATE SOMETHING EXTRAORDINARY) */
+.footer-heading-grid {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.footer-row-1,
+.footer-row-2,
+.footer-row-3 {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 0;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: clamp(3.2rem, 6.2vw, 7.2rem);
+  text-transform: uppercase;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.footer-row-1 .footer-word-left {
+  grid-column: 2 / span 4;
+  text-align: left;
+  pointer-events: auto;
+}
+
+.footer-row-1 .footer-word-right {
+  grid-column: 8 / span 4;
+  text-align: right;
+  pointer-events: auto;
+}
+
+.footer-row-2 .footer-word-left {
+  grid-column: 2 / span 10;
+  text-align: left;
+  pointer-events: auto;
+}
+
+.footer-row-3 .footer-word-right {
+  grid-column: 3 / span 9;
+  text-align: right;
+  pointer-events: auto;
+}
+
+@media (max-width: 1023px) {
+  .footer-row-1,
+  .footer-row-2,
+  .footer-row-3 {
+    font-size: clamp(2.4rem, 9.5vw, 4.2rem);
+  }
+  .footer-row-1 .footer-word-left { grid-column: 1 / span 6; }
+  .footer-row-1 .footer-word-right { grid-column: 7 / span 6; text-align: right; }
+  .footer-row-2 .footer-word-left { grid-column: 1 / span 12; }
+  .footer-row-3 .footer-word-right { grid-column: 1 / span 12; text-align: right; }
+}
+
+/* Footer Bottom Bar */
+.footer-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2.2rem var(--site-margin);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: var(--font-mono-2);
+  font-size: 0.8125rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.footer-meta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  pointer-events: auto;
+}
+
+.footer-email-link {
+  color: inherit;
+  text-decoration: none;
+  font-family: var(--font-mono-2);
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.footer-copy-tag {
+  color: var(--label-2);
+  font-size: 0.75rem;
+}
+
+.footer-coords-display {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 2.2rem;
+  font-family: var(--font-mono-2);
+  color: var(--label-2);
+  user-select: none;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+}
+
+.site-header .header-bottom {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.site-header.in-footer .header-bottom {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.footer-social-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  pointer-events: auto;
+}
+
+.footer-social-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-social-link:hover,
+.footer-email-link:hover {
+  color: #C0FE04;
+}
+
+.footer-wire-globe {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  opacity: 0.85;
+  animation: rtSpin 14s linear infinite;
+  display: inline-block;
+}
+
+@keyframes rtSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

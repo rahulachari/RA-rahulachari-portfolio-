@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" width="160" height="200">
+  <defs>
+    <filter id="bolt-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <linearGradient id="bolt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- White die-cut border -->
+  <path d="M 95 10 L 35 105 L 80 105 L 65 190 L 135 85 L 90 85 Z" 
+        fill="#FFFFFF" filter="url(#bolt-shadow)"/>
+  
+  <!-- Colored inner bolt -->
+  <path d="M 94 20 L 46 100 L 82 100 L 73 172 L 124 90 L 88 90 Z" 
+        fill="url(#bolt-grad)"/>
+</svg>

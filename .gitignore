@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing and Scratch
+scratch/
+*.log
+.tempmediaStorage/
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Intermediate / reverse-engineering extraction artifacts
+chunk_*.js
+turbopack.js
+haoqi-raw.html
+haoqi.css
+analyze-haoqi.js
+find-chunks.js
+download-chunks.js
+extract-transition.js
+inspect-haoqi-colors.js
+parse-haoqi.js
+build-signature.js
+signature-snippet.html
+restored_index.html

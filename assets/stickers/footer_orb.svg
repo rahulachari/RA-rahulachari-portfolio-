@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <filter id="orb-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <radialGradient id="iridescent-sphere" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#fef08a"/>
+      <stop offset="45%" stop-color="#f472b6"/>
+      <stop offset="70%" stop-color="#38bdf8"/>
+      <stop offset="90%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outer die-cut border -->
+  <circle cx="80" cy="80" r="70" fill="#FFFFFF" filter="url(#orb-shadow)"/>
+  <circle cx="80" cy="80" r="64" fill="url(#iridescent-sphere)"/>
+
+  <!-- Specular glint highlight -->
+  <ellipse cx="60" cy="50" rx="16" ry="10" transform="rotate(-30 60 50)" fill="#ffffff" opacity="0.6"/>
+</svg>

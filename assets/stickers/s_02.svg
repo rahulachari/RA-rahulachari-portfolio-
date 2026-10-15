@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000000" flood-opacity="0.5"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+    <radialGradient id="gloss" cx="40%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Die-Cut Vinyl Outer Border with Drop Shadow -->
+  <rect x="24" y="24" width="464" height="464" rx="96" fill="#FFFFFF" filter="url(#shadow)"/>
+  
+  <!-- Inner Badge Container -->
+  <rect x="36" y="36" width="440" height="440" rx="84" fill="#0f172a" stroke="#c0fe04" stroke-width="8"/>
+  <rect x="36" y="36" width="440" height="440" rx="84" fill="url(#gloss)"/>
+
+  <!-- Top Accent Tag -->
+  <rect x="80" y="56" width="352" height="32" rx="16" fill="#c0fe04" fill-opacity="0.2"/>
+  <text x="256" y="78" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="14" font-weight="700" fill="#c0fe04" letter-spacing="3" text-anchor="middle">RAHUL ACHARI // STACK 2026</text>
+
+  <!-- Central Graphic Icon -->
+  <g transform="translate(0, 0)">
+    <circle cx="256" cy="256" r="88" fill="none" stroke="#c0fe04" stroke-width="12" stroke-dasharray="8 8"/>
+           <circle cx="256" cy="256" r="44" fill="#c0fe04"/>
+           <path d="M168 256h-50M394 256h-50M256 168v-50M256 394v-50M194 194l-36-36M318 318l36 36M194 318l-36 36M318 194l36-36" stroke="#c0fe04" stroke-width="10" stroke-linecap="round"/>
+           <circle cx="106" cy="256" r="14" fill="#ffffff"/>
+           <circle cx="406" cy="256" r="14" fill="#ffffff"/>
+           <circle cx="256" cy="106" r="14" fill="#ffffff"/>
+           <circle cx="256" cy="406" r="14" fill="#ffffff"/>
+  </g>
+
+  <!-- Title & Subtitle Badge -->
+  <rect x="64" y="396" width="384" height="60" rx="16" fill="#090a0f" fill-opacity="0.8" stroke="#c0fe04" stroke-width="2"/>
+  <text x="256" y="424" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="22" font-weight="800" fill="#FFFFFF" letter-spacing="1.5" text-anchor="middle">NEURAL NET</text>
+  <text x="256" y="444" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600" fill="#c0fe04" letter-spacing="2" text-anchor="middle">GRADIENT BOOSTING</text>
+
+  <!-- Vintage Vinyl Stamp Ring -->
+  <circle cx="430" cy="80" r="24" fill="#c0fe04"/>
+  <text x="430" y="86" font-family="monospace" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">#02</text>
+</svg>
