@@ -408,55 +408,55 @@ import createLightTunnel from './LightTunnel.js';
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
 
-  // Studio Lighting (Vibrant Deep Royal Cobalt & Crisp Highlights)
-  const ambientLight = new THREE.AmbientLight(0x1d4ed8, 1.2);
+  // Studio Lighting (Vibrant Deep Royal Cobalt & Crisp Highlights Matching Haoqi Screenshot 2)
+  const ambientLight = new THREE.AmbientLight(0x1e40af, 1.6);
   scene.add(ambientLight);
 
-  const keyLight = new THREE.DirectionalLight(0xffffff, 4.0);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 4.6);
   keyLight.position.set(6, 14, 12);
   scene.add(keyLight);
 
-  const rimLight = new THREE.DirectionalLight(0x60a5fa, 4.5);
+  const rimLight = new THREE.DirectionalLight(0x60a5fa, 4.8);
   rimLight.position.set(-8, -6, -4);
   scene.add(rimLight);
 
-  const fillLight = new THREE.DirectionalLight(0x1e40af, 2.5);
+  const fillLight = new THREE.DirectionalLight(0x2563eb, 2.5);
   fillLight.position.set(0, -10, 8);
   scene.add(fillLight);
 
-  // Dynamic interactive caustic light following mouse
-  const rahulPointLight = new THREE.PointLight(0x60a5fa, 5.0, 35);
+  // Dynamic interactive caustic light following mouse (Glistening electric cyan-blue sheen)
+  const rahulPointLight = new THREE.PointLight(0x93c5fd, 5.0, 35);
   rahulPointLight.position.set(0, 2, 6);
   scene.add(rahulPointLight);
 
-  // Liquid Royal Cobalt Material with Physical Glass Transmission & Chrome Specular Sheen
+  // Exact Haoqi Inflatable Glossy Royal Cobalt Blue Balloon Material (Screenshot 2)
   function createLiquidCobaltMaterial() {
     const isDark = state.theme === 'dark';
     return new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color(isDark ? '#0d42d4' : '#0048ba'),
-      emissive: new THREE.Color(isDark ? '#020d36' : '#001133'),
+      color: new THREE.Color(isDark ? '#255df4' : '#1d4ed8'),
+      emissive: new THREE.Color(isDark ? '#0b2066' : '#051133'),
       roughness: 0.08,
-      metalness: 0.12,
+      metalness: 0.10,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
-      transmission: 0.28,
-      ior: 1.48,
+      clearcoatRoughness: 0.03,
+      transmission: 0.0,
+      ior: 1.52,
       reflectivity: 0.98,
       side: THREE.DoubleSide
     });
   }
 
-  // Exact Haoqi Chromatic Blue Ceramic / Refractive Glass Material for Cursor & Footer
-  function createCobaltGlossMaterial(baseColorHex = '#0d42d4') {
+  // Exact Haoqi Chromatic Blue Ceramic Material for Cursor & Footer (Screenshot 2)
+  function createCobaltGlossMaterial(baseColorHex = '#2b5cff') {
     const isDark = state.theme === 'dark';
     return new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
-        uBaseColor: { value: new THREE.Color(isDark ? '#0d42d4' : '#0048ba') },
-        uDeepColor: { value: new THREE.Color(isDark ? '#020d36' : '#0a1020') },
-        uFresnelColor: { value: new THREE.Color(isDark ? '#60a5fa' : '#38bdf8') },
+        uBaseColor: { value: new THREE.Color(isDark ? '#2b5cff' : '#1d4ed8') },
+        uDeepColor: { value: new THREE.Color(isDark ? '#0f2b8a' : '#081640') },
+        uFresnelColor: { value: new THREE.Color(isDark ? '#93c5fd' : '#60a5fa') },
         uLightPos: { value: new THREE.Vector3(6, 14, 12) },
-        uFresnelPower: { value: 2.2 }
+        uFresnelPower: { value: 1.8 }
       },
       vertexShader: `
         varying vec3 vNormal;
@@ -783,7 +783,7 @@ import createLightTunnel from './LightTunnel.js';
     const dist = Math.max(camera.position.z - 0.2, 1.0);
     const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
     const vW = vH * camera.aspect;
-    const targetWidth = isMobile ? Math.min(vW * 0.82, 6.8) : (isTablet ? 16.0 : 23.5);
+    const targetWidth = isMobile ? Math.min(vW * 0.82, 6.8) : (isTablet ? 15.0 : 21.0);
     const baseScale = targetWidth / Math.max(boxSize.x, 1);
 
     rahul3DMesh.userData.baseScale = baseScale;
@@ -801,19 +801,19 @@ import createLightTunnel from './LightTunnel.js';
   gltfLoader.load('model/cursor.glb', (gltf) => {
     const isMobile = window.innerWidth < 768;
 
-    // 1. Hero Banner Cursor
+    // 1. Hero Banner Cursor (Positioned beside 'Achari' with clear breathing space)
     cursor3DMesh = gltf.scene;
-    cursor3DMesh.scale.set(0.11, 0.11, 0.11);
+    cursor3DMesh.scale.set(0.14, 0.14, 0.14);
     cursor3DMesh.rotation.set(
       THREE.MathUtils.degToRad(-10),
-      THREE.MathUtils.degToRad(15),
-      THREE.MathUtils.degToRad(45)
+      THREE.MathUtils.degToRad(14),
+      THREE.MathUtils.degToRad(-18)
     );
-    cursor3DMesh.position.set(isMobile ? 5.5 : 11.4, isMobile ? -3.0 : -4.2, 1.2);
+    cursor3DMesh.position.set(isMobile ? 5.0 : 13.2, isMobile ? -0.5 : -0.5, 1.2);
 
     cursor3DMesh.traverse((child) => {
       if (child.isMesh) {
-        child.material = createCobaltGlossMaterial('#0d42d4');
+        child.material = createCobaltGlossMaterial('#2b5cff');
       }
     });
     scene.add(cursor3DMesh);
@@ -1040,6 +1040,20 @@ import createLightTunnel from './LightTunnel.js';
     }
   }
 
+  // Footer Back to Top Pixel Pointer Handler (Pointing Up to EXTRAORDINARY -> Returns to Hero)
+  const footerBackToTop = document.getElementById('footer-back-to-top');
+  if (footerBackToTop) {
+    footerBackToTop.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (lenisInstance) {
+        lenisInstance.scrollTo(0, { duration: 1.6 });
+      } else {
+        const heroEl = document.getElementById('hero') || document.body;
+        heroEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
   // Initialize Full-Screen WebGL2 LightTunnel Shader
   const lightTunnelMount = document.getElementById('light-tunnel-mount');
   if (lightTunnelMount) {
@@ -1212,22 +1226,24 @@ import createLightTunnel from './LightTunnel.js';
       rahul3DMesh.visible = textFade > 0.01;
     }
 
-    // 2. 3D Cursor Mesh Floating & 720-Degree Scroll Exit Transition
+    // 2. 3D Cursor Mesh Floating & 720-Degree Scroll Exit Transition (Exact Haoqi Screenshot 2)
     if (cursor3DMesh) {
       // Exact Haoqi floating motion: 0.18 * sin(1.2 * t) + 0.06 * sin(0.6 * t)
       const floatOffset = 0.18 * Math.sin(1.2 * elapsedTime) + 0.06 * Math.sin(0.6 * elapsedTime);
 
-      // Mouse interactive tilt: reacts when pointer moves
-      cursor3DMesh.rotation.z = THREE.MathUtils.degToRad(45) + state.mouse.x * 0.2;
-      cursor3DMesh.rotation.x = -state.mouse.y * 0.25;
+      // Mouse interactive tilt: reacts when pointer moves (pointed crossly towards Rahul Achari name)
+      cursor3DMesh.rotation.z = THREE.MathUtils.degToRad(-18) + state.mouse.x * 0.12;
+      cursor3DMesh.rotation.x = THREE.MathUtils.degToRad(-10) - state.mouse.y * 0.15;
+      cursor3DMesh.rotation.y = THREE.MathUtils.degToRad(14);
 
       const bannerProgress = Math.min(Math.max(state.scrollY / 700, 0), 1);
       // 720-degree spin on scroll out (afterRotation: [0, 720, 0])
-      cursor3DMesh.rotation.y = THREE.MathUtils.degToRad(720) * bannerProgress;
-      cursor3DMesh.position.y = (-4.2 + floatOffset) + (state.scrollY * 0.014 * 0.72);
+      cursor3DMesh.rotation.y += THREE.MathUtils.degToRad(720) * bannerProgress;
+      cursor3DMesh.position.x = isMobile ? 5.0 : 13.2;
+      cursor3DMesh.position.y = (-0.5 + floatOffset) + (state.scrollY * 0.014 * 0.72);
 
       const cursorFade = Math.max(0, 1 - bannerProgress * 1.4);
-      cursor3DMesh.scale.set(0.11 * cursorFade, 0.11 * cursorFade, 0.11 * cursorFade);
+      cursor3DMesh.scale.set(0.14 * cursorFade, 0.14 * cursorFade, 0.14 * cursorFade);
       cursor3DMesh.visible = cursorFade > 0.01;
     }
 
@@ -1245,7 +1261,6 @@ import createLightTunnel from './LightTunnel.js';
         const stageSecondary = document.getElementById('hs-stage-secondary');
         const stageManifesto = document.getElementById('hs-stage-manifesto');
         const stageFuture = document.getElementById('hs-stage-future');
-        const hint = document.getElementById('hyperspace-hint');
 
         // --- 3D CURSOR HYPERSPACE TRANSITION (EXACT HAOQI ZOOM & FULLSCREEN EXPANSION) ---
         if (transitionCursorGroup && transitionCursorMaterial) {
@@ -1315,8 +1330,8 @@ import createLightTunnel from './LightTunnel.js';
             const reveal = THREE.MathUtils.smoothstep(scrollT, 0.20, 0.75);
             transitionCursorMaterial.uniforms.uStripeReveal.value = reveal;
 
-            const scrollDrivenTime = Math.max(0, screenH - rect.top) * 0.0035;
-            transitionCursorMaterial.uniforms.iTime.value = scrollDrivenTime + elapsedTime * 0.12;
+            const scrollDrivenTime = Math.max(0, screenH - rect.top) * 0.0018;
+            transitionCursorMaterial.uniforms.iTime.value = scrollDrivenTime;
 
             transitionCursorMaterial.uniforms.iResolution.value.set(
               window.innerWidth * Math.min(window.devicePixelRatio, 2),
@@ -1446,10 +1461,6 @@ import createLightTunnel from './LightTunnel.js';
           items.forEach(it => it.classList.remove('is-visible'));
         }
 
-        // Scroll Travel Hint
-        if (hint) {
-          hint.style.opacity = progress > 0.02 && progress < 0.88 ? '1' : '0';
-        }
 
         // Smooth footer transition unlock
         const exitFade = rect.bottom < window.innerHeight ? Math.max(0, rect.bottom / (window.innerHeight * 0.45)) : 1.0;

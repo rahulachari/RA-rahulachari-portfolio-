@@ -50,11 +50,11 @@ vec3 sampleHyperspace(vec2 fragCoord) {
   vec2 u = (fragCoord * 2.0 - R) / baseScale;
 
   float dur = 1.0;
-  // Strictly scroll-driven: rays move when scrolling, freeze when scrolling stops!
-  float time = uScrollProgress * 18.0 + uTime;
-  float t = clamp(0.20 + uScrollProgress * 0.80, 0.0, 1.0);
+  // Strictly scroll-driven: rays advance smoothly when scrolling, freeze when scrolling stops
+  float time = uScrollProgress * 3.5 + uTime;
+  float t = clamp(0.18 + uScrollProgress * 0.82, 0.0, 1.0);
 
-  const float cellDensity = 100.0;
+  const float cellDensity = 96.0;
   vec2 polar = vec2(atan(u.y, u.x) / 3.0, length(u));
   float angleCoord = (6.0 - polar.x) * cellDensity;
   float angleId = floor(angleCoord) + 0.5;
@@ -63,9 +63,10 @@ vec3 sampleHyperspace(vec2 fragCoord) {
   vec2 q = vec2(angleId, radialCoord);
 
   float travel = smoothstep(0.0, 1.0, t);
-  float keepProbability = mix(0.25, 1.0, travel);
-  float scrollSpeed = mix(0.9, 3.8, travel) + abs(uScrollVelocity) * 0.06;
-  float trailLength = mix(2.6, 0.98, travel);
+  float keepProbability = mix(0.30, 0.95, travel);
+  // Calm, controlled speed progression without high-frequency velocity spikes
+  float scrollSpeed = mix(0.65, 1.15, travel);
+  float trailLength = mix(2.2, 1.05, travel);
   float raySeq = fract((angleId + 0.5) * 0.61803398875);
   float keepEdge = 0.025;
   float keepMask = 1.0 - smoothstep(keepProbability - keepEdge, keepProbability + keepEdge, raySeq);
@@ -249,8 +250,9 @@ export function createLightTunnel(container, userOptions = {}) {
     }
 
     lastTime = now;
-    // Advance with base drift + intense scroll acceleration
-    time += 0.005 + Math.abs(scrollVelocity) * 0.0035;
+    // Strictly scroll-driven: advances ONLY when actively scrolling, stops cleanly when scrolling stops
+    const activeScroll = Math.min(Math.abs(scrollVelocity), 25.0);
+    time += activeScroll * 0.00045;
 
     if (opacity <= 0.001) {
       gl.clearColor(0, 0, 0, 0);

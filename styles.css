@@ -1805,28 +1805,7 @@ html.light .hyperspace-grid-col:first-child {
   .hs-item-title { font-size: clamp(1.2rem, 5.2vw, 1.8rem); }
 }
 
-/* Scroll Travel Hint */
-.hyperspace-scroll-hint {
-  position: absolute;
-  bottom: 2.75rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-mono-2);
-  font-size: 0.75rem;
-  color: var(--label-3);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  display: flex;
-  gap: 0.35rem;
-  align-items: center;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: 6;
-}
 
-.hyperspace-scroll-hint .hint-brackets {
-  color: var(--selection-bg);
-}
 
 /* ==========================================================================
    FUTURE-FIRST ALWAYS & WIREFRAME STICKERS (Screenshot 3)
@@ -1857,95 +1836,7 @@ html.light .hyperspace-grid-col:first-child {
   color: #ffffff;
 }
 
-/* Wireframe Stickers Around FUTURE-FIRST (Exact Haoqi Screenshot 3) */
-.future-stickers-wrap {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 3;
-}
 
-.future-sticker {
-  position: absolute;
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-  pointer-events: auto;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
-  animation: stickerFloat 6s ease-in-out infinite alternate;
-}
-
-@keyframes stickerFloat {
-  0% { transform: translateY(0px) rotate(0deg); }
-  100% { transform: translateY(-8px) rotate(2deg); }
-}
-
-/* Left: Orange textured sphere */
-.sticker-orange-sphere {
-  width: 86px;
-  height: 86px;
-  left: 24%;
-  top: 48%;
-  background-image: radial-gradient(#ea580c 2px, transparent 2px), radial-gradient(#ea580c 2px, #000 2px);
-  background-size: 8px 8px;
-  background-position: 0 0, 4px 4px;
-  border: 2px solid #ea580c;
-  border-radius: 50%;
-  box-shadow: 0 0 16px rgba(234, 88, 12, 0.4);
-}
-
-/* Right: Green double-oval dots */
-.sticker-green-ovals {
-  width: 80px;
-  height: 60px;
-  left: 54%;
-  top: 55%;
-  background-image: radial-gradient(#22c55e 1.5px, transparent 1.5px);
-  background-size: 6px 6px;
-  border: 1.5px solid #22c55e;
-  border-radius: 40px;
-  opacity: 0.9;
-  box-shadow: 0 0 14px rgba(34, 197, 94, 0.35);
-  animation-delay: -1.5s;
-}
-
-/* Small yellow star */
-.sticker-yellow-star {
-  width: 24px;
-  height: 24px;
-  left: 63%;
-  top: 53%;
-  background: #eab308;
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  filter: drop-shadow(0 0 8px #eab308);
-  animation-delay: -3s;
-}
-
-/* White lightning bolt */
-.sticker-white-bolt {
-  width: 32px;
-  height: 48px;
-  left: 84%;
-  top: 67%;
-  background: #ffffff;
-  clip-path: polygon(45% 0%, 0% 55%, 40% 55%, 25% 100%, 85% 38%, 48% 38%);
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
-  animation-delay: -2s;
-}
-
-/* Bottom-left: Purple/pink textured block */
-.sticker-purple-block {
-  width: 75px;
-  height: 52px;
-  left: 33%;
-  top: 76%;
-  background-image: radial-gradient(#d946ef 1.5px, transparent 1.5px);
-  background-size: 7px 7px;
-  border: 1.5px solid #d946ef;
-  transform: skew(-15deg, -5deg);
-  box-shadow: 0 0 14px rgba(217, 70, 239, 0.35);
-  animation-delay: -4s;
-}
 
 /* ==========================================================================
    FOOTER SECTION (Exact Matching Royal Cobalt Light & Shadow Atmosphere)
@@ -2392,9 +2283,56 @@ html.light .footer-section {
 }
 
 .footer-sticker.sticker-pointer-bottom {
-  bottom: 50px;
-  left: 58%;
-  transform: rotate(18deg);
+  position: absolute;
+  right: calc(var(--site-margin) + 20px);
+  left: auto;
+  bottom: clamp(60px, 10vh, 105px);
+  transform: rotate(0deg);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 28;
+  outline: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
+}
+
+.footer-sticker.sticker-pointer-bottom:hover {
+  transform: translateY(-8px) scale(1.08) !important;
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 16px rgba(0, 157, 255, 0.55));
+}
+
+.footer-sticker.sticker-pointer-bottom:active {
+  transform: translateY(-2px) scale(0.96) !important;
+}
+
+.footer-sticker.sticker-pointer-bottom img {
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+@media (max-width: 1023px) {
+  .footer-sticker.sticker-pointer-bottom {
+    right: var(--site-margin);
+    bottom: 80px;
+  }
+  .footer-sticker.sticker-pointer-bottom img {
+    width: 95px;
+    height: 95px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-sticker.sticker-pointer-bottom {
+    right: 1.25rem;
+    bottom: 85px;
+  }
+  .footer-sticker.sticker-pointer-bottom img {
+    width: 80px;
+    height: 80px;
+  }
 }
 
 /* Typography Grid (LET'S CREATE SOMETHING EXTRAORDINARY) */

@@ -304,10 +304,13 @@
   }
 
   // --------------------------------------------------------------------------
-  // 7. POINTER DRAG & SWIPE EVENTS (Physical Gesture Required, No Accidental Open)
+  // 7. POINTER DRAG & SWIPE EVENTS (Flawless on Laptop Mouse & Mobile Touch)
   // --------------------------------------------------------------------------
   function onPointerDown(e) {
     if (isGranted || isAutoSwiping) return;
+    if (e.button !== undefined && e.button !== 0) return; // Primary button only
+    if (e.cancelable) e.preventDefault();
+
     getAudioContext();
     playClickSound();
 
@@ -317,9 +320,11 @@
     cardWrapper.classList.add('is-dragging');
     if (readerWrapper) readerWrapper.classList.add('is-dragging-card');
 
-    try {
-      cardWrapper.setPointerCapture(e.pointerId);
-    } catch (_) {}
+    if (e.pointerId !== undefined && cardWrapper.setPointerCapture) {
+      try {
+        cardWrapper.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    }
 
     dragStart.x = e.clientX;
     dragStart.y = e.clientY;
@@ -331,7 +336,7 @@
     if (isGranted || isAutoSwiping) return;
 
     if (!isDragging) {
-      // Gentle 3D tilt on hover over card (Purely visual, NEVER triggers unlock)
+      // Gentle 3D tilt on hover over card
       if (cardWrapper) {
         const rect = cardWrapper.getBoundingClientRect();
         const isOverCard = e.clientX >= rect.left && e.clientX <= rect.right &&
@@ -353,10 +358,12 @@
       return;
     }
 
+    if (e.cancelable) e.preventDefault();
+
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
 
-    if (Math.hypot(deltaX, deltaY) > 8) {
+    if (Math.hypot(deltaX, deltaY) > 6) {
       hasMoved = true;
     }
 
@@ -370,8 +377,7 @@
     targetTilt.z = Math.max(-6, Math.min(6, deltaX * 0.04));
 
     // Physical Reader Slot Interaction:
-    // Slot entrance feedback begins around targetPos.y = 70
-    if (targetPos.y >= 70) {
+    if (targetPos.y >= 65) {
       cardWrapper.classList.add('is-in-slot');
       if (!hasSwiped) {
         setReaderState('reading');
@@ -380,18 +386,20 @@
       }
 
       // Swiped deep into the slot -> Complete swipe smoothly!
-      if (targetPos.y >= 130) {
+      if (targetPos.y >= 120) {
         isDragging = false;
-        try {
-          cardWrapper.releasePointerCapture(e.pointerId);
-        } catch (_) {}
+        if (e.pointerId !== undefined && cardWrapper.releasePointerCapture) {
+          try {
+            cardWrapper.releasePointerCapture(e.pointerId);
+          } catch (_) {}
+        }
         cardWrapper.classList.remove('is-dragging');
         if (readerWrapper) readerWrapper.classList.remove('is-dragging-card');
         completeSwipeDown();
       }
     } else {
       cardWrapper.classList.remove('is-in-slot');
-      if (hasSwiped && targetPos.y < 40) {
+      if (hasSwiped && targetPos.y < 35) {
         hasSwiped = false;
         setReaderState('idle');
       }
@@ -404,11 +412,11 @@
     cardWrapper.classList.remove('is-dragging');
     if (readerWrapper) readerWrapper.classList.remove('is-dragging-card');
 
-    try {
-      if (e && e.pointerId !== undefined) {
+    if (e && e.pointerId !== undefined && cardWrapper.releasePointerCapture) {
+      try {
         cardWrapper.releasePointerCapture(e.pointerId);
-      }
-    } catch (_) {}
+      } catch (_) {}
+    }
 
     if (isGranted || isAutoSwiping) return;
 
@@ -417,13 +425,13 @@
     const elapsed = performance.now() - pointerDownTime;
     const moved = Math.hypot(clientX - dragStart.x, clientY - dragStart.y);
 
-    // 1. TAP / CLICK: User tapped the card without dragging -> Smooth auto-swipe!
-    if (!hasMoved || (moved < 12 && elapsed < 450)) {
+    // 1. TAP / CLICK ON LAPTOP OR MOBILE: Auto-swipe cleanly into reader!
+    if (!hasMoved || (moved < 18 && elapsed < 650)) {
       runAutoSwipe();
       return;
     }
 
-    // 2. SWIPE: User dragged downward toward slot -> Complete swipe smoothly!
+    // 2. SWIPE DOWNWARD: User dragged downward toward slot -> Complete swipe!
     if (targetPos.y >= 45) {
       completeSwipeDown();
       return;
@@ -440,13 +448,22 @@
     setReaderState('idle');
   }
 
+  // Prevent browser native HTML5 drag and drop or text selection on the card
+  cardWrapper.addEventListener('dragstart', (e) => e.preventDefault());
+  cardWrapper.addEventListener('selectstart', (e) => e.preventDefault());
+  const allCardChildren = cardWrapper.querySelectorAll('*');
+  allCardChildren.forEach((child) => {
+    child.addEventListener('dragstart', (e) => e.preventDefault());
+    child.addEventListener('selectstart', (e) => e.preventDefault());
+  });
+
   // Pointer Events (Mouse + Stylus + Touch with pointer support)
   cardWrapper.addEventListener('pointerdown', onPointerDown);
-  window.addEventListener('pointermove', onPointerMove, { passive: true });
+  window.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointerup', onPointerUp);
   window.addEventListener('pointercancel', onPointerUp);
 
-  // Direct Click Failsafe (Guarantees every tap or click triggers smooth swipe entry)
+  // Direct Click Failsafe for Laptop Mouse & Trackpad
   cardWrapper.addEventListener('click', (e) => {
     e.preventDefault();
     if (!isGranted && !isAutoSwiping) {
@@ -454,27 +471,31 @@
     }
   });
 
-  // Touch Event Fallback (Guarantees older touchscreens and mobile browsers work)
+  // Touch Event Fallback for Mobile Viewports
   cardWrapper.addEventListener('touchstart', (e) => {
     if (e.touches && e.touches[0]) {
       const touch = e.touches[0];
       onPointerDown({
         clientX: touch.clientX,
         clientY: touch.clientY,
-        pointerId: 1
+        pointerId: 1,
+        cancelable: e.cancelable,
+        preventDefault: () => e.preventDefault()
       });
     }
-  }, { passive: true });
+  }, { passive: false });
 
   window.addEventListener('touchmove', (e) => {
     if (isDragging && e.touches && e.touches[0]) {
       const touch = e.touches[0];
       onPointerMove({
         clientX: touch.clientX,
-        clientY: touch.clientY
+        clientY: touch.clientY,
+        cancelable: e.cancelable,
+        preventDefault: () => e.preventDefault()
       });
     }
-  }, { passive: true });
+  }, { passive: false });
 
   window.addEventListener('touchend', (e) => {
     if (isDragging) {
@@ -487,7 +508,7 @@
     }
   });
 
-  // Clicking reader unit also triggers auto-swipe
+  // Clicking reader unit also triggers auto-swipe entry
   if (readerWrapper) {
     readerWrapper.addEventListener('click', (e) => {
       e.preventDefault();
@@ -555,6 +576,16 @@
   }
   requestAnimationFrame(renderLoop);
 
+  // --------------------------------------------------------------------------
+  // 9. INITIALIZE AUTHENTIC CALLIGRAPHY SIGNATURE ON PEARL WHITE CARD
+  // --------------------------------------------------------------------------
+  const gateSignature = document.getElementById('gate-card-signature');
+  function animateGateSignature() {
+    if (!gateSignature) return;
+    gateSignature.classList.add('is-drawn');
+  }
+  animateGateSignature();
+
   // Initialize
   setReaderState('idle');
 
@@ -577,5 +608,6 @@
     currentTilt.z = 0;
     cardWrapper.classList.remove('is-in-slot');
     setReaderState('idle');
+    animateGateSignature();
   };
 })();
