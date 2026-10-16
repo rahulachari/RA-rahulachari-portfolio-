@@ -63,402 +63,122 @@
 }
 
 /* ==========================================================================
-   1. THE SOFTWARE DEVELOPER BOARDING PASS
+   1. PERSONAL SIGNATURE PASS CARD
    ========================================================================== */
 .card-wrapper {
   position: absolute;
-  top: 60px;
-  width: 440px;
+  top: 65px;
+  left: 50%;
+  margin-left: -190px;
+  width: 380px;
   height: 220px;
+  cursor: pointer;
   cursor: grab;
-  z-index: 20;
-  touch-action: none;
+  z-index: 10;
+  touch-action: none !important;
   transform-style: preserve-3d;
-  will-change: transform, filter;
-  transition: transform 0.08s ease-out;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: auto;
 }
 
 .card-wrapper.is-dragging {
   cursor: grabbing;
-  z-index: 25;
+  z-index: 10;
   transition: none !important;
 }
 
 .card-wrapper.is-in-slot {
-  z-index: 15; /* Sits behind front reader bezel (z-index: 18) */
+  z-index: 10;
 }
 
-/* Card Visual Body — Personal Software ID Badge */
-.dev-pass.software-id-card {
+/* Luxury Signature Pass Card Body */
+.dev-pass.signature-pass-card {
   position: relative;
   width: 100%;
   height: 100%;
-  background: #ffffff;
-  border-radius: 14px;
+  touch-action: none !important;
+  pointer-events: auto;
+  cursor: pointer;
+  background: linear-gradient(145deg, #ffffff 0%, #faf9f6 50%, #f4f3ec 100%);
+  border-radius: 18px;
   box-shadow: 
-    0 24px 48px -12px rgba(30, 32, 38, 0.18),
-    0 12px 24px -8px rgba(30, 32, 38, 0.1),
-    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 24px 50px -12px rgba(25, 27, 34, 0.18),
+    0 12px 24px -8px rgba(25, 27, 34, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.05),
     inset 0 0 0 1px rgba(0, 0, 0, 0.08);
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 14px 18px 12px 18px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
   overflow: hidden;
-  transition: box-shadow 0.25s ease;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.card-wrapper.is-dragging .dev-pass.software-id-card {
+.card-wrapper.is-dragging .dev-pass.signature-pass-card {
   box-shadow: 
-    0 36px 72px -16px rgba(30, 32, 38, 0.24),
-    0 16px 32px -8px rgba(30, 32, 38, 0.14),
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    0 36px 70px -16px rgba(25, 27, 34, 0.26),
+    0 18px 32px -8px rgba(25, 27, 34, 0.16),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.12);
 }
 
-/* Subtle Circuit/Tech Ambient Pattern */
-.dev-pass.software-id-card::before {
+/* Subtle luxury parchment / glass ambient sheen */
+.dev-pass.signature-pass-card::after {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: 
-    radial-gradient(circle at 85% 15%, rgba(2, 132, 199, 0.06) 0%, transparent 45%),
-    radial-gradient(circle at 15% 85%, rgba(34, 197, 94, 0.05) 0%, transparent 40%);
-  opacity: 0.9;
+  background: radial-gradient(circle at 75% 20%, rgba(255, 255, 255, 0.85) 0%, transparent 60%);
+  opacity: 0.8;
 }
 
-/* Lanyard Punch Slot */
-.id-lanyard-slot {
-  position: absolute;
-  top: 7px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 32px;
-  height: 4.5px;
-  background: #c8c5b9;
-  border-radius: 3px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.7);
-  z-index: 5;
-}
-
-/* Card Header */
-.id-header {
+.signature-card-body {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding-bottom: 8px;
-  margin-top: 2px;
-}
-
-.id-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.id-logo-badge {
-  width: 24px;
-  height: 24px;
-  background: #0284c7;
-  color: #ffffff;
-  border-radius: 5px;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 800;
-  font-size: 11px;
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  letter-spacing: -0.5px;
-}
-
-.id-brand-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.id-brand-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  font-weight: 800;
-  color: #171612;
-  letter-spacing: 0.05em;
-  line-height: 1.1;
-}
-
-.id-brand-sub {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  font-weight: 600;
-  color: #0284c7;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.id-clearance {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.id-clearance-pill {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  font-weight: 700;
-  color: #15803d;
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.25);
-  padding: 2px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.06em;
-}
-
-.id-status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 6px #22c55e;
-}
-
-/* Card Body (Avatar + Credentials) */
-.id-body {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  margin: 6px 0;
-}
-
-/* Visual Column: Avatar Photo & Smart Chip */
-.id-visual-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 78px;
-  flex-shrink: 0;
-}
-
-.id-avatar-frame {
   position: relative;
-  width: 72px;
-  height: 72px;
-  background: #18191c;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
+  z-index: 2;
+  pointer-events: none;
 }
 
-.id-avatar-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.id-avatar-symbol {
-  font-size: 24px;
-  color: #0284c7;
-  text-shadow: 0 0 10px rgba(2, 132, 199, 0.6);
-}
-
-.id-avatar-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 7px;
-  font-weight: 700;
-  color: #94a3b8;
-  letter-spacing: 0.08em;
-}
-
-/* Corner Reticle Brackets */
-.id-corner {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-color: #0284c7;
-  border-style: solid;
-}
-.id-corner.tl { top: 3px; left: 3px; border-width: 1.5px 0 0 1.5px; }
-.id-corner.tr { top: 3px; right: 3px; border-width: 1.5px 1.5px 0 0; }
-.id-corner.bl { bottom: 3px; left: 3px; border-width: 0 0 1.5px 1.5px; }
-.id-corner.br { bottom: 3px; right: 3px; border-width: 0 1.5px 1.5px 0; }
-
-/* Golden Smart Chip */
-.id-smart-chip {
-  position: relative;
-  width: 32px;
-  height: 24px;
-  background: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #aa820a 100%);
-  border-radius: 4px;
-  border: 1px solid #997300;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 1px 2px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-}
-
-.chip-line {
-  position: absolute;
-  background: rgba(120, 80, 0, 0.5);
-}
-.chip-line.h1 { top: 7px; left: 0; right: 0; height: 1px; }
-.chip-line.h2 { bottom: 7px; left: 0; right: 0; height: 1px; }
-.chip-line.v1 { top: 0; bottom: 0; left: 15px; width: 1px; }
-
-.chip-pad.center {
-  position: absolute;
-  top: 5px;
-  left: 9px;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  border: 1px solid rgba(120, 80, 0, 0.4);
-}
-
-.id-contactless svg {
-  width: 14px;
-  height: 14px;
-  color: #8b8a82;
-}
-
-/* Info Column */
-.id-info-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.id-meta-kicker {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8.5px;
-  font-weight: 700;
-  color: #0284c7;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.id-name {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #171612;
-  text-transform: uppercase;
+.signature-name {
+  font-family: 'Great Vibes', 'Alex Brush', 'Caveat', cursive;
+  font-size: 58px;
+  font-weight: 400;
+  color: #161513;
+  letter-spacing: 0.02em;
   line-height: 1.1;
-  margin: 1px 0 2px 0;
+  transform: rotate(-2deg);
+  display: inline-block;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
 }
 
-.id-role {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
-  font-weight: 600;
-  color: #71717a;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.id-specs-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px 12px;
-  margin-top: 8px;
-  background: #f8fafc;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.id-spec-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.id-spec-item.col-span-2 {
-  grid-column: span 2;
-}
-
-.spec-lbl {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 7px;
-  font-weight: 700;
-  color: #94a3b8;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.spec-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 700;
-  color: #1e293b;
-  line-height: 1.2;
-}
-
-.spec-val.highlight {
-  color: #16a34a;
-}
-
-/* Card Footer */
-.id-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  padding-top: 6px;
-  margin-top: 2px;
-}
-
-.id-barcode-wrap {
-  display: flex;
-  flex-direction: column;
-}
-
-.barcode-svg {
+.signature-flourish {
+  width: 210px;
   height: 18px;
-  width: 170px;
-}
-
-.id-hash-code {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 7.5px;
-  color: #8b8a82;
-  letter-spacing: 0.1em;
-  margin-top: 1px;
-}
-
-.id-seal-badge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  font-weight: 700;
-  color: #0284c7;
-  background: rgba(2, 132, 199, 0.08);
-  padding: 3px 7px;
-  border-radius: 4px;
-  border: 1px solid rgba(2, 132, 199, 0.2);
-}
-
-.seal-icon {
-  font-size: 9px;
+  margin-top: -6px;
+  opacity: 0.85;
 }
 
 /* ==========================================================================
-   2. RETRO HARDWARE CARD READER
+   2. RETRO HARDWARE CARD READER (Split Layer System)
    ========================================================================== */
-.reader-wrapper {
+/* Back casing & slot well (sits BEHIND card: z-index 5) */
+.reader-back-unit {
   position: absolute;
-  bottom: 120px;
-  width: 380px;
-  height: 130px;
-  transform-style: preserve-3d;
+  bottom: 110px;
+  left: 50%;
+  margin-left: -220px;
+  width: 440px;
+  height: 135px;
+  z-index: 5;
+  pointer-events: none;
 }
 
-/* Back casing (sits behind the card) */
-.reader-back {
+.reader-back-body {
   position: absolute;
   inset: 0;
   background: #c8c3b4;
@@ -467,28 +187,42 @@
     0 30px 60px -15px rgba(20, 22, 28, 0.22),
     0 15px 30px -10px rgba(20, 22, 28, 0.14),
     inset 0 2px 4px rgba(255, 255, 255, 0.6);
-  z-index: 10;
 }
 
 /* Realistic Internal Slot Well */
 .reader-slot-well {
   position: absolute;
-  top: 10px;
-  left: 20px;
-  right: 20px;
-  height: 18px;
-  background: #141412;
-  border-radius: 6px;
+  top: 8px;
+  left: 24px;
+  right: 24px;
+  height: 20px;
+  background: #111110;
+  border-radius: 5px;
   box-shadow: 
-    inset 0 3px 6px rgba(0, 0, 0, 0.9),
+    inset 0 3px 6px rgba(0, 0, 0, 0.95),
     0 1px 0 rgba(255, 255, 255, 0.4);
-  z-index: 12;
 }
 
-/* Front casing of the Reader (sits in front of the card: z-index 18) */
-.reader-front {
+/* Front casing of the Reader (sits in FRONT of card: z-index 20) */
+.reader-front-unit {
   position: absolute;
-  top: 16px;
+  bottom: 110px;
+  left: 50%;
+  margin-left: -220px;
+  width: 440px;
+  height: 135px;
+  z-index: 20;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.reader-front-unit.is-dragging-card {
+  pointer-events: none;
+}
+
+.reader-front-body {
+  position: absolute;
+  top: 18px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -499,11 +233,10 @@
     inset 0 -2px 3px rgba(0, 0, 0, 0.2),
     0 2px 4px rgba(0, 0, 0, 0.08);
   border-top: 1.5px solid rgba(255, 255, 255, 0.6);
-  z-index: 18;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 14px 22px 16px 22px;
+  padding: 14px 24px 16px 24px;
 }
 
 /* Top Grill Slits */
@@ -714,13 +447,22 @@
     height: 520px;
   }
   .card-wrapper {
-    width: 380px;
-    height: 195px;
-    top: 40px;
+    width: 320px;
+    height: 185px;
+    margin-left: -160px;
+    top: 45px;
   }
-  .reader-wrapper {
-    width: 340px;
-    bottom: 90px;
+  .signature-name {
+    font-size: 46px;
+  }
+  .signature-flourish {
+    width: 170px;
+  }
+  .reader-back-unit,
+  .reader-front-unit {
+    width: 380px;
+    margin-left: -190px;
+    bottom: 80px;
   }
   .gate-hint {
     bottom: 30px;
@@ -735,6 +477,6 @@
 
 @media (max-width: 420px) {
   .gate-stage {
-    transform: scale(0.72);
+    transform: scale(0.75);
   }
 }

@@ -10,12 +10,12 @@
   <!-- Design System Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=Great+Vibes&family=Alex+Brush&family=Caveat:wght@600;700&family=Sacramento&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <link rel="stylesheet" href="styles.css?v=25.0">
-  <link rel="stylesheet" href="LightTunnel.css?v=25.0">
-  <link rel="stylesheet" href="opening-gate.css?v=26.0">
+  <link rel="stylesheet" href="styles.css?v=45.0">
+  <link rel="stylesheet" href="LightTunnel.css?v=45.0">
+  <link rel="stylesheet" href="opening-gate.css?v=45.0">
 
   <!-- Vendor Animation Libraries -->
   <script src="libs/gsap.min.js"></script>
@@ -30,145 +30,27 @@
     <div class="gate-ambient" aria-hidden="true"></div>
 
     <div class="gate-stage">
-      <!-- 1. Draggable Personal Software ID Card -->
-      <div class="card-wrapper" id="gate-card-wrapper" role="button" tabindex="0" aria-label="Personal Software Engineer ID Card. Drag or tap to swipe into reader">
-        <div class="dev-pass software-id-card">
-          <!-- Top Lanyard Slot -->
-          <div class="id-lanyard-slot" aria-hidden="true"></div>
+      <!-- 1. Reader Back Casing & Internal Slot Well (Sits BEHIND the card: z-index 5) -->
+      <div class="reader-back-unit" aria-hidden="true">
+        <div class="reader-back-body"></div>
+        <div class="reader-slot-well"></div>
+      </div>
 
-          <!-- Card Header Bar -->
-          <div class="id-header">
-            <div class="id-brand">
-              <span class="id-logo-badge">RA</span>
-              <div class="id-brand-text">
-                <span class="id-brand-title">RAHUL.DEV</span>
-                <span class="id-brand-sub">SOFTWARE ACCESS ID</span>
-              </div>
-            </div>
-            <div class="id-clearance">
-              <span class="id-clearance-pill">ROOT CLEARANCE</span>
-              <span class="id-status-dot"></span>
-            </div>
-          </div>
-
-          <!-- Card Body (Avatar + Credentials) -->
-          <div class="id-body">
-            <!-- Left: Avatar Photo + Smart Chip -->
-            <div class="id-visual-col">
-              <div class="id-avatar-frame">
-                <div class="id-avatar-content">
-                  <span class="id-avatar-symbol">✦</span>
-                  <span class="id-avatar-label">SYS_ADMIN</span>
-                </div>
-                <div class="id-corner tl"></div>
-                <div class="id-corner tr"></div>
-                <div class="id-corner bl"></div>
-                <div class="id-corner br"></div>
-              </div>
-
-              <!-- Golden Smart Chip -->
-              <div class="id-smart-chip" aria-hidden="true">
-                <div class="chip-line h1"></div>
-                <div class="chip-line h2"></div>
-                <div class="chip-line v1"></div>
-                <div class="chip-pad center"></div>
-              </div>
-
-              <div class="id-contactless">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path d="M5 8.5a7 7 0 0 1 0 7M8 10a4 4 0 0 1 0 4M2 7a10 10 0 0 1 0 10"/>
-                </svg>
-              </div>
-            </div>
-
-            <!-- Right: Identity & Software Credentials -->
-            <div class="id-info-col">
-              <div class="id-name-block">
-                <span class="id-meta-kicker">ENGINEER / ID: RA-2026-SYS</span>
-                <h2 class="id-name">RAHUL ACHARI</h2>
-                <p class="id-role">AI/ML Systems &amp; Software Architect</p>
-              </div>
-
-              <div class="id-specs-grid">
-                <div class="id-spec-item">
-                  <span class="spec-lbl">CLEARANCE</span>
-                  <span class="spec-val">LEVEL 0 [ROOT]</span>
-                </div>
-                <div class="id-spec-item">
-                  <span class="spec-lbl">STATUS</span>
-                  <span class="spec-val highlight">ACTIVE // 200 OK</span>
-                </div>
-                <div class="id-spec-item col-span-2">
-                  <span class="spec-lbl">CORE STACK</span>
-                  <span class="spec-val">PYTORCH • CUDA • TYPESCRIPT • THREE.JS</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card Footer Bar (Barcode & Cryptographic Seal) -->
-          <div class="id-footer">
-            <div class="id-barcode-wrap">
-              <svg class="barcode-svg" viewBox="0 0 180 20" preserveAspectRatio="none" aria-hidden="true">
-                <rect x="0" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="4" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="7" y="0" width="3" height="20" fill="#171612"/>
-                <rect x="12" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="15" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="19" y="0" width="4" height="20" fill="#171612"/>
-                <rect x="25" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="28" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="32" y="0" width="3" height="20" fill="#171612"/>
-                <rect x="37" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="40" y="0" width="4" height="20" fill="#171612"/>
-                <rect x="46" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="50" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="53" y="0" width="3" height="20" fill="#171612"/>
-                <rect x="58" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="62" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="65" y="0" width="4" height="20" fill="#171612"/>
-                <rect x="71" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="75" y="0" width="3" height="20" fill="#171612"/>
-                <rect x="80" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="83" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="87" y="0" width="4" height="20" fill="#171612"/>
-                <rect x="93" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="96" y="0" width="3" height="20" fill="#171612"/>
-                <rect x="101" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="105" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="108" y="0" width="4" height="20" fill="#171612"/>
-                <rect x="114" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="118" y="0" width="3" height="20" fill="#171612"/>
-                <rect x="123" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="126" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="130" y="0" width="4" height="20" fill="#171612"/>
-                <rect x="136" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="139" y="0" width="3" height="20" fill="#171612"/>
-                <rect x="144" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="148" y="0" width="1" height="20" fill="#171612"/>
-                <rect x="151" y="0" width="4" height="20" fill="#171612"/>
-                <rect x="157" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="161" y="0" width="3" height="20" fill="#171612"/>
-                <rect x="166" y="0" width="2" height="20" fill="#171612"/>
-                <rect x="170" y="0" width="4" height="20" fill="#171612"/>
-                <rect x="176" y="0" width="2" height="20" fill="#171612"/>
-              </svg>
-              <span class="id-hash-code">0x8F4A_C0FE_2026 // PORTFOLIO_KEY</span>
-            </div>
-            <div class="id-seal-badge">
-              <span class="seal-icon">✦</span>
-              <span class="seal-text">VERIFIED ACCESS</span>
-            </div>
+      <!-- 2. Draggable Personal Signature Card (Sits in the MIDDLE: z-index 10) -->
+      <div class="card-wrapper" id="gate-card-wrapper" role="button" tabindex="0" aria-label="Rahul Achari Signature Card. Drag or tap into reader slot to enter">
+        <div class="dev-pass signature-pass-card">
+          <div class="signature-card-body">
+            <span class="signature-name">Rahul Achari</span>
+            <svg class="signature-flourish" viewBox="0 0 240 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M 8 13 C 65 3, 135 18, 232 7" stroke="#171612" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
           </div>
         </div>
       </div>
 
-      <!-- 2. Retro Hardware Terminal Reader Device -->
-      <div class="reader-wrapper" id="gate-reader" aria-label="Retro Hardware Magnetic Card Reader">
-        <div class="reader-back" aria-hidden="true"></div>
-        <div class="reader-slot-well" aria-hidden="true"></div>
-
-        <div class="reader-front">
+      <!-- 3. Reader Front Faceplate (Sits in FRONT of card: z-index 20) -->
+      <div class="reader-front-unit" id="gate-reader" aria-label="Retro Hardware Magnetic Card Reader">
+        <div class="reader-front-body">
           <div class="reader-grill" aria-hidden="true">
             <div class="grill-row">
               <span class="grill-slit"></span>
@@ -203,8 +85,8 @@
         </div>
       </div>
 
-      <!-- 3. Dynamic Shimmer Hint Text -->
-      <p class="gate-hint shimmer" id="gate-hint" aria-live="polite">Swipe <strong>Software ID</strong> to access portfolio</p>
+      <!-- 4. Dynamic Shimmer Hint Text -->
+      <p class="gate-hint shimmer" id="gate-hint" aria-live="polite">Tap or swipe card into reader to enter</p>
     </div>
 
     <!-- 4. Skip Button -->
@@ -252,9 +134,6 @@
         <button type="button" class="nav-item dotted-box theme-btn" id="theme-toggle-btn" aria-label="Toggle Theme">
           THEME[D]
         </button>
-        <button type="button" class="nav-item dotted-box sound-btn" id="sound-toggle-btn" aria-label="Sound Toggle">
-          SOUND[ • ]
-        </button>
       </nav>
 
       <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Mobile Menu">
@@ -298,6 +177,7 @@
       <div class="dot-matrix-cluster" style="top: 5.5rem; left: var(--site-margin);" aria-hidden="true"></div>
       <div class="hero-meta-grid">
         <div class="hero-col-left">
+          <span class="hero-brand-subtitle">RAHUL ACHARI ©2026</span>
           Design &amp;<br>Engineering
         </div>
 
@@ -306,28 +186,8 @@
         </div>
 
         <div class="hero-col-right">
-          I'm Rahul Achari YC, a B.Tech Computer Science Engineer specializing in AI/ML systems and modern software development at
-          <!-- Interactive Cursor Pointing & Redacted Passcode Badge -->
-          <span class="cursor-pointer-badge dotted-box" id="hero-name-badge" title="Click to interact">
-            <svg class="badge-pointer-icon" viewBox="0 0 24 24">
-              <path d="M4 0 L20 12 L12 14 L16 24 L12 24 L8 15 L4 18 Z"></path>
-            </svg>
-            <span class="badge-name-wrong" id="badge-wrong-name">■■■■■■</span>
-            <span class="badge-name-correct" id="badge-correct-name" style="display:none;">Rahul Achari YC ✓</span>
-          </span>,
-          engineering intelligent architectures and scalable digital products. Outside work, I build developer tools and data-driven systems.
+          I'm Rahul Achari, an AI/ML Engineer and Software Developer building intelligent systems, scalable web architectures, and developer tools.
         </div>
-      </div>
-
-      <!-- Middle Horizontal Grid Divider in Hero (Forming the 3x2 Big Grid Boxes matching Haoqi) -->
-      <div class="grid-row-divider hero-mid-divider" aria-hidden="true">
-        <span class="grid-divider-segment seg-1"></span>
-        <span class="grid-divider-segment seg-2"></span>
-        <span class="grid-divider-segment seg-3"></span>
-        <span class="grid-cross cross-0">+</span>
-        <span class="grid-cross cross-1">+</span>
-        <span class="grid-cross cross-2">+</span>
-        <span class="grid-cross cross-3">+</span>
       </div>
 
       <!-- Giant Bottom Headline Overlapped with 3D Text -->
@@ -339,28 +199,7 @@
         </h1>
       </div>
 
-      <!-- Floating Die-Cut Stickers matching Haoqi Screenshot -->
-      <div class="hero-sticker-badge" aria-hidden="true">
-        <img src="sticker_img/s_04.png" alt="Holographic Card Badge Sticker" width="110" height="110">
-      </div>
-      <div class="hero-sticker-pen" aria-hidden="true">
-        <img src="sticker_img/s_02.png" alt="Vector Pen Tool Nib Sticker" width="105" height="105">
-      </div>
-      <div class="hero-sticker-star" aria-hidden="true">
-        <img src="sticker_img/s_10.png" alt="Yellow Star Eyes Sticker" width="105" height="105">
-      </div>
     </section>
-
-    <!-- Full-Width Horizontal Grid Divider with Precision Crosshairs (+) -->
-    <div class="grid-row-divider" aria-hidden="true">
-      <span class="grid-divider-segment seg-1"></span>
-      <span class="grid-divider-segment seg-2"></span>
-      <span class="grid-divider-segment seg-3"></span>
-      <span class="grid-cross cross-0">+</span>
-      <span class="grid-cross cross-1">+</span>
-      <span class="grid-cross cross-2">+</span>
-      <span class="grid-cross cross-3">+</span>
-    </div>
 
     <!-- PHILOSOPHY & SELF-INTRODUCTION SECTION (Photo Container & Rahul Achari Signature) -->
     <section class="philosophy-section" id="philosophy">
@@ -372,18 +211,6 @@
               <img src="assets/images/profile.jpeg?v=15.0" alt="Rahul Achari Portrait" class="portrait-photo">
             </div>
 
-            <!-- Overlapping Decorative Neon Lime Accent Pixels (Exact Haoqi Multi-Shade Reproduction) -->
-            <div class="portrait-accent-pixels" aria-hidden="true">
-              <span class="pixel-dot" style="grid-column: 3; grid-row: 1; background-color: #c0fe04;"></span>
-              <span class="pixel-dot" style="grid-column: 3; grid-row: 2; background-color: #8bb80b;"></span>
-              <span class="pixel-dot" style="grid-column: 1; grid-row: 3; background-color: #b8f405;"></span>
-              <span class="pixel-dot" style="grid-column: 4; grid-row: 3; background-color: #91c00b;"></span>
-              <span class="pixel-dot" style="grid-column: 4; grid-row: 5; background-color: #96c70a;"></span>
-              <span class="pixel-dot" style="grid-column: 1; grid-row: 6; background-color: #b1eb06;"></span>
-              <span class="pixel-dot" style="grid-column: 5; grid-row: 6; background-color: #9cd009;"></span>
-              <span class="pixel-dot" style="grid-column: 5; grid-row: 7; background-color: #a3d808;"></span>
-              <span class="pixel-dot" style="grid-column: 4; grid-row: 8; background-color: #aae207;"></span>
-            </div>
 
             <!-- Overlapping Calligraphy SVG Signature for "Rahul Achari" -->
             <svg viewBox="-10 -25 510 115" fill="none" class="svg-sign" id="svg-signature" aria-label="Rahul Achari Signature">
@@ -415,19 +242,11 @@
       </div>
     </section>
 
-    <!-- Full-Width Horizontal Grid Divider with Precision Crosshairs (+) -->
-    <div class="grid-row-divider" aria-hidden="true">
-      <span class="grid-divider-segment seg-1"></span>
-      <span class="grid-divider-segment seg-2"></span>
-      <span class="grid-divider-segment seg-3"></span>
-      <span class="grid-cross cross-0">+</span>
-      <span class="grid-cross cross-1">+</span>
-      <span class="grid-cross cross-2">+</span>
-      <span class="grid-cross cross-3">+</span>
-    </div>
-
     <!-- SELECTED WORK / PROJECTS (Exact Haoqi 12-Column Architectural Reproduction) -->
     <section class="work-section" id="work">
+      <!-- Dedicated Green Pixel Trail Canvas (Active Only in Work Section) -->
+      <canvas id="work-pixel-trail-canvas" class="work-pixel-trail-canvas" aria-hidden="true"></canvas>
+
       <div class="work-header">
         <span class="work-header-kicker">01 / SELECTED WORK</span>
         <span class="work-header-total tabular-nums">10 SHIPPED APPLICATIONS</span>
@@ -444,6 +263,11 @@
                 <span class="project-year">2024-2026</span>
                 <span class="project-tag">AI</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-hero">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/PropCast" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="PropCast GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -454,15 +278,14 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://propcast-oyan.onrender.com/" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/propcast.jpg" alt="PropCast AI Application Preview" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">AI-driven real estate valuation &amp; investment intelligence platform with predictive cash flow models.</p>
+              </div>
             </div>
-            <p class="project-desc">AI-driven real estate valuation &amp; investment intelligence platform with predictive cash flow models.</p>
           </div>
-          <a href="https://propcast-oyan.onrender.com/" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="PropCast™ AI Real Estate Intelligence">
-            <div class="project-visual-box aspect-hero">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/propcast.jpg" alt="PropCast AI Application Preview" loading="lazy">
-            </div>
-          </a>
         </article>
 
         <!-- 02: Akshara (Row 2 Left: cols 1-5) -->
@@ -474,6 +297,11 @@
                 <span class="project-year">2025-2026</span>
                 <span class="project-tag">GIS</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-pair">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/Akshara" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="Akshara GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -484,15 +312,14 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://akshara-three.vercel.app/" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/Akshara.jpg" alt="Akshara Plotted Land Platform Preview" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">GIS-powered plotted land intelligence platform with real-time geospatial analytics and boundary mapping.</p>
+              </div>
             </div>
-            <p class="project-desc">GIS-powered plotted land intelligence platform with real-time geospatial analytics and boundary mapping.</p>
           </div>
-          <a href="https://akshara-three.vercel.app/" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="Akshara Plotted Land Platform">
-            <div class="project-visual-box aspect-pair">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/Akshara.jpg" alt="Akshara Plotted Land Platform Preview" loading="lazy">
-            </div>
-          </a>
         </article>
 
         <!-- 03: Control-D (Row 2 Right: cols 7-11/12) -->
@@ -504,6 +331,11 @@
                 <span class="project-year">2025</span>
                 <span class="project-tag">HEALTH</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-pair">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/Control-D" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="Control-D GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -514,15 +346,14 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://controld-three.vercel.app/" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/ContoL-D.jpg" alt="Control-D Digital Health Assistant" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">AI digital healthcare assistant for patient triage, vital tracking, and clinical diagnostics.</p>
+              </div>
             </div>
-            <p class="project-desc">AI digital healthcare assistant for patient triage, vital tracking, and clinical diagnostics.</p>
           </div>
-          <a href="https://controld-three.vercel.app/" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="Control-D Digital Health Assistant">
-            <div class="project-visual-box aspect-pair">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/ContoL-D.jpg" alt="Control-D Digital Health Assistant" loading="lazy">
-            </div>
-          </a>
         </article>
 
         <!-- 04: UniML (Row 3 Left: cols 5-8 / xl 6-8) -->
@@ -534,6 +365,11 @@
                 <span class="project-year">2024-2025</span>
                 <span class="project-tag">OCR</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-square">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/UniML" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="UniML GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -544,15 +380,14 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://uniml.onrender.com/" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/UnimL.jpg" alt="UniML ATS Resume Scanner" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">Intelligent ATS resume parsing engine with deep semantic skill extraction and scoring.</p>
+              </div>
             </div>
-            <p class="project-desc">Intelligent ATS resume parsing engine with deep semantic skill extraction and scoring.</p>
           </div>
-          <a href="https://uniml.onrender.com/" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="UniML ATS Resume Scanner">
-            <div class="project-visual-box aspect-square">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/UnimL.jpg" alt="UniML ATS Resume Scanner" loading="lazy">
-            </div>
-          </a>
         </article>
 
         <!-- 05: GSCMS (Row 3 Right: cols 9-12 / xl 10-12) -->
@@ -564,6 +399,11 @@
                 <span class="project-year">2025</span>
                 <span class="project-tag">ERP</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-square">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/GSCMS" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="GSCMS GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -574,15 +414,14 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://gscms.vercel.app/" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/GSCMS.jpg" alt="GSCMS Inventory Management" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">Enterprise multi-warehouse inventory and logistics management dashboard with real-time stock sync.</p>
+              </div>
             </div>
-            <p class="project-desc">Enterprise multi-warehouse inventory and logistics management dashboard with real-time stock sync.</p>
           </div>
-          <a href="https://gscms.vercel.app/" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="GSCMS Inventory Management">
-            <div class="project-visual-box aspect-square">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/GSCMS.jpg" alt="GSCMS Inventory Management" loading="lazy">
-            </div>
-          </a>
         </article>
 
         <!-- 06: VoiceOS (MAXI) (Row 4 Col 1: cols 1-3) -->
@@ -594,6 +433,11 @@
                 <span class="project-year">2026</span>
                 <span class="project-tag">VOICE</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-square">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/MAXI_VOICE-AGENT" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="VoiceOS GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -604,15 +448,14 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://github.com/rahulachari/MAXI_VOICE-AGENT" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/VoiceOS.jpg" alt="VoiceOS Autonomous Agent" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">Low-latency autonomous voice AI agent with real-time conversational intelligence and tool execution.</p>
+              </div>
             </div>
-            <p class="project-desc">Low-latency autonomous voice AI agent with real-time conversational intelligence and tool execution.</p>
           </div>
-          <a href="https://github.com/rahulachari/MAXI_VOICE-AGENT" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="VoiceOS Autonomous Agent">
-            <div class="project-visual-box aspect-square">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/VoiceOS.jpg" alt="VoiceOS Autonomous Agent" loading="lazy">
-            </div>
-          </a>
         </article>
 
         <!-- 07: Adhikar AI (Row 4 Col 2: cols 5-7) -->
@@ -624,6 +467,11 @@
                 <span class="project-year">2025</span>
                 <span class="project-tag">NLP</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-square">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/Adhikar" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="Adhikar GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -634,15 +482,14 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://adhikar-azure.vercel.app/" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/Adhikar.jpg" alt="Adhikar Legal Document AI" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">Multilingual legal document AI assistant analyzing contracts, citizen rights, and compliance.</p>
+              </div>
             </div>
-            <p class="project-desc">Multilingual legal document AI assistant analyzing contracts, citizen rights, and compliance.</p>
           </div>
-          <a href="https://adhikar-azure.vercel.app/" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="Adhikar Legal Document AI">
-            <div class="project-visual-box aspect-square">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/Adhikar.jpg" alt="Adhikar Legal Document AI" loading="lazy">
-            </div>
-          </a>
         </article>
 
         <!-- 08: Precast Walls (Row 4 Col 3: cols 9-11/12) -->
@@ -654,6 +501,11 @@
                 <span class="project-year">2024-2025</span>
                 <span class="project-tag">CV</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-square">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/precast-walls" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="Precast Walls GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -664,15 +516,14 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://glittery-selkie-dcfb25.netlify.app/" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/precast walls.jpg" alt="Precast Wall Crack Detection" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">Computer vision neural network detecting structural micro-cracks and material defects in precast concrete.</p>
+              </div>
             </div>
-            <p class="project-desc">Computer vision neural network detecting structural micro-cracks and material defects in precast concrete.</p>
           </div>
-          <a href="https://glittery-selkie-dcfb25.netlify.app/" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="Precast Wall Crack Detection">
-            <div class="project-visual-box aspect-square">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/precast walls.jpg" alt="Precast Wall Crack Detection" loading="lazy">
-            </div>
-          </a>
         </article>
 
         <!-- 09: Beat Sync (Row 5 Left: cols 5-8 / xl 6-8) -->
@@ -684,6 +535,11 @@
                 <span class="project-year">2024</span>
                 <span class="project-tag">AUDIO</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-square">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/Beat-sync-" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="Beat Sync GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -694,15 +550,14 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://github.com/rahulachari/Beat-sync-" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/Beat-sync.jpg" alt="Beat Sync Distributed Audio" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">High-precision distributed multi-device audio streaming engine with sub-millisecond synchronization.</p>
+              </div>
             </div>
-            <p class="project-desc">High-precision distributed multi-device audio streaming engine with sub-millisecond synchronization.</p>
           </div>
-          <a href="https://github.com/rahulachari/Beat-sync-" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="Beat Sync Distributed Audio">
-            <div class="project-visual-box aspect-square">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/Beat-sync.jpg" alt="Beat Sync Distributed Audio" loading="lazy">
-            </div>
-          </a>
         </article>
 
         <!-- 10: Reminder Remix (Row 5 Right: cols 9-12 / xl 10-12) -->
@@ -714,6 +569,11 @@
                 <span class="project-year">2025</span>
                 <span class="project-tag">TOOLS</span>
               </div>
+            </div>
+          </div>
+          <div class="project-visual-link">
+            <div class="project-visual-box aspect-square">
+              <span class="project-badge">CODING PROJECT</span>
               <div class="project-btn-group">
                 <a href="https://github.com/rahulachari/Reminder-Remix" target="_blank" rel="noopener noreferrer" class="project-btn btn-github" aria-label="Reminder Remix GitHub Repository">
                   <i class="fa-brands fa-github"></i>
@@ -724,34 +584,24 @@
                   <span>Live ↗</span>
                 </a>
               </div>
+              <a href="https://github.com/rahulachari/Reminder-Remix" target="_blank" rel="noopener noreferrer" class="project-img-anchor">
+                <img src="assets/images/reminder remix.jpg" alt="Reminder Remix Task Automation" loading="lazy">
+              </a>
+              <div class="project-desc-overlay">
+                <p class="project-desc">Minimalist developer task automation and scheduled background notification toolkit.</p>
+              </div>
             </div>
-            <p class="project-desc">Minimalist developer task automation and scheduled background notification toolkit.</p>
           </div>
-          <a href="https://github.com/rahulachari/Reminder-Remix" target="_blank" rel="noopener noreferrer" class="project-visual-link" aria-label="Reminder Remix Task Automation">
-            <div class="project-visual-box aspect-square">
-              <span class="project-badge">CODING PROJECT</span>
-              <img src="assets/images/reminder remix.jpg" alt="Reminder Remix Task Automation" loading="lazy">
-            </div>
-          </a>
         </article>
 
       </div>
     </section>
 
-    <!-- Full-Width Horizontal Grid Divider with Precision Crosshairs (+) -->
-    <div class="grid-row-divider" aria-hidden="true">
-      <span class="grid-divider-segment seg-1"></span>
-      <span class="grid-divider-segment seg-2"></span>
-      <span class="grid-divider-segment seg-3"></span>
-      <span class="grid-cross cross-0">+</span>
-      <span class="grid-cross cross-1">+</span>
-      <span class="grid-cross cross-2">+</span>
-      <span class="grid-cross cross-3">+</span>
-    </div>
-
     <!-- PINNED MULTI-STAGE HYPERSPACE TRANSITION SECTION (LightTunnel from React Bits) -->
     <div class="hyperspace-scroll-track" id="hyper-space-track">
       <div class="sticky-quote-section" id="hyper-space-sticky">
+        <!-- Full-Screen LightTunnel Shader Mount (Canvas sits in background of sticky section) -->
+        <div class="light-tunnel-mount" id="light-tunnel-mount"></div>
 
         <!-- Hyperspace 12-Column Architectural Grid Overlay -->
         <div class="hyperspace-grid-overlay" aria-hidden="true">
@@ -764,7 +614,7 @@
         <div class="hs-stages-container">
 
           <!-- Stage 0A: Innovate with Purpose -->
-          <div class="hs-stage hs-stage-primary is-active" id="hs-stage-primary">
+          <div class="hs-stage hs-stage-primary" id="hs-stage-primary">
             <div class="hs-giant-text">
               <div class="hs-line" data-text="INNOVATE">INNOVATE</div>
               <div class="hs-line" data-text="WITH">WITH</div>
@@ -781,7 +631,7 @@
             </div>
           </div>
 
-          <!-- Stage 1: Central Portal Cyber Rings & 4 Staggered Grid Manifesto Statements -->
+          <!-- Stage 1: Central Portal Cyber Rings & 4 Staggered Grid Manifesto Statements (Screenshot 2) -->
           <div class="hs-stage hs-stage-manifesto" id="hs-stage-manifesto">
             <!-- Concentric Cyber Rings (c7 Exact Haoqi) -->
             <div class="hs-portal-rings-wrap" id="hs-portal-rings">
@@ -813,11 +663,20 @@
             </div>
           </div>
 
-          <!-- Stage End: FUTURE-FIRST ALWAYS -->
+          <!-- Stage End: FUTURE-FIRST ALWAYS + Wireframe Stickers (Screenshot 3) -->
           <div class="hs-stage hs-stage-future" id="hs-stage-future">
             <div class="hs-giant-text">
               <div class="hs-line" data-text="FUTURE-FIRST">FUTURE-FIRST</div>
               <div class="hs-line" data-text="ALWAYS">ALWAYS</div>
+            </div>
+
+            <!-- Authentic Floating Wireframe Stickers Matching Haoqi Screenshot 3 -->
+            <div class="future-stickers-wrap" aria-hidden="true">
+              <div class="future-sticker sticker-orange-sphere" title="Orange Grid Sphere"></div>
+              <div class="future-sticker sticker-green-ovals" title="Green Grid Ovals"></div>
+              <div class="future-sticker sticker-yellow-star" title="Yellow Star"></div>
+              <div class="future-sticker sticker-white-bolt" title="White Lightning Bolt"></div>
+              <div class="future-sticker sticker-purple-block" title="Purple Grid Isometric Block"></div>
             </div>
           </div>
 
@@ -832,26 +691,9 @@
       </div>
     </div>
 
-    <!-- Full-Width Horizontal Grid Divider with Precision Crosshairs (+) -->
-    <div class="grid-row-divider" aria-hidden="true">
-      <span class="grid-divider-segment seg-1"></span>
-      <span class="grid-divider-segment seg-2"></span>
-      <span class="grid-divider-segment seg-3"></span>
-      <span class="grid-cross cross-0">+</span>
-      <span class="grid-cross cross-1">+</span>
-      <span class="grid-cross cross-2">+</span>
-      <span class="grid-cross cross-3">+</span>
-    </div>
-
     <!-- FOOTER / CONTACT SECTION (Exact Haoqi 1:1 Match with 3D Inflatable Mesh & Stickers) -->
     <footer class="footer-section" id="contact">
-      <!-- Authentic Die-Cut Stickers from Haoqi -->
-      <div class="footer-sticker sticker-smiley-top" aria-hidden="true">
-        <img src="sticker_img/s_06.png" alt="Smiley Sticker" width="130" height="130">
-      </div>
-      <div class="footer-sticker sticker-smiley-bottom" aria-hidden="true">
-        <img src="sticker_img/s_06.png" alt="Smiley Sticker" width="160" height="160">
-      </div>
+      <!-- Authentic Die-Cut Stickers from Haoqi (Smiley removed per request) -->
       <div class="footer-sticker sticker-pointer-bottom" aria-hidden="true">
         <img src="sticker_img/s_08.png" alt="Pixel Pointer Sticker" width="130" height="130">
       </div>
@@ -882,7 +724,7 @@
         </div>
 
         <div class="footer-social-links">
-          <a href="https://twitter.com/rahulyc" target="_blank" rel="noopener noreferrer" class="footer-social-link dotted-box">TWITTER/X</a>
+          <a href="https://drive.google.com/file/d/1i_UuYXhXjlP_tjT_mlEIuyFKNsyKDA77/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="footer-social-link dotted-box">RESUME ↗</a>
           <a href="https://linkedin.com/in/rahulyc" target="_blank" rel="noopener noreferrer" class="footer-social-link dotted-box">LINKEDIN</a>
           <a href="https://github.com/rahulachari" target="_blank" rel="noopener noreferrer" class="footer-social-link dotted-box">GITHUB</a>
           <svg class="footer-wire-globe" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
@@ -915,9 +757,9 @@
   </script>
 
   <!-- Interactive Developer Pass & Reader Controller -->
-  <script src="opening-gate.js?v=26.0"></script>
+  <script src="opening-gate.js?v=45.0"></script>
 
   <!-- Main ES Module Script -->
-  <script type="module" src="main.js?v=25.0"></script>
+  <script type="module" src="main.js?v=45.0"></script>
 </body>
 </html>

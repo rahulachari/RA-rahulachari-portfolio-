@@ -138,24 +138,16 @@ button {
   shape-rendering: crispEdges;
 }
 
-/* Middle Horizontal Grid Divider in Hero (Forming 3x2 Big Modular Grid Boxes) */
-.hero-mid-divider {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Reusable Full-Width Horizontal Grid Divider with Precision Crosshairs (+) */
-.grid-row-divider {
-  position: relative;
-  width: 100%;
-  height: 1px;
-  background-color: transparent !important;
-  pointer-events: none;
-  z-index: 15;
+/* Hero Brand Subtitle / Kicker (Guarantees Name is Clearly Visible on Mobile & Desktop) */
+.hero-brand-subtitle {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.12em;
+  color: #C0FE04;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .grid-divider-segment {
@@ -323,10 +315,6 @@ html.light .dot-matrix-cluster {
   z-index: 1;
   pointer-events: none !important;
   overflow: hidden;
-}
-
-.canvas-container.hs-in-front {
-  z-index: 25 !important;
 }
 
 .hero-atmosphere {
@@ -739,54 +727,7 @@ html.light .footer-atmosphere {
   }
 }
 
-/* Interactive Cursor Pointing Badge (In Hero Bio) */
-.cursor-pointer-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.55rem;
-  margin: 0.25rem 0;
-  border-radius: 4px;
-  background-color: rgba(37, 99, 235, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  font-family: var(--font-mono-2);
-  font-size: 0.8125rem;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.25s ease;
-}
 
-.cursor-pointer-badge:hover {
-  border-color: #38bdf8;
-  background-color: rgba(56, 189, 248, 0.25);
-}
-
-.badge-pointer-icon {
-  width: 13px;
-  height: 13px;
-  fill: #38bdf8;
-  display: inline-block;
-  transform: rotate(-35deg);
-  animation: cursorBob 2.4s ease-in-out infinite;
-}
-
-@keyframes cursorBob {
-  0%, 100% { transform: rotate(-35deg) translate(0, 0); }
-  50% { transform: rotate(-35deg) translate(2px, -3px); }
-}
-
-.badge-name-wrong {
-  color: #ff5252;
-  text-decoration: line-through;
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-}
-
-.badge-name-correct {
-  color: #C0FE04;
-  font-weight: 700;
-  margin-left: 0.25rem;
-}
 
 /* Giant Bottom Headline — Content is First on Top of 3D Canvas */
 .hero-headline-wrap {
@@ -874,7 +815,7 @@ html.light .philosophy-section {
   position: relative;
   width: 100%;
   max-width: 320px;
-  padding-top: 2rem;
+  padding-top: 0.5rem;
 }
 
 /* Remove colliding vertical dot strip next to portrait */
@@ -959,15 +900,16 @@ html.light .philosophy-section {
   text-transform: uppercase;
 }
 
-/* Calligraphy SVG Signature Layer (Neon Lime #C0FE04) positioned above and overlapping top-left of photo */
+/* Calligraphy SVG Signature Layer (Neon Lime #C0FE04) positioned gracefully overlapping lower corner of photo */
 .svg-sign {
   position: absolute;
-  top: -24px;
-  left: -20px;
-  width: 120%;
-  max-width: 380px;
+  bottom: -20px;
+  right: -12px;
+  width: 105%;
+  max-width: 340px;
   height: auto;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   z-index: 25;
   filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 12px rgba(192, 254, 4, 0.55));
 }
@@ -978,8 +920,21 @@ html.light .philosophy-section {
   fill: none !important;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 1 !important;
+  opacity: 0;
+  stroke-dasharray: var(--path-len, 500);
+  stroke-dashoffset: var(--path-len, 500);
+  transition: stroke-dashoffset var(--path-dur, 0.45s) cubic-bezier(0.4, 0, 0.2, 1) var(--path-delay, 0s),
+              opacity 0.2s ease var(--path-delay, 0s);
+}
+
+.svg-sign.is-drawn .svg-sign__path,
+.svg-sign.is-drawing .svg-sign__path {
   stroke-dashoffset: 0 !important;
+  opacity: 1 !important;
+}
+
+.svg-sign.no-transition .svg-sign__path {
+  transition: none !important;
 }
 
 .philosophy-text-col {
@@ -1050,25 +1005,7 @@ html.light .philosophy-section {
   text-decoration-color: #C0FE04;
 }
 
-/* Multi-Shade Chartreuse Accent Pixels (Exact Haoqi Reproduction: 10px pixels with 2px gap) */
-.portrait-accent-pixels {
-  position: absolute;
-  top: 36%;
-  right: -24px;
-  display: grid;
-  grid-template-columns: repeat(5, 10px);
-  grid-template-rows: repeat(8, 10px);
-  gap: 2px;
-  z-index: 20;
-  pointer-events: none;
-}
 
-.portrait-accent-pixels .pixel-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 0;
-  box-shadow: 0 0 6px rgba(192, 254, 4, 0.25);
-}
 
 /* ==========================================================================
    SELECTED WORK / PROJECTS (Exact Haoqi 12-Column Architectural Grid in Dark Deep Black)
@@ -1084,6 +1021,17 @@ html.light .philosophy-section {
 
 html.light .work-section {
   background-color: #FBFAF4 !important;
+}
+
+/* Dedicated Green Pixel Cursor Trail (Active Only in Selected Work Section) */
+.work-pixel-trail-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1000;
 }
 
 .work-header {
@@ -1161,7 +1109,7 @@ html.light .work-section {
   will-change: transform;
   transform-style: preserve-3d;
   backface-visibility: hidden;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .project-card:focus-visible {
@@ -1248,52 +1196,67 @@ html.light .work-section {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.15rem;
+  margin-top: 0;
   flex-wrap: wrap;
+  z-index: 12;
+  pointer-events: auto;
+}
+
+/* Floating Action Buttons Placed UPON the Project Image */
+.project-visual-box .project-btn-group {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 12;
+  margin-top: 0;
 }
 
 .project-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.3rem 0.7rem;
+  padding: 0.32rem 0.72rem;
   font-family: var(--font-mono-2);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   text-decoration: none;
   border-radius: 6px;
-  transition: all 0.2s ease;
-  z-index: 5;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 12;
   cursor: pointer;
+  background: rgba(8, 9, 12, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
 .btn-github {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--label-2);
-  border: 1px solid var(--line);
+  color: var(--label-1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .btn-github:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.25);
   color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.35);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
 }
 
 .btn-live {
-  background: rgba(192, 254, 4, 0.08);
+  background: rgba(192, 254, 4, 0.16);
   color: #C0FE04;
-  border: 1px solid rgba(192, 254, 4, 0.35);
+  border: 1px solid rgba(192, 254, 4, 0.55);
 }
 
 .btn-live:hover {
   background: #C0FE04;
   color: #000000;
   border-color: #C0FE04;
-  box-shadow: 0 0 14px rgba(192, 254, 4, 0.45);
-  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(192, 254, 4, 0.6);
+  transform: translateY(-2px);
 }
 
 .btn-live-pulse {
@@ -1308,6 +1271,15 @@ html.light .work-section {
 .btn-live:hover .btn-live-pulse {
   background: #000000;
   box-shadow: none;
+}
+
+.project-img-anchor {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes live-dot-pulse {
@@ -1382,13 +1354,14 @@ html.light .project-card:hover .project-visual-box {
   filter: contrast(110%) saturate(115%);
 }
 
-/* Iconic Neon Lime Category Badge (Top-Right Flush) */
+/* Category Badge (Top-Left on Image opposite Action Buttons) */
 .project-badge {
   position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 5;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 10;
   background-color: #C0FE04;
+  border-radius: 4px;
   color: #000000;
   font-family: var(--font-mono-2);
   font-size: 0.6875rem;
@@ -1398,6 +1371,54 @@ html.light .project-card:hover .project-visual-box {
   padding: 0.25rem 0.65rem;
   border-radius: 0;
   line-height: 1.2;
+}
+
+/* ==========================================================================
+   PROJECT DESCRIPTION OVERLAY UPON IMAGE
+   ========================================================================== */
+.project-desc-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.25rem 1.15rem 0.85rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(3, 7, 18, 0.68) 28%, rgba(3, 7, 18, 0.94) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  z-index: 6;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.project-desc-overlay .project-desc {
+  font-family: var(--font-sans);
+  font-size: clamp(0.78rem, 0.92vw, 0.875rem);
+  line-height: 1.45;
+  color: #f1f5f9;
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.project-card:hover .project-desc-overlay {
+  background: linear-gradient(180deg, transparent 0%, rgba(3, 7, 18, 0.82) 25%, rgba(3, 7, 18, 0.98) 100%);
+  border-top-color: rgba(192, 254, 4, 0.35);
+}
+
+.project-card:hover .project-desc-overlay .project-desc {
+  color: #ffffff;
+}
+
+html.light .project-desc-overlay {
+  background: linear-gradient(180deg, transparent 0%, rgba(251, 250, 244, 0.72) 25%, rgba(251, 250, 244, 0.96) 100%);
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light .project-desc-overlay .project-desc {
+  color: #0f172a;
+  text-shadow: none;
 }
 
 /* Two-Level Meta Bar: Ticker + Title (Left), Year + Globe (Right) */
@@ -1528,9 +1549,21 @@ html.light .project-card:hover .project-visual-box {
   z-index: 10;
 }
 
-/* LightTunnel Mount hidden - transition streaks now run strictly inside the 3D cursor mesh */
+/* LightTunnel Full-Screen Shader Mount (Canvas sits in background of sticky hyperspace section) */
 .light-tunnel-mount {
-  display: none !important;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.light-tunnel-mount.is-active {
+  opacity: 1;
 }
 
 /* Hyperspace 12-Column Architectural Grid Overlay */
@@ -1569,7 +1602,7 @@ html.light .hyperspace-grid-col:first-child {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
+  z-index: 10;
   pointer-events: none;
 }
 
@@ -1584,7 +1617,7 @@ html.light .hyperspace-grid-col:first-child {
   justify-content: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.35s ease, visibility 0.35s ease;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
   pointer-events: none;
 }
 
@@ -1594,8 +1627,15 @@ html.light .hyperspace-grid-col:first-child {
   pointer-events: auto;
 }
 
+.hs-stage.is-leaving {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* Giant Typography for Stages (0A, 0B, End) */
 .hs-giant-text {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1607,9 +1647,22 @@ html.light .hyperspace-grid-col:first-child {
   text-transform: uppercase;
   letter-spacing: -0.04em;
   color: var(--label-1);
-  text-shadow: 0 0 40px rgba(0, 0, 0, 0.85), 0 0 80px rgba(0, 157, 255, 0.35);
+  transition: color 0.35s ease-out;
   text-align: center;
   user-select: none;
+  z-index: 5;
+}
+
+.hs-giant-text.is-white {
+  color: #ffffff !important;
+  text-shadow: 0 0 35px rgba(0, 0, 0, 0.9), 0 0 70px rgba(0, 157, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+  .hs-giant-text {
+    font-size: clamp(2.4rem, 10.5vw, 4.4rem);
+    line-height: 0.96;
+  }
 }
 
 .hs-line {
@@ -1617,35 +1670,26 @@ html.light .hyperspace-grid-col:first-child {
   white-space: nowrap;
 }
 
-/* Staggered Characters (Exact Haoqi Reproduction) */
+/* Staggered Characters (Smooth, Reversible Transitions) */
 .hsst-char {
   display: inline-block;
   opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  transition-delay: calc(var(--char-idx, 0) * 0.016s);
   will-change: opacity, transform;
 }
 
 .hs-stage.is-active .hsst-char {
-  animation: hsstFadeIn 0.24s linear forwards;
-  animation-delay: calc(var(--char-idx, 0) * 0.022s);
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hs-stage.is-leaving .hsst-char {
-  animation: hsstFadeOut 0.22s linear forwards;
-  animation-delay: calc(var(--char-idx, 0) * 0.018s);
-}
-
-@keyframes hsstFadeIn {
-  0% { opacity: 0; transform: translateY(4px); }
-  32% { opacity: 0.22; }
-  62% { opacity: 0.55; }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes hsstFadeOut {
-  0% { opacity: 1; transform: translateY(0); }
-  38% { opacity: 0.62; }
-  72% { opacity: 0.28; }
-  100% { opacity: 0; transform: translateY(-4px); }
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition-delay: calc(var(--char-idx, 0) * 0.010s);
 }
 
 /* Stage 1: Central Concentric Cyber Rings + 4 Manifesto Statements */
@@ -1785,6 +1829,125 @@ html.light .hyperspace-grid-col:first-child {
 }
 
 /* ==========================================================================
+   FUTURE-FIRST ALWAYS & WIREFRAME STICKERS (Screenshot 3)
+   ========================================================================== */
+.hs-stage-future {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.hs-stage-future.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.hs-stage-future .hs-giant-text {
+  z-index: 2;
+  position: relative;
+  color: #ffffff;
+}
+
+/* Wireframe Stickers Around FUTURE-FIRST (Exact Haoqi Screenshot 3) */
+.future-stickers-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.future-sticker {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  pointer-events: auto;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  animation: stickerFloat 6s ease-in-out infinite alternate;
+}
+
+@keyframes stickerFloat {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-8px) rotate(2deg); }
+}
+
+/* Left: Orange textured sphere */
+.sticker-orange-sphere {
+  width: 86px;
+  height: 86px;
+  left: 24%;
+  top: 48%;
+  background-image: radial-gradient(#ea580c 2px, transparent 2px), radial-gradient(#ea580c 2px, #000 2px);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  border: 2px solid #ea580c;
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(234, 88, 12, 0.4);
+}
+
+/* Right: Green double-oval dots */
+.sticker-green-ovals {
+  width: 80px;
+  height: 60px;
+  left: 54%;
+  top: 55%;
+  background-image: radial-gradient(#22c55e 1.5px, transparent 1.5px);
+  background-size: 6px 6px;
+  border: 1.5px solid #22c55e;
+  border-radius: 40px;
+  opacity: 0.9;
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.35);
+  animation-delay: -1.5s;
+}
+
+/* Small yellow star */
+.sticker-yellow-star {
+  width: 24px;
+  height: 24px;
+  left: 63%;
+  top: 53%;
+  background: #eab308;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  filter: drop-shadow(0 0 8px #eab308);
+  animation-delay: -3s;
+}
+
+/* White lightning bolt */
+.sticker-white-bolt {
+  width: 32px;
+  height: 48px;
+  left: 84%;
+  top: 67%;
+  background: #ffffff;
+  clip-path: polygon(45% 0%, 0% 55%, 40% 55%, 25% 100%, 85% 38%, 48% 38%);
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+  animation-delay: -2s;
+}
+
+/* Bottom-left: Purple/pink textured block */
+.sticker-purple-block {
+  width: 75px;
+  height: 52px;
+  left: 33%;
+  top: 76%;
+  background-image: radial-gradient(#d946ef 1.5px, transparent 1.5px);
+  background-size: 7px 7px;
+  border: 1.5px solid #d946ef;
+  transform: skew(-15deg, -5deg);
+  box-shadow: 0 0 14px rgba(217, 70, 239, 0.35);
+  animation-delay: -4s;
+}
+
+/* ==========================================================================
    FOOTER SECTION (Exact Matching Royal Cobalt Light & Shadow Atmosphere)
    ========================================================================== */
 .footer-section {
@@ -1872,72 +2035,7 @@ html.light .footer-section {
   text-align: right;
 }
 
-/* Hero Floating Die-Cut Stickers (Exact Haoqi Reproduction) */
-.hero-sticker-badge {
-  position: absolute;
-  left: 21%;
-  top: 57%;
-  width: clamp(75px, 7vw, 110px);
-  z-index: 8;
-  pointer-events: auto;
-  user-select: none;
-  cursor: grab;
-  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
-  transition: transform 0.35s var(--cubic-66);
-  transform: rotate(8deg);
-  animation: stickerFloat1 6.5s ease-in-out infinite;
-}
 
-.hero-sticker-badge:hover {
-  transform: scale(1.1) rotate(12deg) !important;
-}
-
-.hero-sticker-pen {
-  position: absolute;
-  right: 14%;
-  top: 45%;
-  width: clamp(75px, 7vw, 110px);
-  z-index: 15;
-  pointer-events: auto;
-  user-select: none;
-  cursor: grab;
-  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
-  transition: transform 0.35s var(--cubic-66);
-  transform: rotate(-24deg);
-  animation: stickerFloat2 7s ease-in-out infinite;
-}
-
-.hero-sticker-pen:hover {
-  transform: scale(1.1) rotate(-16deg) !important;
-}
-
-.hero-sticker-star {
-  position: absolute;
-  right: 18%;
-  top: 61%;
-  width: clamp(75px, 7vw, 110px);
-  z-index: 15;
-  pointer-events: auto;
-  user-select: none;
-  cursor: grab;
-  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
-  transition: transform 0.35s var(--cubic-66);
-  transform: rotate(14deg);
-  animation: stickerFloat3 7.5s ease-in-out infinite;
-}
-
-.hero-sticker-star:hover {
-  transform: scale(1.1) rotate(20deg) !important;
-}
-
-.hero-sticker-badge img,
-.hero-sticker-pen img,
-.hero-sticker-star img {
-  width: 100%;
-  height: auto;
-  display: block;
-  pointer-events: none;
-}
 
 /* Footer Floating Die-Cut Stickers (Image 3) */
 .footer-sticker-bolt {
@@ -2043,7 +2141,7 @@ html.light .footer-section {
 }
 
 /* ==========================================================================
-   INTERACTIVE CUSTOM CURSOR EFFECT (Exact Modernist Design)
+   INTERACTIVE CUSTOM CURSOR EFFECT (Centered, Zero Jitter, Difference Blend)
    ========================================================================== */
 .custom-cursor-dot {
   position: fixed;
@@ -2051,12 +2149,12 @@ html.light .footer-section {
   left: 0;
   width: 6px;
   height: 6px;
-  background-color: #C0FE04;
+  background-color: #FFFFFF;
   border-radius: 50%;
   pointer-events: none;
   z-index: 10000;
   transform: translate(-50%, -50%);
-  transition: opacity 0.2s ease, transform 0.15s ease, background-color 0.25s ease;
+  mix-blend-mode: difference;
   opacity: 0;
 }
 
@@ -2064,23 +2162,23 @@ html.light .footer-section {
   position: fixed;
   top: 0;
   left: 0;
-  width: 34px;
-  height: 34px;
-  border: 1.5px solid rgba(192, 254, 4, 0.4);
+  width: 32px;
+  height: 32px;
+  border: 1.2px solid rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%);
-  transition: width 0.28s var(--cubic-66), height 0.28s var(--cubic-66), border-color 0.25s ease, background-color 0.25s ease, opacity 0.2s ease;
+  mix-blend-mode: difference;
   opacity: 0;
+  transition: width 0.24s cubic-bezier(0.16, 1, 0.3, 1), height 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
 }
 
 .custom-cursor-ring.is-hovering {
-  width: 62px;
-  height: 62px;
-  border-color: #C0FE04;
-  background-color: rgba(192, 254, 4, 0.08);
-  backdrop-filter: blur(2px);
+  width: 52px;
+  height: 52px;
+  border-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .custom-cursor-ring.is-clicking {
@@ -2154,6 +2252,63 @@ html.light .custom-cursor-ring.is-hovering {
   .work-section { padding: 4.5rem 1.25rem 5rem; }
   .work-grid { display: grid; grid-template-columns: 1fr; row-gap: 2.5rem; perspective: 1200px; }
   .work-grid .project-card { grid-column: 1 / -1; }
+  .work-grid .project-card.col-span-6 { grid-column: 1 / -1; }
+
+  /* Philosophy section mobile alignment */
+  .philosophy-section { padding: 3.5rem 1.25rem 4rem; }
+  .philosophy-section .grid-12 {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+    row-gap: 2rem;
+  }
+  .signature-col { grid-column: 1 / -1; }
+  .philosophy-text-col { grid-column: 1 / -1; }
+  .portrait-container {
+    max-width: 260px;
+    margin: 0 auto;
+  }
+  .portrait-name-header {
+    text-align: center;
+  }
+  .pnb-kicker-row {
+    justify-content: center;
+  }
+  .portrait-name-title {
+    text-align: center;
+  }
+
+  /* Ticker full-width bleed fix */
+  .scroll-name-ticker-wrap {
+    margin-left: -1.25rem;
+    margin-right: -1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Manifesto text mobile fix */
+  .manifesto-lead,
+  .manifesto-sub {
+    font-size: clamp(1.35rem, 6.5vw, 2rem);
+    line-height: 1.18;
+  }
+
+  /* Hyperspace manifesto mobile fix */
+  .hs-manifesto-item.item-1 { grid-column: 1 / span 12; grid-row: 2; }
+  .hs-manifesto-item.item-2 { grid-column: 1 / span 12; grid-row: 3; }
+  .hs-manifesto-item.item-3 { grid-column: 1 / span 12; grid-row: 4; }
+  .hs-manifesto-item.item-4 { grid-column: 1 / span 12; grid-row: 5; }
+  .hs-item-title { font-size: clamp(1rem, 5vw, 1.5rem); }
+
+  /* Project card mobile fixes */
+  .project-header-above { margin-bottom: 0.5rem; }
+  .project-title-line { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+  .project-btn-group { margin-top: 0.25rem; }
+  .project-visual-box { border-radius: 8px; }
+  .project-desc-overlay { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 1rem 0.85rem 0.65rem; }
+
+  /* Footer mobile fixes */
+  .footer-bottom-bar { flex-direction: column; gap: 1rem; align-items: flex-start; }
+  .footer-social-links { flex-wrap: wrap; gap: 0.75rem; }
+  .footer-coords-display { display: none; }
 }
 
 @media (min-width: 768px) {

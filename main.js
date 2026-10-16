@@ -37,18 +37,25 @@ import createLightTunnel from './LightTunnel.js';
   let cnt3DMesh = null;
   let lightTunnel = null;
   let svgSignEl = null;
-  let signatureDrawn = false;
 
   function triggerSignatureDraw() {
-    if (signatureDrawn) return;
     if (!svgSignEl) {
       svgSignEl = document.getElementById('svg-signature');
     }
     if (!svgSignEl) return;
     const rect = svgSignEl.getBoundingClientRect();
-    if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
-      signatureDrawn = true;
-      svgSignEl.classList.add('is-drawn');
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    if (rect.top < vh * 0.82 && rect.bottom > 40) {
+      if (!svgSignEl.classList.contains('is-drawn')) {
+        svgSignEl.classList.add('is-drawn');
+      }
+    } else if (rect.top > vh * 1.05) {
+      if (svgSignEl.classList.contains('is-drawn')) {
+        svgSignEl.classList.add('no-transition');
+        svgSignEl.classList.remove('is-drawn');
+        void svgSignEl.offsetWidth;
+        svgSignEl.classList.remove('no-transition');
+      }
     }
   }
 
@@ -67,7 +74,6 @@ import createLightTunnel from './LightTunnel.js';
       if (preloaderFill) preloaderFill.style.width = '100%';
       setTimeout(() => {
         if (preloader) preloader.classList.add('fade-out');
-        triggerSignatureDraw();
       }, 250);
     } else {
       if (preloaderFill) preloaderFill.style.width = `${loadProgress}%`;
@@ -221,7 +227,7 @@ import createLightTunnel from './LightTunnel.js';
   }, { passive: true });
 
   // --------------------------------------------------------------------------
-  // 4B. INTERACTIVE DOM CUSTOM CURSOR & TRAILER
+  // 4B. INTERACTIVE DOM CUSTOM CURSOR & TRAILER (Precisely Centered, No Glitches)
   // --------------------------------------------------------------------------
   const cursorDot = document.getElementById('custom-cursor-dot');
   const cursorRing = document.getElementById('custom-cursor-ring');
@@ -333,12 +339,14 @@ import createLightTunnel from './LightTunnel.js';
   if (svgSignPaths.length > 0) {
     svgSignPaths.forEach((path) => {
       try {
-        const len = Math.ceil(path.getTotalLength()) + 2;
+        const len = Math.ceil(path.getTotalLength()) + 4;
+        path.style.setProperty('--path-len', `${len}`);
         path.style.strokeDasharray = `${len}`;
         path.style.strokeDashoffset = `${len}`;
       } catch (e) {
-        path.style.strokeDasharray = '800';
-        path.style.strokeDashoffset = '800';
+        path.style.setProperty('--path-len', '500');
+        path.style.strokeDasharray = '500';
+        path.style.strokeDashoffset = '500';
       }
     });
   }
@@ -348,9 +356,13 @@ import createLightTunnel from './LightTunnel.js';
     svgSignEl.style.cursor = 'pointer';
     svgSignEl.style.pointerEvents = 'auto';
     svgSignEl.addEventListener('click', () => {
+      svgSignEl.classList.add('no-transition');
       svgSignEl.classList.remove('is-drawn');
-      void svgSignEl.offsetWidth; // trigger reflow
-      svgSignEl.classList.add('is-drawn');
+      void svgSignEl.offsetWidth;
+      svgSignEl.classList.remove('no-transition');
+      requestAnimationFrame(() => {
+        svgSignEl.classList.add('is-drawn');
+      });
     });
 
     if ('IntersectionObserver' in window) {
@@ -358,12 +370,15 @@ import createLightTunnel from './LightTunnel.js';
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             svgSignEl.classList.add('is-drawn');
+          } else if (entry.boundingClientRect.top > 0) {
+            svgSignEl.classList.add('no-transition');
+            svgSignEl.classList.remove('is-drawn');
+            void svgSignEl.offsetWidth;
+            svgSignEl.classList.remove('no-transition');
           }
         });
-      }, { threshold: 0.15 });
+      }, { threshold: 0.2, rootMargin: '0px 0px -40px 0px' });
       signObserver.observe(svgSignEl);
-    } else {
-      window.addEventListener('scroll', triggerSignatureDraw, { passive: true });
     }
   }
 
@@ -509,9 +524,10 @@ import createLightTunnel from './LightTunnel.js';
         iTime: { value: 0.0 },
         uScrollDuration: { value: 2.0 },
         uOpacity: { value: 1.0 },
-        uAccentColor: { value: new THREE.Color('#009dff') },
-        uStripeColorA: { value: new THREE.Color('#009dff') },
-        uStripeColorB: { value: new THREE.Color('#64c3ff') },
+        uCursorRadius: { value: 6.0 },
+        uAccentColor: { value: new THREE.Color('#0d42d4') }, // Rich royal cobalt blue
+        uStripeColorA: { value: new THREE.Color('#00d2ff') }, // Electric cyan-blue
+        uStripeColorB: { value: new THREE.Color('#a855f7') }, // Cosmic purple
         uStripeReveal: { value: 0.0 },
         uLight: { value: new THREE.Vector3(4.0, 9.0, 0.5) },
         uShininess: { value: 40.0 },
@@ -546,6 +562,7 @@ import createLightTunnel from './LightTunnel.js';
         uniform vec3 uStripeColorA;
         uniform vec3 uStripeColorB;
         uniform float uStripeReveal;
+        uniform float uCursorRadius;
 
         uniform float uOpacity;
         uniform vec3 uLight;
@@ -578,13 +595,15 @@ import createLightTunnel from './LightTunnel.js';
           return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
         }
 
+        // Exact Haoqi Hyperspace Speed Tunnel Shader (Screen-space radiating streaks)
         vec3 sampleHyperspace(vec2 fragCoord) {
           vec2 R = iResolution.xy;
           float baseScale = max(1.0, min(R.x, R.y));
           vec2 u = (fragCoord * 2.0 - R) / baseScale;
 
-          float travel = clamp(uStripeReveal, 0.0, 1.0);
-          float time = iTime;
+          float dur = max(uScrollDuration, 1e-4);
+          float time = clamp(iTime, 0.0, dur * 100.0);
+          float t = clamp(time / dur, 0.0, 1.0);
 
           const float cellDensity = 100.0;
           vec2 polar = vec2(atan(u.y, u.x) / 3.0, length(u));
@@ -594,9 +613,10 @@ import createLightTunnel from './LightTunnel.js';
           float radialCoord = (6.0 - polar.y) * cellDensity;
           vec2 q = vec2(angleId, radialCoord);
 
-          float keepProbability = mix(0.25, 1.0, travel);
-          float scrollSpeed = mix(1.2, 4.2, travel);
-          float trailLength = mix(2.4, 0.95, travel);
+          float travel = smoothstep(0.0, 1.0, t);
+          float keepProbability = mix(0.18, 0.65, travel);
+          float scrollSpeed = mix(0.7, 3.6, travel);
+          float trailLength = mix(2.7, 0.975, travel);
           float raySeq = fract((angleId + 0.5) * 0.61803398875);
           float keepEdge = 0.025;
           float keepMask = 1.0 - smoothstep(keepProbability - keepEdge, keepProbability + keepEdge, raySeq);
@@ -611,14 +631,14 @@ import createLightTunnel from './LightTunnel.js';
           float edge = max(fwidth(channelMix) * 1.5, 2.0 / max(iResolution.y, 1.0));
           float star = smoothstep(0.12 - edge, 0.12 + edge, channelMix);
 
-          const float starThinness = 0.14;
+          const float starThinness = 0.13;
           float thinEdge = max(fwidth(angleCell) * 1.5, 0.002);
           float thinMask = 1.0 - smoothstep(starThinness - thinEdge, starThinness + thinEdge, angleCell);
           star *= thinMask * keepMask;
 
-          // Never zero out in center: radiant boost across full cursor silhouette
-          float radialBoost = mix(0.85, 1.45, smoothstep(0.0, 0.7, polar.y));
-          float intensity = mix(0.0, 6.8, travel * 1.2);
+          // Void tunnel center (leaving clear space for bold typography) with high-intensity speed streaks flying outwards
+          float radialBoost = pow(smoothstep(0.06, 0.95, polar.y), 1.25);
+          float intensity = mix(2.8, 7.8, travel * 1.2);
 
           float stripeBlend = hash21(vec2(angleId, 19.713));
           vec3 stripeRgb = mix(uStripeColorA, uStripeColorB, stripeBlend);
@@ -646,6 +666,10 @@ import createLightTunnel from './LightTunnel.js';
           float pulse = mix(0.78, 1.0, smoothstep(0.14, 0.5, channelMix));
           sparkColor *= pulse;
 
+          // Brilliant pure white core on the fastest streaks
+          float whiteCore = smoothstep(0.38, 0.85, channelMix) * 0.95;
+          sparkColor = mix(sparkColor, vec3(1.0, 1.0, 1.0), whiteCore);
+
           return intensity * radialBoost * sparkColor * star;
         }
 
@@ -671,34 +695,41 @@ import createLightTunnel from './LightTunnel.js';
           vec2 fragCoord = gl_FragCoord.xy;
           vec3 stripes = sampleHyperspace(fragCoord);
 
-          float reveal = clamp(uStripeReveal, 0.0, 1.0);
-
-          float stripeLuma = dot(stripes, vec3(0.299, 0.587, 0.114));
-          float darken = smoothstep(0.0, 0.88, reveal);
-          // Glossy royal cobalt deep base that transitions to dark void as streaks take over
-          vec3 glossyBlue = vec3(0.05, 0.26, 0.85);
-          vec3 darkBase = mix(glossyBlue, vec3(0.01, 0.03, 0.09), darken);
-          float gapMask = (1.0 - smoothstep(0.035, 0.12, stripeLuma)) * reveal;
-          vec3 rgb = darkBase + stripes * reveal * 1.5 + uAccentColor * gapMask * 0.15;
-
           vec3 normal = normalize(vWorldNormal);
           if (!gl_FrontFacing) {
             normal = -normal;
           }
           vec3 eyeDir = normalize(vEyeVector);
 
+          float reveal = clamp(uStripeReveal, 0.0, 1.0);
+          float stripeLuma = dot(stripes, vec3(0.299, 0.587, 0.114));
+
+          // Rich, glossy 3D cobalt blue cursor arrow with bevels and specular
+          vec3 lightDir = normalize(vec3(-0.5, 0.9, 1.2));
+          float NdotL = max(0.0, dot(normal, lightDir));
+          vec3 halfVec = normalize(-eyeDir + lightDir);
+          float spec = pow(max(0.0, dot(normal, halfVec)), 36.0);
+
+          vec3 deepBlue = vec3(0.02, 0.08, 0.35);
+          vec3 bodyColor = mix(deepBlue, uAccentColor, clamp(normal.y * 0.5 + 0.5, 0.0, 1.0));
+          vec3 baseShaded = bodyColor * (0.8 + 0.45 * NdotL) + vec3(0.4, 0.75, 1.0) * spec * 1.5;
+
+          float darken = smoothstep(0.0, 0.85, reveal);
+          vec3 darkBase = mix(baseShaded, vec3(0.0), darken);
+          float gapMask = (1.0 - smoothstep(0.035, 0.12, stripeLuma)) * reveal;
+          float crackGuard = 1.0 - smoothstep(0.68, 0.94, reveal);
+          vec3 rgb = darkBase + stripes * reveal + uAccentColor * gapMask * 0.07 * crackGuard;
+
           float glossMask = mix(1.0, smoothstep(0.1, 0.48, stripeLuma), reveal);
 
           float specularLight = specular(uLight, normal, eyeDir, uShininess, uDiffuseness);
-          rgb += specularLight * uSpecularStrength * glossMask * vec3(0.4, 0.75, 1.0);
+          rgb += specularLight * uSpecularStrength * glossMask;
 
+          // Outer Fresnel rim light to cleanly outline the cursor arrow contour
           float f = fresnel(eyeDir, normal, uFresnelPower);
           float sideDot = dot(normal, normalize(uFresnelSideDir));
           float sideMask = smoothstep(-0.5, 0.5, sideDot);
-          rgb += f * sideMask * vec3(uFresnelStrength) * glossMask * vec3(0.3, 0.7, 1.0);
-
-          // Electric cyber rim glow so 3D arrow contour is strikingly visible against black or white
-          rgb += f * vec3(0.0, 0.65, 1.0) * 0.85;
+          rgb += f * sideMask * vec3(uFresnelStrength) * glossMask;
 
           float alpha = clamp(uOpacity, 0.0, 1.0);
           if (alpha <= 0.0001) discard;
@@ -709,10 +740,10 @@ import createLightTunnel from './LightTunnel.js';
         }
       `,
       transparent: true,
-      depthWrite: true,
+      depthWrite: false,
       depthTest: true,
       toneMapped: false,
-      side: THREE.DoubleSide
+      side: THREE.FrontSide
     });
   }
 
@@ -748,7 +779,11 @@ import createLightTunnel from './LightTunnel.js';
     rahul3DMesh.add(textMesh);
 
     const boxSize = textGeo.boundingBox.getSize(new THREE.Vector3());
-    const targetWidth = isMobile ? 12.5 : (isTablet ? 17.5 : 24.0);
+    // On mobile, ensure 3D text stays comfortably inside viewport width without being clipped offscreen
+    const dist = Math.max(camera.position.z - 0.2, 1.0);
+    const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
+    const vW = vH * camera.aspect;
+    const targetWidth = isMobile ? Math.min(vW * 0.82, 6.8) : (isTablet ? 16.0 : 23.5);
     const baseScale = targetWidth / Math.max(boxSize.x, 1);
 
     rahul3DMesh.userData.baseScale = baseScale;
@@ -786,6 +821,7 @@ import createLightTunnel from './LightTunnel.js';
     // 2. Quote Transition Cursor (Hyper-Space Section)
     // Streaks run strictly inside the cursor mesh, centered at middle of screen
     transitionCursorMesh = gltf.scene.clone(true);
+    transitionCursorMesh.scale.set(1.0, 1.0, 1.0);
     transitionCursorMaterial = createCursorTransitionMaterial();
     transitionCursorMesh.traverse((child) => {
       if (child.isMesh) {
@@ -801,7 +837,8 @@ import createLightTunnel from './LightTunnel.js';
     transitionCursorMesh.position.sub(cursorCenter);
 
     const cursorSize = cursorBox.getSize(new THREE.Vector3());
-    const cursorRadius = Math.max(cursorSize.x, cursorSize.y, cursorSize.z) * 0.5 || 6.0;
+    const cursorRadius = Math.max(cursorSize.x, cursorSize.y, cursorSize.z) * 0.5 || 5.017;
+    transitionCursorMaterial.uniforms.uCursorRadius.value = cursorRadius;
 
     const centerGroup = new THREE.Group();
     centerGroup.add(transitionCursorMesh);
@@ -812,8 +849,8 @@ import createLightTunnel from './LightTunnel.js';
     transitionSpin = new THREE.Group();
     transitionTiltB = new THREE.Group();
 
-    transitionTiltA.rotation.z = THREE.MathUtils.degToRad(45);
-    transitionTiltB.rotation.z = THREE.MathUtils.degToRad(-45);
+    transitionTiltA.rotation.z = 0;
+    transitionTiltB.rotation.z = 0;
 
     transitionTiltB.add(centerGroup);
     transitionSpin.add(transitionTiltB);
@@ -974,34 +1011,23 @@ import createLightTunnel from './LightTunnel.js';
   // --------------------------------------------------------------------------
   // 11. SMOOTH SCROLL & ANIMATION LOOP (Exact Transitions & Physics)
   // --------------------------------------------------------------------------
-  function triggerSignatureDraw() {
-    const sign = document.getElementById('svg-signature');
-    if (!sign) return;
-    const rect = sign.getBoundingClientRect();
-    if (rect.top < window.innerHeight * 0.95 && rect.bottom > -200) {
-      sign.classList.add('is-drawn');
-      sign.classList.add('is-drawing');
-    }
-  }
-
   function updateScrollState() {
     state.scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
     triggerSignatureDraw();
   }
   window.addEventListener('scroll', updateScrollState, { passive: true });
-  setTimeout(triggerSignatureDraw, 400);
 
   let lenisInstance = null;
   if (typeof Lenis !== 'undefined') {
     try {
       lenisInstance = new Lenis({
-        duration: 1.1,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        duration: 1.5,
+        easing: (t) => 1 - Math.pow(1 - t, 4),
         orientation: 'vertical',
         gestureOrientation: 'vertical',
         smoothWheel: true,
-        wheelMultiplier: 1.0,
-        touchMultiplier: 1.6,
+        wheelMultiplier: 0.75, // Deliberate, smooth, somewhat slow scroll
+        touchMultiplier: 1.0,
         infinite: false
       });
 
@@ -1014,7 +1040,18 @@ import createLightTunnel from './LightTunnel.js';
     }
   }
 
-  // Hyperspace transition runs exclusively inside the 3D cursor mesh shader
+  // Initialize Full-Screen WebGL2 LightTunnel Shader
+  const lightTunnelMount = document.getElementById('light-tunnel-mount');
+  if (lightTunnelMount) {
+    try {
+      lightTunnel = createLightTunnel(lightTunnelMount, {
+        opacity: 0.0,
+        stripeReveal: 1.0
+      });
+    } catch (e) {
+      console.warn('LightTunnel initialization error:', e);
+    }
+  }
 
   let clock = new THREE.Clock();
   let lastScrollY = 0;
@@ -1111,8 +1148,6 @@ import createLightTunnel from './LightTunnel.js';
     state.mouse.x += (state.mouse.targetX - state.mouse.x) * 0.08;
     state.mouse.y += (state.mouse.targetY - state.mouse.y) * 0.08;
 
-    triggerSignatureDraw();
-
     // Fade hero atmosphere smoothly on scroll
     const heroAtmosphere = document.getElementById('hero-atmosphere');
     if (heroAtmosphere) {
@@ -1120,16 +1155,16 @@ import createLightTunnel from './LightTunnel.js';
       heroAtmosphere.style.opacity = heroFade.toFixed(3);
     }
 
-    // DOM Custom Cursor Ring Lerp
-    ringScreen.x += (mouseScreen.x - ringScreen.x) * 0.18;
-    ringScreen.y += (mouseScreen.y - ringScreen.y) * 0.18;
+    // DOM Custom Cursor Ring Lerp (Centered precisely with smooth inertia)
+    ringScreen.x += (mouseScreen.x - ringScreen.x) * 0.25;
+    ringScreen.y += (mouseScreen.y - ringScreen.y) * 0.25;
     if (cursorRing && cursorActive) {
       cursorRing.style.transform = `translate3d(${ringScreen.x}px, ${ringScreen.y}px, 0) translate(-50%, -50%)`;
     }
 
-    // Camera subtle parallax
-    camera.position.x = state.mouse.x * 0.8;
-    camera.position.y = state.mouse.y * 0.5;
+    // Camera subtle vertical parallax only (no horizontal sway on hero centerpiece)
+    camera.position.x = 0;
+    camera.position.y = state.mouse.y * 0.4;
     camera.lookAt(0, 0, 0);
 
     const isMobile = window.innerWidth < 768;
@@ -1151,24 +1186,28 @@ import createLightTunnel from './LightTunnel.js';
     }
 
     // 1. 3D "Rahul Achari" Inflatable Centerpiece Mesh (Hero Section 3D Backdrop)
+    // Strictly vertical movement (top and bottom only, no left/right movement or horizontal roll)
     if (rahul3DMesh) {
       const bannerProgress = Math.min(Math.max(state.scrollY / 650, 0), 1);
       const baseScale = rahul3DMesh.userData.baseScale || (isMobile ? 0.7 : (isTablet ? 1.0 : 1.35));
       
-      // Dynamic liquid bobbing & floating undulation
-      const floatY = (0.14 * Math.sin(1.2 * elapsedTime) + 0.05 * Math.sin(0.6 * elapsedTime));
-      const rollZ = Math.sin(elapsedTime * 1.5) * 0.03 + state.mouse.x * 0.05;
+      // Dynamic vertical bobbing (strictly top and bottom)
+      const floatY = (0.24 * Math.sin(1.3 * elapsedTime) + 0.08 * Math.sin(0.7 * elapsedTime));
       
-      // Gentle mouse interaction tilt + scroll exit rotation
-      rahul3DMesh.rotation.y = THREE.MathUtils.degToRad(3) + state.mouse.x * 0.22 + (THREE.MathUtils.degToRad(70) * bannerProgress);
-      rahul3DMesh.rotation.x = -state.mouse.y * 0.18 + Math.cos(elapsedTime * 1.2) * 0.02;
-      rahul3DMesh.rotation.z = rollZ;
+      // Strictly vertical motion: NO horizontal rotation, NO left/right shift
+      rahul3DMesh.position.x = 0; // Locked horizontally at center
+      rahul3DMesh.rotation.y = THREE.MathUtils.degToRad(3); // Fixed subtle angle, no mouse.x or bannerProgress Y-spin
+      rahul3DMesh.rotation.z = 0; // No horizontal roll
       
-      // Positioned comfortably behind DOM text (z: 0.2)
-      rahul3DMesh.position.y = (isMobile ? 0.35 : (isTablet ? 0.2 : 0.08)) + floatY + (state.scrollY * 0.012 * 0.72);
+      // Vertical pitch reaction to mouse Y (top and bottom)
+      rahul3DMesh.rotation.x = -state.mouse.y * 0.20 + Math.cos(elapsedTime * 1.2) * 0.03;
+      
+      // Smooth vertical scroll translation (glides up as user scrolls down)
+      const baseY = isMobile ? 0.35 : (isTablet ? 0.2 : 0.08);
+      rahul3DMesh.position.y = baseY + floatY + (state.scrollY * 0.016);
       rahul3DMesh.position.z = 0.2;
 
-      const textFade = Math.max(0, 1 - bannerProgress * 1.3);
+      const textFade = Math.max(0, 1 - bannerProgress * 1.35);
       rahul3DMesh.scale.set(baseScale * textFade, baseScale * textFade, baseScale * textFade);
       rahul3DMesh.visible = textFade > 0.01;
     }
@@ -1207,95 +1246,150 @@ import createLightTunnel from './LightTunnel.js';
         const stageManifesto = document.getElementById('hs-stage-manifesto');
         const stageFuture = document.getElementById('hs-stage-future');
         const hint = document.getElementById('hyperspace-hint');
-        const ringsWrap = document.getElementById('hs-portal-rings');
 
-        const canvasContainer = document.getElementById('canvas-container');
-        if (progress >= 0.02 && progress < 0.62) {
-          canvasContainer?.classList.add('hs-in-front');
-        } else {
-          canvasContainer?.classList.remove('hs-in-front');
-        }
-
-        // --- CURSOR COMES FROM MIDDLE & TRANSITION RUNS INSIDE CURSOR ONLY ---
+        // --- 3D CURSOR HYPERSPACE TRANSITION (EXACT HAOQI ZOOM & FULLSCREEN EXPANSION) ---
         if (transitionCursorGroup && transitionCursorMaterial) {
-          const restScale = 0.20;
-          const cursorRadius = transitionCursorGroup.userData.radius || 6.0;
-          const viewportH = Math.tan((45 * Math.PI / 180) / 2) * (22 - 2.5) * 2;
-          const viewportW = viewportH * (window.innerWidth / window.innerHeight);
-          const peakScale = Math.max(3.8, (Math.hypot(viewportW, viewportH) * 2.2) / cursorRadius);
+          const isMobile = window.innerWidth < 768;
+          const restScale = isMobile ? 0.28 : 0.34;
 
-          // Continuous live streak animation driven by elapsedTime + scroll velocity
-          transitionCursorMaterial.uniforms.iTime.value = elapsedTime * 2.8 + progress * 7.5;
+          // Frustum dimensions at z = 1.5 (camera position is z = 22)
+          const distToCam = Math.max(camera.position.z - 1.5, 1.0);
+          const vFOV = THREE.MathUtils.degToRad(camera.fov);
+          const vHeight = 2.0 * Math.tan(vFOV / 2.0) * distToCam;
+          const vWidth = vHeight * camera.aspect;
+          const cursorRadius = transitionCursorGroup.userData.radius || 5.017;
+          const peakScale = (Math.hypot(vWidth, vHeight) * 1.64) / cursorRadius;
 
-          if (progress >= 0.02 && progress < 0.38) {
-            // Stage 0A: Innovate With Purpose
-            // The cursor translates smoothly from top towards center with mouse parallax
-            transitionCursorGroup.visible = true;
-            const enterT = Math.min(Math.max((progress - 0.02) / 0.12, 0.0), 1.0);
-            const entryY = (1.0 - enterT) * 3.6 + (progress - 0.20) * 0.8;
-            transitionCursorGroup.position.set(state.mouse.x * 0.4, entryY - state.mouse.y * 0.3, 2.5);
-            transitionCursorGroup.scale.setScalar(restScale);
+          const screenH = window.innerHeight;
 
-            // Hyperspace transition speed streaks ignite and run STRICTLY INSIDE cursor silhouette
-            const revealT = Math.min(Math.max((progress - 0.03) / 0.16, 0.0), 1.0);
-            transitionCursorMaterial.uniforms.uStripeReveal.value = revealT;
-            transitionCursorMaterial.uniforms.uOpacity.value = 1.0;
-
-            if (transitionSpin) transitionSpin.rotation.y = 0;
-            if (transitionTiltA) {
-              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(45) + state.mouse.x * 0.15;
-              transitionTiltA.rotation.x = -state.mouse.y * 0.15;
-            }
-          } else if (progress >= 0.38 && progress < 0.58) {
-            // Stage 0B: Innovate With a Human Touch
-            // The cursor translates forward along Z towards camera and rotates 180°
-            transitionCursorGroup.visible = true;
-
-            const expandT = Math.min(Math.max((progress - 0.38) / 0.18, 0.0), 1.0);
-            const smoothT = expandT * expandT * (3.0 - 2.0 * expandT); // smoothstep
-            const zoomZ = 2.5 + Math.pow(smoothT, 2.0) * 16.5;
-            const transY = (progress - 0.48) * 1.5;
-
-            transitionCursorGroup.position.set(state.mouse.x * (1 - smoothT) * 0.4, transY, zoomZ);
-
-            transitionCursorMaterial.uniforms.uStripeReveal.value = 1.0;
-            transitionCursorMaterial.uniforms.uOpacity.value = 1.0;
-
-            // Spins around tilted axis as on Haoqi
-            if (transitionSpin) {
-              transitionSpin.rotation.y = THREE.MathUtils.degToRad(180) * smoothT;
-            }
-            if (transitionTiltA) {
-              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(45) + state.mouse.x * (1 - smoothT) * 0.15;
-              transitionTiltA.rotation.x = -state.mouse.y * (1 - smoothT) * 0.15;
-            }
-
-            // Smooth scale up to peakScale to fill entire viewport
-            const curScale = restScale + Math.pow(smoothT, 1.8) * (peakScale - restScale);
-            transitionCursorGroup.scale.setScalar(curScale);
-          } else if (progress >= 0.58 && progress < 0.62) {
-            // Once fullscreen is filled, smoothly hand off to central cyber rings
-            const fadeOut = Math.max(0, 1.0 - (progress - 0.58) / 0.04);
-            transitionCursorGroup.visible = fadeOut > 0.001;
-            transitionCursorMaterial.uniforms.uOpacity.value = fadeOut;
+          // Unified scroll phase:
+          // When rect.top > screenH: section is off-screen below.
+          // When rect.top is between screenH and 0: entering and pinning (scrollT: 0.0 -> 0.45).
+          // When rect.top <= 0 (pinned): scrolling through hyperspace (scrollT: 0.45 -> 1.0).
+          let scrollT = 0.0;
+          if (rect.top > screenH) {
+            scrollT = -1.0;
+          } else if (rect.top > 0) {
+            const entryProgress = THREE.MathUtils.clamp(1.0 - (rect.top / screenH), 0.0, 1.0);
+            scrollT = entryProgress * 0.45;
           } else {
-            // Outside active transition zone
+            const pinScroll = THREE.MathUtils.clamp(progress / 0.20, 0.0, 1.0);
+            scrollT = 0.45 + pinScroll * 0.55;
+          }
+
+          if (scrollT >= 0.0 && progress < 0.24) {
+            transitionCursorGroup.visible = true;
+
+            // 1. POSITION: Ascends smoothly from below the bottom viewport edge (-vHeight * 0.72) up to center (0.0)
+            const glideY = scrollT < 0.45
+              ? THREE.MathUtils.lerp(-vHeight * 0.72, 0.0, THREE.MathUtils.smoothstep(scrollT, 0.0, 0.45))
+              : 0.0;
+            const expandT = scrollT < 0.45 ? 0.0 : THREE.MathUtils.smoothstep(scrollT, 0.45, 1.0);
+
+            const posX = (1.0 - expandT) * state.mouse.x * 0.25;
+            const posY = glideY + (1.0 - expandT) * -state.mouse.y * 0.20;
+            transitionCursorGroup.position.set(posX, posY, 1.5);
+
+            // 2. SCALE: Starts small (0.04) from the bottom, reaches resting size at center, then expands to engulf screen
+            let currentScale;
+            if (scrollT < 0.45) {
+              const t = scrollT / 0.45;
+              currentScale = THREE.MathUtils.lerp(0.04, restScale, t * (2.0 - t));
+            } else {
+              currentScale = THREE.MathUtils.lerp(restScale, peakScale, expandT);
+            }
+            transitionCursorGroup.scale.setScalar(currentScale);
+
+            // 3. ORIENTATION: Proper UP-LEFT cursor pointer direction (-45 deg)
+            if (transitionTiltA) {
+              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(-45) + (1.0 - expandT) * state.mouse.x * 0.12;
+              transitionTiltA.rotation.x = -(1.0 - expandT) * state.mouse.y * 0.12;
+              transitionTiltA.rotation.y = 0;
+            }
+            if (transitionSpin) {
+              transitionSpin.rotation.y = THREE.MathUtils.degToRad(14) * Math.sin(scrollT * Math.PI);
+            }
+
+            // 4. TRANSITION EFFECT INSIDE CURSOR:
+            // Streaks awaken and radiate inside cursor body as it ascends and expands
+            const reveal = THREE.MathUtils.smoothstep(scrollT, 0.20, 0.75);
+            transitionCursorMaterial.uniforms.uStripeReveal.value = reveal;
+
+            const scrollDrivenTime = Math.max(0, screenH - rect.top) * 0.0035;
+            transitionCursorMaterial.uniforms.iTime.value = scrollDrivenTime + elapsedTime * 0.12;
+
+            transitionCursorMaterial.uniforms.iResolution.value.set(
+              window.innerWidth * Math.min(window.devicePixelRatio, 2),
+              window.innerHeight * Math.min(window.devicePixelRatio, 2),
+              1.0
+            );
+
+            // 5. DISSOLVE INTO FULL-SCREEN LIGHT TUNNEL:
+            const fadeOut = scrollT >= 0.82 ? THREE.MathUtils.clamp(1.0 - (scrollT - 0.82) / 0.15, 0.0, 1.0) : 1.0;
+            transitionCursorMaterial.uniforms.uOpacity.value = fadeOut;
+
+            if (fadeOut <= 0.001) {
+              transitionCursorGroup.visible = false;
+            }
+          } else if (progress >= 0.78 && progress < 0.96) {
+            // Stage End: FUTURE-FIRST ALWAYS with 3D Cyan Cursor
+            transitionCursorGroup.visible = true;
+
+            const futureT = THREE.MathUtils.clamp((progress - 0.78) / 0.04, 0.0, 1.0);
+            const futureExit = progress >= 0.94 ? THREE.MathUtils.clamp(1.0 - (progress - 0.94) / 0.02, 0.0, 1.0) : 1.0;
+            const opacity = Math.min(futureT, futureExit);
+            transitionCursorMaterial.uniforms.uOpacity.value = opacity;
+
+            // Solid glossy cyan-blue arrow, NO streaks
+            transitionCursorMaterial.uniforms.uStripeReveal.value = 0.0;
+
+            // Clean tilt: 45 degrees up-left matching Haoqi standard
+            if (transitionTiltA) {
+              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(-45) + state.mouse.x * 0.1;
+              transitionTiltA.rotation.x = -state.mouse.y * 0.1;
+            }
+            if (transitionSpin) {
+              transitionSpin.rotation.y = 0;
+            }
+
+            const futureScale = isMobile ? 0.22 : 0.28;
+            transitionCursorGroup.scale.setScalar(futureScale);
+            transitionCursorGroup.position.set(state.mouse.x * 0.2, 0.05 + -state.mouse.y * 0.15, 1.5);
+          } else {
             transitionCursorGroup.visible = false;
           }
         }
 
+        // --- FULL-SCREEN LIGHT TUNNEL SHADER ENGINE (Screenshot 2) ---
+        if (lightTunnel) {
+          if (progress >= 0.08 && progress < 0.74) {
+            if (lightTunnelMount) lightTunnelMount.classList.add('is-active');
+            const tunnelIn = THREE.MathUtils.clamp((progress - 0.08) / 0.08, 0.0, 1.0);
+            lightTunnel.setScrollDynamics(progress, scrollVelocity);
+            lightTunnel.setOptions({ opacity: tunnelIn, stripeReveal: 1.0 });
+          } else if (progress >= 0.74 && progress < 0.78) {
+            const tunnelFade = Math.max(0, 1.0 - (progress - 0.74) / 0.04);
+            lightTunnel.setOptions({ opacity: tunnelFade });
+            if (tunnelFade <= 0.01 && lightTunnelMount) {
+              lightTunnelMount.classList.remove('is-active');
+            }
+          } else {
+            if (lightTunnelMount) lightTunnelMount.classList.remove('is-active');
+            lightTunnel.setOptions({ opacity: 0.0 });
+          }
+        }
+
         // --- MULTI-STAGE SEQUENCING ---
-        // Stage 0A: Innovate with Purpose (progress ~ 0.12 - 0.38)
-        // Stage 0B: Innovate with a Human Touch (progress ~ 0.38 - 0.60)
-        // Stage 1: Central Cyber Rings + 4 Manifesto Statements (progress ~ 0.60 - 0.82)
-        // Stage End: FUTURE-FIRST ALWAYS (progress ~ 0.82 - 0.96)
+        // Pre-stage / Resting Entrance: Clean 3D cursor & follower only, no text (progress < 0.08, Screenshot 1)
+        // Stage 0A: Innovate with Purpose (progress 0.08 - 0.24)
+        // Stage 0B: Innovate with a Human Touch (progress 0.24 - 0.40)
+        // Stage 1: Central Cyber Rings + 4 Manifesto Statements (progress 0.40 - 0.78, Screenshot 2)
+        // Stage End: FUTURE-FIRST ALWAYS (progress 0.78 - 0.95, Screenshot 3)
         function setStageActive(stageEl, active) {
           if (!stageEl) return;
           if (active) {
-            if (!stageEl.classList.contains('is-active')) {
-              stageEl.classList.remove('is-leaving');
-              stageEl.classList.add('is-active');
-            }
+            stageEl.classList.remove('is-leaving');
+            stageEl.classList.add('is-active');
           } else {
             if (stageEl.classList.contains('is-active')) {
               stageEl.classList.remove('is-active');
@@ -1304,10 +1398,10 @@ import createLightTunnel from './LightTunnel.js';
           }
         }
 
-        const inStage0A = progress >= 0.10 && progress < 0.38;
-        const inStage0B = progress >= 0.38 && progress < 0.60;
-        const inStage1 = progress >= 0.60 && progress < 0.82;
-        const inStageEnd = progress >= 0.82 && progress < 0.96;
+        const inStage0A = progress >= 0.08 && progress < 0.24;
+        const inStage0B = progress >= 0.24 && progress < 0.40;
+        const inStage1 = progress >= 0.40 && progress < 0.78;
+        const inStageEnd = progress >= 0.78 && progress < 0.95;
 
         setStageActive(stagePrimary, inStage0A);
         setStageActive(stageSecondary, inStage0B);
@@ -1317,7 +1411,7 @@ import createLightTunnel from './LightTunnel.js';
         // Text scroll translation parallax
         if (stagePrimary) {
           if (inStage0A) {
-            const textTranslateY = (progress - 0.24) * 160;
+            const textTranslateY = (progress - 0.08) * 120;
             stagePrimary.style.transform = `translateY(${textTranslateY.toFixed(1)}px)`;
           } else {
             stagePrimary.style.transform = '';
@@ -1325,28 +1419,28 @@ import createLightTunnel from './LightTunnel.js';
         }
         if (stageSecondary) {
           if (inStage0B) {
-            const textTranslateY = (progress - 0.48) * 160;
+            const textTranslateY = (progress - 0.26) * 120;
             stageSecondary.style.transform = `translateY(${textTranslateY.toFixed(1)}px)`;
           } else {
             stageSecondary.style.transform = '';
           }
         }
 
-        // Stage 1 Details: Cyber rings rotation & 4 manifesto statements reveal
+        // Stage 1 Details: Cyber rings rotation & 4 manifesto statements reveal (Screenshot 2)
         if (inStage1) {
-          const stage1T = (progress - 0.60) / 0.22;
+          const stage1T = Math.min(Math.max((progress - 0.36) / 0.40, 0.0), 1.0);
           updateC7Rings(stage1T);
 
-          // 4 Manifesto items staggered reveal (prompt and crisp, matching Haoqi)
+          // 4 Manifesto items staggered reveal
           const item1 = document.getElementById('hs-item-1');
           const item2 = document.getElementById('hs-item-2');
           const item3 = document.getElementById('hs-item-3');
           const item4 = document.getElementById('hs-item-4');
 
-          if (item1) item1.classList.toggle('is-visible', stage1T >= 0.02);
-          if (item2) item2.classList.toggle('is-visible', stage1T >= 0.05);
-          if (item3) item3.classList.toggle('is-visible', stage1T >= 0.08);
-          if (item4) item4.classList.toggle('is-visible', stage1T >= 0.11);
+          if (item1) item1.classList.toggle('is-visible', stage1T >= 0.04);
+          if (item2) item2.classList.toggle('is-visible', stage1T >= 0.16);
+          if (item3) item3.classList.toggle('is-visible', stage1T >= 0.28);
+          if (item4) item4.classList.toggle('is-visible', stage1T >= 0.40);
         } else {
           const items = document.querySelectorAll('.hs-manifesto-item');
           items.forEach(it => it.classList.remove('is-visible'));
@@ -1354,7 +1448,7 @@ import createLightTunnel from './LightTunnel.js';
 
         // Scroll Travel Hint
         if (hint) {
-          hint.style.opacity = progress > 0.05 && progress < 0.85 ? '1' : '0';
+          hint.style.opacity = progress > 0.02 && progress < 0.88 ? '1' : '0';
         }
 
         // Smooth footer transition unlock
@@ -1365,11 +1459,14 @@ import createLightTunnel from './LightTunnel.js';
       } else {
         if (hyperspaceGroup) hyperspaceGroup.visible = false;
         if (transitionCursorGroup) transitionCursorGroup.visible = false;
+        if (lightTunnel) lightTunnel.setOptions({ opacity: 0.0 });
+        const lightTunnelMount = document.getElementById('light-tunnel-mount');
+        if (lightTunnelMount) lightTunnelMount.classList.remove('is-active');
       }
     }
 
-    // 3B. Cylindrical Curve Scrolling Effect on Project Cards (Smooth Hardware-Accelerated)
-    if (scrollVelocity > 0.005 || scrollDelta > 0.005) {
+    // 3B. Smooth Hardware-Accelerated Cylindrical Scroll on Project Cards (No Snapping)
+    {
       const projectCards = document.querySelectorAll('.project-card');
       const vh = window.innerHeight;
       projectCards.forEach((card) => {
@@ -1382,9 +1479,9 @@ import createLightTunnel from './LightTunnel.js';
           // Profile calculation
           const profile = 1.0 - Math.sqrt(Math.max(0.0, 1.0 - clampedY * clampedY));
 
-          const rotateX = -clampedY * 10.0;
-          const translateZ = -profile * 45.0;
-          const scale = 1.0 - profile * 0.03;
+          const rotateX = -clampedY * 4.0;
+          const translateZ = -profile * 20.0;
+          const scale = 1.0 - profile * 0.015;
 
           card.style.transform = `perspective(1200px) rotateX(${rotateX.toFixed(2)}deg) translateZ(${translateZ.toFixed(1)}px) scale(${scale.toFixed(3)})`;
         }
@@ -1532,6 +1629,8 @@ import createLightTunnel from './LightTunnel.js';
   initArchitecturalGrid();
   initWorkGridRowGap();
 
+
+
   // Resize Handler
   window.addEventListener('resize', () => {
     state.viewport.width = window.innerWidth;
@@ -1562,7 +1661,10 @@ import createLightTunnel from './LightTunnel.js';
         const isMob = w < 768;
         const isTab = w >= 768 && w < 1024;
         const boxX = geo.boundingBox.max.x - geo.boundingBox.min.x;
-        const targetW = isMob ? 12.5 : (isTab ? 17.5 : 24.0);
+        const dist = Math.max(camera.position.z - 0.2, 1.0);
+        const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
+        const vW = vH * camera.aspect;
+        const targetW = isMob ? Math.min(vW * 0.82, 6.8) : (isTab ? 16.0 : 23.5);
         const newScale = targetW / Math.max(boxX, 1);
         rahul3DMesh.userData.baseScale = newScale;
         rahul3DMesh.scale.set(newScale, newScale, newScale);
@@ -1570,5 +1672,134 @@ import createLightTunnel from './LightTunnel.js';
       }
     }
   });
+
+  // --------------------------------------------------------------------------
+  // 14. GREEN PIXEL CURSOR TRAIL (Active ONLY in Work / Projects Section)
+  // --------------------------------------------------------------------------
+  function initWorkPixelTrail() {
+    const workSection = document.getElementById('work');
+    const canvas = document.getElementById('work-pixel-trail-canvas');
+    if (!workSection || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    const PIXEL_COLORS = ['#C0FE04', '#B8F405', '#D4FF38', '#9CD009', '#A3D808'];
+    const pixels = [];
+    let lastX = -999;
+    let lastY = -999;
+    let isMouseInWork = false;
+    let animId = null;
+
+    function addPixel(x, y) {
+      const size = 11 + Math.floor(Math.random() * 4);
+      pixels.push({
+        x: x,
+        y: y,
+        size: size,
+        color: PIXEL_COLORS[Math.floor(Math.random() * PIXEL_COLORS.length)],
+        opacity: 0.95,
+        age: 0,
+        maxAge: 44 + Math.floor(Math.random() * 16),
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25
+      });
+      if (pixels.length > 85) pixels.shift();
+    }
+
+    function onMouseMove(e) {
+      const rect = workSection.getBoundingClientRect();
+      // Strictly inside Work Section visible bounds in viewport
+      if (
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= Math.max(0, rect.top) &&
+        e.clientY <= Math.min(window.innerHeight, rect.bottom)
+      ) {
+        isMouseInWork = true;
+        const x = e.clientX;
+        const y = e.clientY;
+
+        const dx = x - lastX;
+        const dy = y - lastY;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 6) {
+          addPixel(x, y);
+          if (dist > 14) {
+            addPixel(x - dx * 0.5, y - dy * 0.5);
+          }
+          if (dist > 28) {
+            addPixel(x - dx * 0.25, y - dy * 0.25);
+            addPixel(x - dx * 0.75, y - dy * 0.75);
+          }
+          lastX = x;
+          lastY = y;
+        }
+        startLoop();
+      } else {
+        isMouseInWork = false;
+      }
+    }
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+
+    function startLoop() {
+      if (!animId) {
+        animId = requestAnimationFrame(update);
+      }
+    }
+
+    function update() {
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = pixels.length - 1; i >= 0; i--) {
+        const p = pixels[i];
+        p.age++;
+        p.x += p.vx;
+        p.y += p.vy;
+
+        const progress = p.age / p.maxAge;
+        if (progress >= 1.0) {
+          pixels.splice(i, 1);
+          continue;
+        }
+
+        const alpha = (1.0 - progress) * p.opacity;
+        const scale = Math.max(0.25, 1.0 - progress * 0.75);
+        const s = p.size * scale;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = '#C0FE04';
+        ctx.shadowBlur = 8;
+        ctx.fillRect(Math.round(p.x - s * 0.5), Math.round(p.y - s * 0.5), Math.round(s), Math.round(s));
+        ctx.restore();
+      }
+
+      if (pixels.length > 0 || isMouseInWork) {
+        animId = requestAnimationFrame(update);
+      } else {
+        animId = null;
+      }
+    }
+  }
+
+  // Initialize green pixel cursor trail for Selected Work section
+  initWorkPixelTrail();
 
 })();

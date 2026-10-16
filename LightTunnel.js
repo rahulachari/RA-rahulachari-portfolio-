@@ -161,6 +161,7 @@ export function createLightTunnel(container, userOptions = {}) {
   if (!canvas) {
     canvas = document.createElement('canvas');
     canvas.className = 'light-tunnel-canvas';
+    canvas.style.pointerEvents = 'none';
     container.appendChild(canvas);
   }
 
@@ -248,9 +249,14 @@ export function createLightTunnel(container, userOptions = {}) {
     }
 
     lastTime = now;
-    // Only advance when scrolling! If scrolling stops, speed lines freeze!
-    if (Math.abs(scrollVelocity) > 0.04) {
-      time += scrollVelocity * 0.0035;
+    // Advance with base drift + intense scroll acceleration
+    time += 0.005 + Math.abs(scrollVelocity) * 0.0035;
+
+    if (opacity <= 0.001) {
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      rafId = requestAnimationFrame(render);
+      return;
     }
 
     gl.viewport(0, 0, canvas.width, canvas.height);
