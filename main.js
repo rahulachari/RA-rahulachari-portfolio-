@@ -879,7 +879,7 @@ import createLightTunnel from './LightTunnel.js';
     cnt3DMesh.add(gltf.scene);
     cnt3DMesh.userData.originalSize = size;
 
-    const targetWidth = isMobile ? 10.5 : 22.0;
+    const targetWidth = isMobile ? 14.5 : 22.0;
     const scale = targetWidth / Math.max(size.x, 1);
     cnt3DMesh.userData.baseScale = scale;
     cnt3DMesh.scale.set(scale, scale, scale);
@@ -1553,25 +1553,8 @@ import createLightTunnel from './LightTunnel.js';
           cnt3DMesh.rotation.x = Math.sin(elapsedTime * 0.55) * 0.08 - state.mouse.y * 0.18;
           cnt3DMesh.rotation.z = Math.sin(elapsedTime * 0.35) * 0.03;
 
-          // Align comfortably on mobile in exact visual center between headline and bottom bar, or behind headline text on desktop
-          const isMobileNow = window.innerWidth < 768;
-          let targetY = 0;
-          if (isMobileNow) {
-            const headingEl = footerSection.querySelector('.footer-heading-grid');
-            const bottomBarEl = footerSection.querySelector('.footer-bottom-bar');
-            if (headingEl && bottomBarEl) {
-              const headingRect = headingEl.getBoundingClientRect();
-              const bottomRect = bottomBarEl.getBoundingClientRect();
-              // Compute optical vertical center between headline bottom and bottom bar top
-              const midScreenY = (headingRect.bottom + bottomRect.top) / 2;
-              const worldUnitPerPx = (2 * (camera.position.z - 0.4) * Math.tan((camera.fov * Math.PI) / 360)) / window.innerHeight;
-              targetY = (window.innerHeight / 2 - midScreenY) * worldUnitPerPx - 0.25;
-            } else {
-              targetY = (window.innerHeight / 2 - (rect.top + rect.height / 2)) * 0.016;
-            }
-          } else {
-            targetY = (window.innerHeight / 2 - (rect.top + rect.height / 2)) * 0.016 + 0.15;
-          }
+          // Align comfortably behind headline text in world space (z: 0.4) matching Image 2
+          const targetY = (window.innerHeight / 2 - (rect.top + rect.height / 2)) * 0.016 + 0.15;
           cnt3DMesh.position.set(0, targetY + floatOffset, 0.4);
         } else {
           cnt3DMesh.visible = false;
@@ -1730,7 +1713,7 @@ import createLightTunnel from './LightTunnel.js';
 
     if (cnt3DMesh && cnt3DMesh.userData.originalSize) {
       const isMob = window.innerWidth < 768;
-      const targetW = isMob ? 10.5 : 22.0;
+      const targetW = isMob ? 14.5 : 22.0;
       const s = targetW / Math.max(cnt3DMesh.userData.originalSize.x, 1);
       cnt3DMesh.scale.set(s, s, s);
     }
