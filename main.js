@@ -1264,94 +1264,25 @@ import createLightTunnel from './LightTunnel.js';
         const stageFuture = document.getElementById('hs-stage-future');
 
         // --- 3D CURSOR HYPERSPACE TRANSITION (EXACT HAOQI ZOOM & FULLSCREEN EXPANSION) ---
+        // Active ONLY during the Stage Exit: FUTURE-FIRST ALWAYS zoom-out (progress 0.70 to 0.95)
+        // Clean separation: entrance is handled purely by the full-screen Light Tunnel shader.
         if (transitionCursorGroup && transitionCursorMaterial) {
           const isMobile = window.innerWidth < 768;
-          const restScale = isMobile ? 0.28 : 0.34;
-
-          // Frustum dimensions at z = 1.5 (camera position is z = 22)
-          const distToCam = Math.max(camera.position.z - 1.5, 1.0);
-          const vFOV = THREE.MathUtils.degToRad(camera.fov);
-          const vHeight = 2.0 * Math.tan(vFOV / 2.0) * distToCam;
+          const vDist = Math.max(camera.position.z - 1.5, 0.1);
+          const vHeight = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * vDist;
           const vWidth = vHeight * camera.aspect;
+
           const cursorRadius = transitionCursorGroup.userData.radius || 5.017;
-          const peakScale = (Math.hypot(vWidth, vHeight) * 1.64) / cursorRadius;
+          const peakScale = Math.hypot(vWidth, vHeight) * 1.64 / cursorRadius;
+          const futureRestScale = isMobile ? 0.22 : 0.28;
 
-          const screenH = window.innerHeight;
+          // Check if footer is visible
+          const footerSection = document.getElementById('contact');
+          const footerTop = footerSection ? footerSection.getBoundingClientRect().top : window.innerHeight;
+          const isNearFooter = footerTop < window.innerHeight;
 
-          // Unified scroll phase:
-          // When rect.top > screenH: section is off-screen below.
-          // When rect.top is between screenH and 0: entering and pinning (scrollT: 0.0 -> 0.45).
-          // When rect.top <= 0 (pinned): scrolling through hyperspace (scrollT: 0.45 -> 1.0).
-          let scrollT = 0.0;
-          if (rect.top > screenH) {
-            scrollT = -1.0;
-          } else if (rect.top > 0) {
-            const entryProgress = THREE.MathUtils.clamp(1.0 - (rect.top / screenH), 0.0, 1.0);
-            scrollT = entryProgress * 0.45;
-          } else {
-            const pinScroll = THREE.MathUtils.clamp(progress / 0.20, 0.0, 1.0);
-            scrollT = 0.45 + pinScroll * 0.55;
-          }
-
-          if (scrollT >= 0.0 && progress < 0.24) {
+          if (progress >= 0.70 && progress < 0.95 && !isNearFooter) {
             transitionCursorGroup.visible = true;
-
-            // 1. POSITION: Ascends smoothly from below the bottom viewport edge (-vHeight * 0.72) up to center (0.0)
-            const glideY = scrollT < 0.45
-              ? THREE.MathUtils.lerp(-vHeight * 0.72, 0.0, THREE.MathUtils.smoothstep(scrollT, 0.0, 0.45))
-              : 0.0;
-            const expandT = scrollT < 0.45 ? 0.0 : THREE.MathUtils.smoothstep(scrollT, 0.45, 1.0);
-
-            const posX = (1.0 - expandT) * state.mouse.x * 0.25;
-            const posY = glideY + (1.0 - expandT) * -state.mouse.y * 0.20;
-            transitionCursorGroup.position.set(posX, posY, 1.5);
-
-            // 2. SCALE: Starts small (0.04) from the bottom, reaches resting size at center, then expands to engulf screen
-            let currentScale;
-            if (scrollT < 0.45) {
-              const t = scrollT / 0.45;
-              currentScale = THREE.MathUtils.lerp(0.04, restScale, t * (2.0 - t));
-            } else {
-              currentScale = THREE.MathUtils.lerp(restScale, peakScale, expandT);
-            }
-            transitionCursorGroup.scale.setScalar(currentScale);
-
-            // 3. ORIENTATION: Proper UP-LEFT cursor pointer direction (+45 deg cancels with tiltB -45 deg)
-            if (transitionTiltA) {
-              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(45) + (1.0 - expandT) * state.mouse.x * 0.12;
-              transitionTiltA.rotation.x = -(1.0 - expandT) * state.mouse.y * 0.12;
-              transitionTiltA.rotation.y = 0;
-            }
-            if (transitionSpin) {
-              transitionSpin.rotation.y = THREE.MathUtils.degToRad(14) * Math.sin(scrollT * Math.PI);
-            }
-
-            // 4. TRANSITION EFFECT INSIDE CURSOR:
-            // Streaks awaken and radiate inside cursor body as it ascends and expands
-            const reveal = THREE.MathUtils.smoothstep(scrollT, 0.20, 0.75);
-            transitionCursorMaterial.uniforms.uStripeReveal.value = reveal;
-
-            const scrollDrivenTime = Math.max(0, screenH - rect.top) * 0.0018;
-            transitionCursorMaterial.uniforms.iTime.value = scrollDrivenTime;
-
-            transitionCursorMaterial.uniforms.iResolution.value.set(
-              window.innerWidth * Math.min(window.devicePixelRatio, 2),
-              window.innerHeight * Math.min(window.devicePixelRatio, 2),
-              1.0
-            );
-
-            // 5. DISSOLVE INTO FULL-SCREEN LIGHT TUNNEL:
-            const fadeOut = scrollT >= 0.82 ? THREE.MathUtils.clamp(1.0 - (scrollT - 0.82) / 0.15, 0.0, 1.0) : 1.0;
-            transitionCursorMaterial.uniforms.uOpacity.value = fadeOut;
-
-            if (fadeOut <= 0.001) {
-              transitionCursorGroup.visible = false;
-            }
-          } else if (progress >= 0.68) {
-            // Stage Exit: Exact Haoqi 2-Phase Zoom-Out, Diagonal Tumble & Downward Glide towards Footer
-            transitionCursorGroup.visible = true;
-
-            const futureRestScale = isMobile ? 0.22 : 0.28;
 
             // Phase 1: Zoom Out & Contract Window (progress 0.70 -> 0.86)
             const zoomOutProgress = THREE.MathUtils.clamp((progress - 0.70) / 0.16, 0.0, 1.0);
@@ -1365,14 +1296,14 @@ import createLightTunnel from './LightTunnel.js';
             const stripeReveal = THREE.MathUtils.clamp(1.0 - easeZoomOut * 1.15, 0.0, 1.0);
             transitionCursorMaterial.uniforms.uStripeReveal.value = stripeReveal;
 
-            // Phase 2: Post-shrink Spin & Downward Glide towards Footer (progress 0.86 -> 1.0+)
-            const postProgress = THREE.MathUtils.clamp((progress - 0.86) / 0.14, 0.0, 1.0);
+            // Phase 2: Post-shrink Spin & Downward Glide (progress 0.86 -> 0.93)
+            const postProgress = THREE.MathUtils.clamp((progress - 0.86) / 0.07, 0.0, 1.0);
             const easePost = postProgress * postProgress * (3 - 2 * postProgress);
 
             // 3. ORIENTATION & 360-DEGREE DIAGONAL TUMBLE (Exact Haoqi Reproduction):
-            // - At fullscreen (zoomOutProgress = 0): spin = 0 (pointing UP-LEFT, Screenshot 1)
-            // - Mid-shrink (zoomOutProgress = 1, postProgress = 0): spin = Math.PI (pointing DOWN-LEFT, Screenshot 2)
-            // - Transitioning to Footer (postProgress = 1): spin = 2 * Math.PI (pointing UP-RIGHT, Screenshot 3)
+            // - At fullscreen (zoomOutProgress = 0): spin = 0 (pointing UP-LEFT)
+            // - Mid-shrink (zoomOutProgress = 1, postProgress = 0): spin = Math.PI (pointing DOWN-LEFT)
+            // - Transitioning out (postProgress = 1): spin = 2 * Math.PI (pointing UP-RIGHT)
             let spinAngle;
             if (zoomOutProgress < 1.0) {
               spinAngle = THREE.MathUtils.lerp(0.0, Math.PI, easeZoomOut);
@@ -1389,17 +1320,12 @@ import createLightTunnel from './LightTunnel.js';
               transitionTiltA.rotation.y = 0;
             }
 
-            // 4. POSITION: Centered while contracting, then smoothly glides down between ALWAYS and the Footer
-            const footerSection = document.getElementById('contact');
-            const footerTop = footerSection ? footerSection.getBoundingClientRect().top : window.innerHeight;
-            const footerEnterT = THREE.MathUtils.clamp((window.innerHeight - footerTop) / (window.innerHeight * 0.65), 0.0, 1.0);
-
-            const glideDown = Math.max(postProgress * 0.65, footerEnterT);
+            // 4. POSITION: Centered while contracting, then smoothly glides down
             const posX = state.mouse.x * 0.20 * easeZoomOut;
-            const posY = (-vHeight * 0.36 * glideDown) + (-state.mouse.y * 0.15 * easeZoomOut);
+            const posY = (-vHeight * 0.40 * postProgress) + (-state.mouse.y * 0.15 * easeZoomOut);
             transitionCursorGroup.position.set(posX, posY, 1.5);
 
-            const scrollDrivenTime = Math.max(0, screenH - rect.top) * 0.0018;
+            const scrollDrivenTime = Math.max(0, window.innerHeight - rect.top) * 0.0018;
             transitionCursorMaterial.uniforms.iTime.value = scrollDrivenTime;
 
             transitionCursorMaterial.uniforms.iResolution.value.set(
@@ -1408,10 +1334,10 @@ import createLightTunnel from './LightTunnel.js';
               1.0
             );
 
-            // 5. OPACITY: Fade-in at 0.68, stay fully visible through the gap, and seamlessly fade out as 3D inflatable mesh takes over
-            const futureIn = THREE.MathUtils.clamp((progress - 0.68) / 0.02, 0.0, 1.0);
-            const exitFade = footerEnterT >= 0.70 ? THREE.MathUtils.clamp(1.0 - (footerEnterT - 0.70) / 0.25, 0.0, 1.0) : 1.0;
-            const finalOpacity = Math.min(futureIn, exitFade);
+            // 5. OPACITY: Fade-in at 0.70->0.72, stay visible through the gap, and fade out at 0.93->0.95
+            const futureIn = THREE.MathUtils.clamp((progress - 0.70) / 0.02, 0.0, 1.0);
+            const fadeOut = progress >= 0.93 ? THREE.MathUtils.clamp(1.0 - (progress - 0.93) / 0.02, 0.0, 1.0) : 1.0;
+            const finalOpacity = Math.min(futureIn, fadeOut);
             transitionCursorMaterial.uniforms.uOpacity.value = finalOpacity;
 
             if (finalOpacity <= 0.005) {
@@ -1568,6 +1494,13 @@ import createLightTunnel from './LightTunnel.js';
         siteHeaderEl.classList.toggle('in-footer', inFooter);
       }
 
+      // If footer is entering or visible, strictly hide transition cursor so it never overlaps CRAFT 'N' TASTE
+      if (rect.top < window.innerHeight) {
+        if (transitionCursorGroup) {
+          transitionCursorGroup.visible = false;
+        }
+      }
+
       // Smoothly fade footer atmosphere behind 3D mesh
       const footerAtmosphere = document.getElementById('footer-atmosphere');
       if (footerAtmosphere) {
@@ -1577,6 +1510,9 @@ import createLightTunnel from './LightTunnel.js';
 
       if (cnt3DMesh) {
         if (rect.top < window.innerHeight && rect.bottom > 0) {
+          if (transitionCursorGroup) {
+            transitionCursorGroup.visible = false;
+          }
           cnt3DMesh.visible = true;
           // Smooth floating undulation + interactive mouse tilt
           const floatOffset = Math.sin(elapsedTime * 1.4) * 0.14 + Math.cos(elapsedTime * 0.9) * 0.04;
