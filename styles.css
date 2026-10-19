@@ -2492,45 +2492,68 @@ html.light .footer-section {
   to { transform: rotate(360deg); }
 }
 
-/* Mobile Responsive Footer: Gmail Left-Aligned & GitHub Fully Visible */
+/* Mobile Responsive Footer: Gmail Left-Aligned, Elements Arranged Below Headline & GitHub Fully Visible */
 @media (max-width: 768px) {
+  .footer-section {
+    min-height: 100dvh !important;
+    height: auto !important;
+    padding: 4.5rem var(--site-margin) max(2.5rem, env(safe-area-inset-bottom, 2.5rem)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: stretch !important;
+    overflow: hidden;
+  }
+
+  .footer-heading-grid {
+    margin-top: 1rem !important;
+    margin-bottom: 2.5rem !important;
+  }
+
+  .footer-row-1,
+  .footer-row-2,
+  .footer-row-3 {
+    font-size: clamp(2.0rem, 8.5vw, 3.5rem) !important;
+    line-height: 1.0 !important;
+  }
+
   .footer-bottom-bar {
-    position: relative;
-    padding: 1.5rem var(--site-margin) max(2rem, env(safe-area-inset-bottom, 2rem));
-    display: flex;
-    flex-direction: column;
+    position: relative !important;
+    padding: 0 !important;
+    margin-top: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
     align-items: flex-start !important;
     justify-content: flex-start !important;
     text-align: left !important;
-    gap: 1.25rem;
-    width: 100%;
-    margin-top: 2rem;
-    pointer-events: auto;
-    z-index: 30;
+    gap: 1.25rem !important;
+    width: 100% !important;
+    pointer-events: auto !important;
+    z-index: 30 !important;
   }
 
   .footer-meta-left {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
     align-items: flex-start !important;
     text-align: left !important;
-    gap: 0.4rem;
-    width: 100%;
-    margin: 0;
+    gap: 0.35rem !important;
+    width: 100% !important;
+    margin: 0 !important;
   }
 
   .footer-email-link {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
     text-align: left !important;
-    display: inline-block;
+    display: inline-block !important;
   }
 
   .footer-copy-tag {
-    font-size: 0.72rem;
+    font-size: 0.72rem !important;
     text-align: left !important;
-    opacity: 0.75;
+    opacity: 0.75 !important;
   }
 
   .footer-coords-display {
@@ -2538,39 +2561,42 @@ html.light .footer-section {
   }
 
   .footer-social-links {
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
     justify-content: flex-start !important;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-    width: 100%;
+    flex-wrap: nowrap !important;
+    gap: 1rem !important;
+    width: auto !important;
+    max-width: calc(100% - 60px) !important;
     text-align: left !important;
   }
 
   .footer-social-link {
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
-    white-space: nowrap;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.05em !important;
+    white-space: nowrap !important;
   }
 
   .footer-wire-globe {
-    width: 18px;
-    height: 18px;
-    margin-left: 0.25rem;
-    flex-shrink: 0;
+    width: 16px !important;
+    height: 16px !important;
+    margin-left: 0.15rem !important;
+    flex-shrink: 0 !important;
   }
 
-  /* Back-to-Top pixel hand sticker positioned well above footer links so it NEVER covers GITHUB */
+  /* Back-to-Top pixel hand sticker positioned neatly on bottom-right beside links */
   .footer-sticker.sticker-pointer-bottom {
-    right: 1.25rem;
-    bottom: clamp(140px, 20vh, 185px) !important;
-    z-index: 20;
+    position: absolute !important;
+    right: 0 !important;
+    bottom: -0.2rem !important;
+    z-index: 35 !important;
   }
 
   .footer-sticker.sticker-pointer-bottom img {
-    width: 72px;
-    height: 72px;
+    width: 52px !important;
+    height: 52px !important;
   }
 }
+
 
 

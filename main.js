@@ -877,8 +877,9 @@ import createLightTunnel from './LightTunnel.js';
 
     cnt3DMesh = new THREE.Group();
     cnt3DMesh.add(gltf.scene);
+    cnt3DMesh.userData.originalSize = size;
 
-    const targetWidth = isMobile ? 14.5 : 22.0;
+    const targetWidth = isMobile ? 10.5 : 22.0;
     const scale = targetWidth / Math.max(size.x, 1);
     cnt3DMesh.userData.baseScale = scale;
     cnt3DMesh.scale.set(scale, scale, scale);
@@ -1552,8 +1553,8 @@ import createLightTunnel from './LightTunnel.js';
           cnt3DMesh.rotation.x = Math.sin(elapsedTime * 0.55) * 0.08 - state.mouse.y * 0.18;
           cnt3DMesh.rotation.z = Math.sin(elapsedTime * 0.35) * 0.03;
 
-          // Align comfortably behind footer text in world space (z: 0.4)
-          const targetY = (window.innerHeight / 2 - (rect.top + rect.height / 2)) * 0.016 + (isMobile ? 0.4 : 0.15);
+          // Align comfortably behind headline text in world space (z: 0.4), keeping footer bottom clear
+          const targetY = (window.innerHeight / 2 - (rect.top + rect.height / 2)) * 0.016 + (isMobile ? 1.05 : 0.15);
           cnt3DMesh.position.set(0, targetY + floatOffset, 0.4);
         } else {
           cnt3DMesh.visible = false;
@@ -1708,6 +1709,13 @@ import createLightTunnel from './LightTunnel.js';
         rahul3DMesh.scale.set(newScale, newScale, newScale);
         rahul3DMesh.position.y = isMob ? 0.35 : (isTab ? 0.2 : 0.08);
       }
+    }
+
+    if (cnt3DMesh && cnt3DMesh.userData.originalSize) {
+      const isMob = window.innerWidth < 768;
+      const targetW = isMob ? 10.5 : 22.0;
+      const s = targetW / Math.max(cnt3DMesh.userData.originalSize.x, 1);
+      cnt3DMesh.scale.set(s, s, s);
     }
   });
 
