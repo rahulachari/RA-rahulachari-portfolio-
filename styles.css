@@ -2494,27 +2494,77 @@ html.light .footer-section {
 
 /* Mobile Responsive Footer: Gmail Left-Aligned, Elements Arranged Below Headline & GitHub Fully Visible */
 @media (max-width: 768px) {
+  :root {
+    --site-margin: 1rem;
+  }
+
   .footer-section {
     min-height: 100dvh !important;
-    height: auto !important;
-    padding: 4.5rem var(--site-margin) max(2.5rem, env(safe-area-inset-bottom, 2.5rem)) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding: 4.2rem var(--site-margin) max(1.8rem, env(safe-area-inset-bottom, 1.8rem)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
     align-items: stretch !important;
-    overflow: hidden;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    position: relative !important;
   }
 
   .footer-heading-grid {
-    margin-top: 1rem !important;
-    margin-bottom: 2.5rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.35rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0 !important;
+    pointer-events: none !important;
+    z-index: 12 !important;
+  }
+
+  .footer-row-1 {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: baseline !important;
+    width: 100% !important;
+  }
+
+  .footer-row-2 {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: baseline !important;
+    width: 100% !important;
+  }
+
+  .footer-row-3 {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: baseline !important;
+    width: 100% !important;
+  }
+
+  .footer-row-1 .footer-word-left,
+  .footer-row-2 .footer-word-left {
+    text-align: left !important;
+    pointer-events: auto !important;
+  }
+
+  .footer-row-1 .footer-word-right,
+  .footer-row-3 .footer-word-right {
+    text-align: right !important;
+    pointer-events: auto !important;
   }
 
   .footer-row-1,
   .footer-row-2,
   .footer-row-3 {
-    font-size: clamp(2.0rem, 8.5vw, 3.5rem) !important;
+    font-size: clamp(2.0rem, 8.4vw, 3.4rem) !important;
     line-height: 1.0 !important;
+    letter-spacing: -0.04em !important;
+    font-family: var(--font-sans) !important;
+    font-weight: 800 !important;
   }
 
   .footer-bottom-bar {
@@ -2526,7 +2576,7 @@ html.light .footer-section {
     align-items: flex-start !important;
     justify-content: flex-start !important;
     text-align: left !important;
-    gap: 1.25rem !important;
+    gap: 0.85rem !important;
     width: 100% !important;
     pointer-events: auto !important;
     z-index: 30 !important;
@@ -2537,13 +2587,13 @@ html.light .footer-section {
     flex-direction: column !important;
     align-items: flex-start !important;
     text-align: left !important;
-    gap: 0.35rem !important;
+    gap: 0.25rem !important;
     width: 100% !important;
     margin: 0 !important;
   }
 
   .footer-email-link {
-    font-size: 0.9375rem !important;
+    font-size: 0.875rem !important;
     font-weight: 600 !important;
     letter-spacing: 0.04em !important;
     text-align: left !important;
@@ -2567,7 +2617,7 @@ html.light .footer-section {
     flex-wrap: nowrap !important;
     gap: 1rem !important;
     width: auto !important;
-    max-width: calc(100% - 60px) !important;
+    max-width: calc(100% - 56px) !important;
     text-align: left !important;
   }
 
@@ -2584,17 +2634,19 @@ html.light .footer-section {
     flex-shrink: 0 !important;
   }
 
-  /* Back-to-Top pixel hand sticker positioned neatly on bottom-right beside links */
+  /* Back-to-Top pixel hand sticker positioned neatly on bottom-right, aligned with page margin */
   .footer-sticker.sticker-pointer-bottom {
     position: absolute !important;
-    right: 0 !important;
-    bottom: -0.2rem !important;
+    right: var(--site-margin) !important;
+    bottom: max(1.8rem, env(safe-area-inset-bottom, 1.8rem)) !important;
     z-index: 35 !important;
+    transform: none !important;
   }
 
   .footer-sticker.sticker-pointer-bottom img {
-    width: 52px !important;
-    height: 52px !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: block !important;
   }
 }
 
