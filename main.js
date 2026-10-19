@@ -849,8 +849,8 @@ import createLightTunnel from './LightTunnel.js';
     transitionSpin = new THREE.Group();
     transitionTiltB = new THREE.Group();
 
-    transitionTiltA.rotation.z = 0;
-    transitionTiltB.rotation.z = 0;
+    transitionTiltA.rotation.z = THREE.MathUtils.degToRad(45);
+    transitionTiltB.rotation.z = THREE.MathUtils.degToRad(-45);
 
     transitionTiltB.add(centerGroup);
     transitionSpin.add(transitionTiltB);
@@ -1316,9 +1316,9 @@ import createLightTunnel from './LightTunnel.js';
             }
             transitionCursorGroup.scale.setScalar(currentScale);
 
-            // 3. ORIENTATION: Proper UP-LEFT cursor pointer direction (-45 deg)
+            // 3. ORIENTATION: Proper UP-LEFT cursor pointer direction (+45 deg cancels with tiltB -45 deg)
             if (transitionTiltA) {
-              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(-45) + (1.0 - expandT) * state.mouse.x * 0.12;
+              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(45) + (1.0 - expandT) * state.mouse.x * 0.12;
               transitionTiltA.rotation.x = -(1.0 - expandT) * state.mouse.y * 0.12;
               transitionTiltA.rotation.y = 0;
             }
@@ -1347,41 +1347,57 @@ import createLightTunnel from './LightTunnel.js';
             if (fadeOut <= 0.001) {
               transitionCursorGroup.visible = false;
             }
-          } else if (progress >= 0.68 && progress < 0.96) {
-            // Stage Exit: Smooth ZOOM OUT Effect from Fullscreen Cursor (Mirroring the Entrance Zoom In)
+          } else if (progress >= 0.68) {
+            // Stage Exit: Exact Haoqi 2-Phase Zoom-Out, Diagonal Tumble & Downward Glide towards Footer
             transitionCursorGroup.visible = true;
 
             const futureRestScale = isMobile ? 0.22 : 0.28;
-            // Generous, silky-smooth zoom out window: 0.70 -> 0.86
-            const zoomOutSpan = 0.16;
-            const zoomOutProgress = THREE.MathUtils.clamp((progress - 0.70) / zoomOutSpan, 0.0, 1.0);
 
-            // Ultra-smooth quintic smootherstep easing for natural deceleration without jumps
+            // Phase 1: Zoom Out & Contract Window (progress 0.70 -> 0.86)
+            const zoomOutProgress = THREE.MathUtils.clamp((progress - 0.70) / 0.16, 0.0, 1.0);
             const easeZoomOut = zoomOutProgress * zoomOutProgress * zoomOutProgress * (zoomOutProgress * (zoomOutProgress * 6 - 15) + 10);
 
-            // 1. SCALE: Zoom out smoothly from peakScale (fullscreen) down to resting scale
+            // 1. SCALE: Smoothly shrink from peak fullscreen down to resting scale
             const currentScale = THREE.MathUtils.lerp(peakScale, futureRestScale, easeZoomOut);
             transitionCursorGroup.scale.setScalar(currentScale);
 
-            // 2. POSITION: Centered as it contracts, then smoothly connects with mouse parallax
-            const posX = state.mouse.x * 0.20 * easeZoomOut;
-            const posY = 0.05 * easeZoomOut + -state.mouse.y * 0.15 * easeZoomOut;
-            transitionCursorGroup.position.set(posX, posY, 1.5);
+            // 2. SPEED LINES REVEAL: Collapse stripes as cursor shrinks, leaving rich cobalt gloss
+            const stripeReveal = THREE.MathUtils.clamp(1.0 - easeZoomOut * 1.15, 0.0, 1.0);
+            transitionCursorMaterial.uniforms.uStripeReveal.value = stripeReveal;
 
-            // 3. ORIENTATION & SPIN: Smooth spin as it zooms out, settling to -45 deg
-            const spinAngle = (1.0 - easeZoomOut) * Math.PI;
+            // Phase 2: Post-shrink Spin & Downward Glide towards Footer (progress 0.86 -> 1.0+)
+            const postProgress = THREE.MathUtils.clamp((progress - 0.86) / 0.14, 0.0, 1.0);
+            const easePost = postProgress * postProgress * (3 - 2 * postProgress);
+
+            // 3. ORIENTATION & 360-DEGREE DIAGONAL TUMBLE (Exact Haoqi Reproduction):
+            // - At fullscreen (zoomOutProgress = 0): spin = 0 (pointing UP-LEFT, Screenshot 1)
+            // - Mid-shrink (zoomOutProgress = 1, postProgress = 0): spin = Math.PI (pointing DOWN-LEFT, Screenshot 2)
+            // - Transitioning to Footer (postProgress = 1): spin = 2 * Math.PI (pointing UP-RIGHT, Screenshot 3)
+            let spinAngle;
+            if (zoomOutProgress < 1.0) {
+              spinAngle = THREE.MathUtils.lerp(0.0, Math.PI, easeZoomOut);
+            } else {
+              spinAngle = THREE.MathUtils.lerp(Math.PI, 2.0 * Math.PI, easePost);
+            }
+
             if (transitionSpin) {
               transitionSpin.rotation.y = spinAngle;
             }
             if (transitionTiltA) {
-              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(-45) + state.mouse.x * 0.1 * easeZoomOut;
-              transitionTiltA.rotation.x = -state.mouse.y * 0.1 * easeZoomOut;
+              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(45) + state.mouse.x * 0.08 * easeZoomOut;
+              transitionTiltA.rotation.x = -state.mouse.y * 0.08 * easeZoomOut;
               transitionTiltA.rotation.y = 0;
             }
 
-            // 4. STREAKS REVEAL: Speed-lines collapse inside the cursor as it shrinks
-            const stripeReveal = THREE.MathUtils.clamp(1.0 - easeZoomOut * 1.15, 0.0, 1.0);
-            transitionCursorMaterial.uniforms.uStripeReveal.value = stripeReveal;
+            // 4. POSITION: Centered while contracting, then smoothly glides down between ALWAYS and the Footer
+            const footerSection = document.getElementById('contact');
+            const footerTop = footerSection ? footerSection.getBoundingClientRect().top : window.innerHeight;
+            const footerEnterT = THREE.MathUtils.clamp((window.innerHeight - footerTop) / (window.innerHeight * 0.65), 0.0, 1.0);
+
+            const glideDown = Math.max(postProgress * 0.65, footerEnterT);
+            const posX = state.mouse.x * 0.20 * easeZoomOut;
+            const posY = (-vHeight * 0.36 * glideDown) + (-state.mouse.y * 0.15 * easeZoomOut);
+            transitionCursorGroup.position.set(posX, posY, 1.5);
 
             const scrollDrivenTime = Math.max(0, screenH - rect.top) * 0.0018;
             transitionCursorMaterial.uniforms.iTime.value = scrollDrivenTime;
@@ -1392,10 +1408,15 @@ import createLightTunnel from './LightTunnel.js';
               1.0
             );
 
-            // 5. OPACITY: Clean fade-in at 0.68 and fade-out at end (0.94 -> 0.96)
+            // 5. OPACITY: Fade-in at 0.68, stay fully visible through the gap, and seamlessly fade out as 3D inflatable mesh takes over
             const futureIn = THREE.MathUtils.clamp((progress - 0.68) / 0.02, 0.0, 1.0);
-            const futureExit = progress >= 0.94 ? THREE.MathUtils.clamp(1.0 - (progress - 0.94) / 0.02, 0.0, 1.0) : 1.0;
-            transitionCursorMaterial.uniforms.uOpacity.value = Math.min(futureIn, futureExit);
+            const exitFade = footerEnterT >= 0.70 ? THREE.MathUtils.clamp(1.0 - (footerEnterT - 0.70) / 0.25, 0.0, 1.0) : 1.0;
+            const finalOpacity = Math.min(futureIn, exitFade);
+            transitionCursorMaterial.uniforms.uOpacity.value = finalOpacity;
+
+            if (finalOpacity <= 0.005) {
+              transitionCursorGroup.visible = false;
+            }
           } else {
             transitionCursorGroup.visible = false;
           }
@@ -1443,8 +1464,8 @@ import createLightTunnel from './LightTunnel.js';
 
         const inStage0A = progress >= 0.08 && progress < 0.24;
         const inStage0B = progress >= 0.24 && progress < 0.40;
-        const inStage1 = progress >= 0.40 && progress < 0.72;
-        const inStageEnd = progress >= 0.84 && progress < 0.95;
+        const inStage1 = progress >= 0.40 && progress < 0.70;
+        const inStageEnd = progress >= 0.70;
 
         setStageActive(stagePrimary, inStage0A);
         setStageActive(stageSecondary, inStage0B);
@@ -1489,11 +1510,21 @@ import createLightTunnel from './LightTunnel.js';
           items.forEach(it => it.classList.remove('is-visible'));
         }
 
-
-        // Smooth footer transition unlock
-        const exitFade = rect.bottom < window.innerHeight ? Math.max(0, rect.bottom / (window.innerHeight * 0.45)) : 1.0;
-        if (stageFuture && progress > 0.94) {
-          stageFuture.style.opacity = String(exitFade);
+        // Stage Future (FUTURE-FIRST ALWAYS) Scroll Parallax & Exit Fade
+        if (stageFuture) {
+          if (inStageEnd) {
+            if (progress >= 0.88) {
+              const exitTranslateY = -(progress - 0.88) * 320;
+              stageFuture.style.transform = `translateY(${exitTranslateY.toFixed(1)}px)`;
+            } else {
+              stageFuture.style.transform = '';
+            }
+            const exitFade = rect.bottom < window.innerHeight ? Math.max(0, rect.bottom / (window.innerHeight * 0.45)) : 1.0;
+            stageFuture.style.opacity = String(exitFade);
+          } else {
+            stageFuture.style.transform = '';
+            stageFuture.style.opacity = '';
+          }
         }
       } else {
         if (hyperspaceGroup) hyperspaceGroup.visible = false;
