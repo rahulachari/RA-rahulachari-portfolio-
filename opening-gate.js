@@ -1,6 +1,10 @@
 /**
  * INTERACTIVE SIGNATURE PASS CARD & RETRO HARDWARE READER CONTROLLER
- * Ultra-Smooth Physics, Real Slot Sandwiching, Physical Swipe Mechanics, and Zero Glitches
+ * Ultra-Smooth Physics, Real Slot Sandwiching, Physical Swipe Mechanics, Gravity Fall & Zero Glitches
+ * Exact mikes.cv Card Mechanics:
+ * - Tapping card triggers gravity fall down off screen and respawn (NEVER OPENS)
+ * - Dragging inside reader shows "READING..." with amber LED (NEVER OPENS on dwell)
+ * - Only horizontal swiping across the reader triggers "ACCESS GRANTED" & opens gate
  */
 
 (function () {
@@ -112,9 +116,9 @@
   const hintEl = document.getElementById('gate-hint');
   const skipBtn = document.getElementById('gate-skip-btn');
 
-  // Check URL parameters or hash to skip if requested
+  // Check URL parameters to skip if requested
   const urlParams = new URLSearchParams(window.location.search);
-  const skipGate = urlParams.has('skip') || window.location.hash === '#work' || window.location.hash === '#contact';
+  const skipGate = urlParams.has('skip');
 
   if (skipGate) {
     gateEl.classList.add('is-unlocked');
@@ -122,21 +126,31 @@
     return;
   }
 
-  let isGranted = false;
-  let isDragging = false;
-  let isAutoSwiping = false;
-  let hasSwiped = false;
+  // Card State Machine: 'hover' | 'drag' | 'fall' | 'granted'
+  let cardState = 'hover';
   let hasMoved = false;
+  let isRespawning = false;
 
   // Unified Physics State
-  const currentPos = { x: 0, y: 0 };
-  const targetPos = { x: 0, y: 0 };
+  const currentPos = { x: 0, y: 0, z: 20 };
+  const targetPos = { x: 0, y: 0, z: 20 };
   const currentTilt = { x: 0, y: 0, z: 0 };
   const targetTilt = { x: 0, y: 0, z: 0 };
   const dragStart = { x: 0, y: 0 };
   const cardStartPos = { x: 0, y: 0 };
-  let pointerDownTime = 0;
+
+  // Velocity & Fall State
+  let lastPointerPos = { x: 0, y: 0, time: 0 };
+  let pointerVelocity = { x: 0, y: 0 };
+  let fallVx = 0;
+  let fallVy = 0;
+  let fallVRotZ = 0;
+  let fallVRotX = 0;
+
+  // Slot swipe traverse tracking: tracks horizontal travel span while inside slot
+  let slotSwipeTrack = null;
   let hoverTime = 0;
+  let lastFrameTime = performance.now();
 
   // --------------------------------------------------------------------------
   // 3. SET READER STATES
@@ -150,15 +164,15 @@
     if (state === 'idle') {
       screenText.textContent = 'READY';
       if (hintEl) {
-        hintEl.innerHTML = 'Tap or swipe card into reader to enter';
+        hintEl.innerHTML = 'Swipe pass across reader to enter';
         hintEl.className = 'gate-hint shimmer';
       }
     } else if (state === 'reading') {
       displayUnit.classList.add('is-reading');
       ledIndicator.classList.add('is-active');
-      screenText.textContent = 'SWIPING...';
+      screenText.textContent = 'READING...';
       if (hintEl) {
-        hintEl.textContent = 'Reading signature card...';
+        hintEl.textContent = 'Swipe across slot to verify...';
         hintEl.className = 'gate-hint';
       }
     } else if (state === 'granted') {
@@ -173,24 +187,28 @@
   }
 
   // --------------------------------------------------------------------------
-  // 4. UNLOCK & EXIT TRANSITION
+  // 4. UNLOCK & EXIT TRANSITION (ONLY ON SWIPE)
   // --------------------------------------------------------------------------
   function unlockGate() {
-    if (isGranted) return;
-    isGranted = true;
+    if (cardState === 'granted') return;
+    cardState = 'granted';
     sessionStorage.setItem('dev_pass_unlocked', 'true');
 
     setReaderState('granted');
     playSuccessChime();
 
-    // Settle card snugly inside slot
+    // Settle card perfectly centered inside slot
     if (cardWrapper) {
       cardWrapper.classList.add('is-in-slot');
+      cardWrapper.classList.remove('is-dragging');
       targetPos.x = 0;
-      targetPos.y = 140;
+      targetPos.y = 135;
       targetTilt.x = 0;
       targetTilt.y = 0;
       targetTilt.z = 0;
+    }
+    if (readerWrapper) {
+      readerWrapper.classList.remove('is-dragging-card');
     }
 
     setTimeout(() => {
@@ -210,113 +228,108 @@
     });
   }
 
-  // Keyboard shortcut: Escape or Enter unlocks
+  // Keyboard shortcut: Escape unlocks for accessibility
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' || e.key === 'Enter') {
+    if (e.key === 'Escape') {
       unlockGate();
     }
   });
 
   // --------------------------------------------------------------------------
-  // 5. SMOOTH COMPLETE SWIPE (If released in slot)
+  // 5. GRAVITY FALL & RESPAWN MECHANICS (Matches mikes.cv)
   // --------------------------------------------------------------------------
-  function completeSwipeDown() {
-    if (isGranted || isAutoSwiping) return;
-    isAutoSwiping = true;
-    cardWrapper.classList.add('is-in-slot');
+  function triggerCardFall(isTap) {
+    if (cardState === 'granted' || cardState === 'fall' || isRespawning) return;
 
-    if (!hasSwiped) {
-      setReaderState('reading');
-      playSwipeSound();
-      hasSwiped = true;
+    cardState = 'fall';
+    cardWrapper.classList.remove('is-dragging', 'is-in-slot');
+    if (readerWrapper) readerWrapper.classList.remove('is-dragging-card');
+    slotSwipeTrack = null;
+    setReaderState('idle');
+
+    if (isTap) {
+      // Rapid gravity drop on tap / quick click
+      fallVx = (Math.random() - 0.5) * 50;
+      fallVy = 160;
+      fallVRotZ = (Math.random() - 0.5) * 20;
+      fallVRotX = 14;
+    } else {
+      // Drag release in air or slot without completing horizontal swipe
+      fallVx = Math.max(-280, Math.min(280, pointerVelocity.x * 0.75));
+      fallVy = Math.max(120, pointerVelocity.y * 0.75 + 150);
+      fallVRotZ = (Math.random() - 0.5) * 24;
+      fallVRotX = 16;
     }
+  }
 
-    const startY = currentPos.y;
-    const targetY = 140;
-    let t = 0;
+  function respawnCard() {
+    if (isRespawning || cardState === 'granted') return;
+    isRespawning = true;
 
-    function step() {
-      t += 0.055;
-      const ease = Math.min(1, Math.sin(t * Math.PI * 0.5));
-      currentPos.y = startY + (targetY - startY) * ease;
-      currentPos.x += (0 - currentPos.x) * 0.25;
+    // Fade out off-screen
+    cardWrapper.style.transition = 'opacity 0.18s ease';
+    cardWrapper.style.opacity = '0';
+
+    setTimeout(() => {
+      // Reset position & velocities to home origin
+      currentPos.x = 0;
+      currentPos.y = -30;
+      currentPos.z = 20;
+      targetPos.x = 0;
+      targetPos.y = 0;
+      targetPos.z = 20;
+      currentTilt.x = 0;
+      currentTilt.y = 0;
+      currentTilt.z = 0;
       targetTilt.x = 0;
       targetTilt.y = 0;
       targetTilt.z = 0;
+      fallVx = 0;
+      fallVy = 0;
+      fallVRotZ = 0;
+      fallVRotX = 0;
 
-      if (t >= 1) {
-        isAutoSwiping = false;
-        unlockGate();
-        return;
-      }
-      requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
+      cardWrapper.style.transform = 'translate3d(0px, -30px, 20px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)';
+
+      setTimeout(() => {
+        // Smoothly fade card back in and spring to rest hover position
+        cardWrapper.style.transition = 'opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)';
+        cardWrapper.style.opacity = '1';
+        cardWrapper.style.transform = 'translate3d(0px, 0px, 20px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)';
+        currentPos.y = 0;
+
+        setTimeout(() => {
+          cardWrapper.style.transition = '';
+          cardState = 'hover';
+          isRespawning = false;
+        }, 450);
+      }, 60);
+    }, 60);
   }
 
   // --------------------------------------------------------------------------
-  // 6. AUTO-SWIPE ANIMATION (On click or tap)
+  // 6. POINTER DRAG & SWIPE EVENTS (Move Anywhere in Screen, Swipe Slot to Open)
   // --------------------------------------------------------------------------
-  function runAutoSwipe() {
-    if (isGranted || isAutoSwiping) return;
-    isAutoSwiping = true;
-    isDragging = false;
-    cardWrapper.classList.remove('is-dragging');
-    if (readerWrapper) readerWrapper.classList.remove('is-dragging-card');
+  let lastDownTime = 0;
+  let lastUpTime = 0;
 
-    getAudioContext();
-    playClickSound();
-
-    let progress = 0;
-    const startX = currentPos.x;
-    const startY = currentPos.y;
-    const targetSlotY = 140;
-
-    function anim() {
-      progress += 0.024;
-      const p = Math.min(1, progress);
-
-      // Smooth ease-in-out curve
-      const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-      currentPos.y = startY + (targetSlotY - startY) * ease;
-      currentPos.x = startX * (1 - ease);
-      targetTilt.z = Math.sin(p * Math.PI) * -1.5;
-      targetTilt.x = Math.sin(p * Math.PI) * -2;
-      targetTilt.y = 0;
-
-      if (p > 0.4 && !hasSwiped) {
-        cardWrapper.classList.add('is-in-slot');
-        setReaderState('reading');
-        playSwipeSound();
-        hasSwiped = true;
-      }
-
-      if (p >= 1) {
-        isAutoSwiping = false;
-        unlockGate();
-        return;
-      }
-
-      requestAnimationFrame(anim);
-    }
-
-    requestAnimationFrame(anim);
-  }
-
-  // --------------------------------------------------------------------------
-  // 7. POINTER DRAG & SWIPE EVENTS (Flawless on Laptop Mouse & Mobile Touch)
-  // --------------------------------------------------------------------------
   function onPointerDown(e) {
-    if (isGranted || isAutoSwiping) return;
+    if (cardState === 'granted' || cardState === 'fall' || isRespawning) return;
     if (e.button !== undefined && e.button !== 0) return; // Primary button only
+
+    const now = performance.now();
+    if (now - lastDownTime < 30) return;
+    lastDownTime = now;
+
     if (e.cancelable) e.preventDefault();
 
     getAudioContext();
     playClickSound();
 
-    pointerDownTime = performance.now();
-    isDragging = true;
+    cardState = 'drag';
     hasMoved = false;
+    slotSwipeTrack = null;
+
     cardWrapper.classList.add('is-dragging');
     if (readerWrapper) readerWrapper.classList.add('is-dragging-card');
 
@@ -330,12 +343,15 @@
     dragStart.y = e.clientY;
     cardStartPos.x = currentPos.x;
     cardStartPos.y = currentPos.y;
+
+    lastPointerPos = { x: e.clientX, y: e.clientY, time: now };
+    pointerVelocity = { x: 0, y: 0 };
   }
 
   function onPointerMove(e) {
-    if (isGranted || isAutoSwiping) return;
+    if (cardState === 'granted' || cardState === 'fall' || isRespawning) return;
 
-    if (!isDragging) {
+    if (cardState === 'hover') {
       // Gentle 3D tilt on hover over card
       if (cardWrapper) {
         const rect = cardWrapper.getBoundingClientRect();
@@ -358,59 +374,80 @@
       return;
     }
 
+    if (cardState !== 'drag') return;
     if (e.cancelable) e.preventDefault();
+
+    const now = performance.now();
+    const dt = Math.max((now - lastPointerPos.time) / 1000, 0.008);
+    pointerVelocity.x = (e.clientX - lastPointerPos.x) / dt;
+    pointerVelocity.y = (e.clientY - lastPointerPos.y) / dt;
+    lastPointerPos = { x: e.clientX, y: e.clientY, time: now };
 
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
 
-    if (Math.hypot(deltaX, deltaY) > 6) {
+    if (Math.hypot(deltaX, deltaY) > 8) {
       hasMoved = true;
     }
 
-    // Direct tracking with smooth vertical boundaries
-    targetPos.x = Math.max(-120, Math.min(120, cardStartPos.x + deltaX * 0.85));
-    targetPos.y = Math.max(-20, Math.min(180, cardStartPos.y + deltaY));
+    // Direct tracking across the entire screen
+    const maxMoveX = Math.max(window.innerWidth * 0.5 - 40, 240);
+    const minMoveY = -(window.innerHeight * 0.5 - 30);
+    const maxMoveY = window.innerHeight * 0.5 + 80;
 
-    // Dynamic tilt based on drag motion
-    targetTilt.y = Math.max(-8, Math.min(8, deltaX * 0.06));
-    targetTilt.x = Math.max(-8, Math.min(8, -deltaY * 0.05));
-    targetTilt.z = Math.max(-6, Math.min(6, deltaX * 0.04));
+    targetPos.x = Math.max(-maxMoveX, Math.min(maxMoveX, cardStartPos.x + deltaX));
+    targetPos.y = Math.max(minMoveY, Math.min(maxMoveY, cardStartPos.y + deltaY));
 
-    // Physical Reader Slot Interaction:
-    if (targetPos.y >= 65) {
+    // Dynamic responsive tilt based on drag motion
+    const speedX = deltaX * 0.045;
+    const speedY = deltaY * 0.035;
+    targetTilt.y = Math.max(-12, Math.min(12, speedX));
+    targetTilt.x = Math.max(-10, Math.min(10, -speedY));
+    targetTilt.z = Math.max(-7, Math.min(7, speedX * 0.6));
+
+    // CHECK IF CARD IS INSIDE THE READER SLOT ZONE:
+    // Slot mouth is at stage center (y >= 55 and y <= 260, Math.abs(x) <= 230)
+    const isInSlotZone = targetPos.y >= 55 && targetPos.y <= 260 && Math.abs(targetPos.x) <= 230;
+
+    if (isInSlotZone) {
       cardWrapper.classList.add('is-in-slot');
-      if (!hasSwiped) {
-        setReaderState('reading');
-        playSwipeSound();
-        hasSwiped = true;
+      targetPos.z = 0; // slides cleanly behind the front faceplate (+30px)!
+      targetTilt.x = 0;
+      targetTilt.y = Math.max(-4, Math.min(4, speedX * 0.4));
+      targetTilt.z = Math.max(-3, Math.min(3, speedX * 0.3));
+      setReaderState('reading');
+
+      // Track horizontal swipe traverse across the reader slot
+      if (!slotSwipeTrack) {
+        slotSwipeTrack = { minX: targetPos.x, maxX: targetPos.x, triggered: false };
+      } else {
+        slotSwipeTrack.minX = Math.min(slotSwipeTrack.minX, targetPos.x);
+        slotSwipeTrack.maxX = Math.max(slotSwipeTrack.maxX, targetPos.x);
       }
 
-      // Swiped deep into the slot -> Complete swipe smoothly!
-      if (targetPos.y >= 120) {
-        isDragging = false;
-        if (e.pointerId !== undefined && cardWrapper.releasePointerCapture) {
-          try {
-            cardWrapper.releasePointerCapture(e.pointerId);
-          } catch (_) {}
-        }
-        cardWrapper.classList.remove('is-dragging');
-        if (readerWrapper) readerWrapper.classList.remove('is-dragging-card');
-        completeSwipeDown();
+      const swipeSpan = slotSwipeTrack.maxX - slotSwipeTrack.minX;
+
+      // Only a full swipe motion across slot triggers unlock!
+      // Holding or dwelling inside slot strictly keeps showing "READING..." without opening!
+      if (swipeSpan >= 110 && !slotSwipeTrack.triggered) {
+        slotSwipeTrack.triggered = true;
+        playSwipeSound();
+        unlockGate();
       }
     } else {
       cardWrapper.classList.remove('is-in-slot');
-      if (hasSwiped && targetPos.y < 35) {
-        hasSwiped = false;
-        setReaderState('idle');
-      }
+      targetPos.z = 45; // flies cleanly in front of everything while in air
+      slotSwipeTrack = null;
+      setReaderState('idle');
     }
   }
 
   function onPointerUp(e) {
-    if (!isDragging) return;
-    isDragging = false;
-    cardWrapper.classList.remove('is-dragging');
-    if (readerWrapper) readerWrapper.classList.remove('is-dragging-card');
+    if (cardState !== 'drag') return;
+
+    const now = performance.now();
+    if (now - lastUpTime < 30) return;
+    lastUpTime = now;
 
     if (e && e.pointerId !== undefined && cardWrapper.releasePointerCapture) {
       try {
@@ -418,34 +455,21 @@
       } catch (_) {}
     }
 
-    if (isGranted || isAutoSwiping) return;
-
-    const clientX = e && e.clientX !== undefined ? e.clientX : dragStart.x;
-    const clientY = e && e.clientY !== undefined ? e.clientY : dragStart.y;
-    const elapsed = performance.now() - pointerDownTime;
+    const clientX = e && e.clientX !== undefined ? e.clientX : lastPointerPos.x;
+    const clientY = e && e.clientY !== undefined ? e.clientY : lastPointerPos.y;
     const moved = Math.hypot(clientX - dragStart.x, clientY - dragStart.y);
 
-    // 1. TAP / CLICK ON LAPTOP OR MOBILE: Auto-swipe cleanly into reader!
-    if (!hasMoved || (moved < 18 && elapsed < 650)) {
-      runAutoSwipe();
+    // 1. TAP / QUICK CLICK: MANDATORY RULE - DOES NOT OPEN!
+    // While tapping, card falls down under gravity off-screen, then respawns.
+    if (!hasMoved || moved < 12) {
+      triggerCardFall(true);
       return;
     }
 
-    // 2. SWIPE DOWNWARD: User dragged downward toward slot -> Complete swipe!
-    if (targetPos.y >= 45) {
-      completeSwipeDown();
-      return;
-    }
-
-    // 3. Otherwise spring back smoothly to idle rest position
-    targetPos.x = 0;
-    targetPos.y = 0;
-    targetTilt.x = 0;
-    targetTilt.y = 0;
-    targetTilt.z = 0;
-    hasSwiped = false;
-    cardWrapper.classList.remove('is-in-slot');
-    setReaderState('idle');
+    // 2. DRAGGED AND RELEASED WITHOUT COMPLETING A FULL SWIPE:
+    // Even if released inside the reader slot or anywhere in air,
+    // card falls down under gravity off-screen and respawns.
+    triggerCardFall(false);
   }
 
   // Prevent browser native HTML5 drag and drop or text selection on the card
@@ -459,15 +483,25 @@
 
   // Pointer Events (Mouse + Stylus + Touch with pointer support)
   cardWrapper.addEventListener('pointerdown', onPointerDown);
+  cardWrapper.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointermove', onPointerMove);
+  cardWrapper.addEventListener('pointerup', onPointerUp);
   window.addEventListener('pointerup', onPointerUp);
   window.addEventListener('pointercancel', onPointerUp);
 
-  // Direct Click Failsafe for Laptop Mouse & Trackpad
+  // Mouse Events Fallback
+  cardWrapper.addEventListener('mousedown', onPointerDown);
+  cardWrapper.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('mousemove', onPointerMove);
+  cardWrapper.addEventListener('mouseup', onPointerUp);
+  window.addEventListener('mouseup', onPointerUp);
+
+  // Direct Click Prevention: Tapping or clicking the card MUST NOT open it
   cardWrapper.addEventListener('click', (e) => {
     e.preventDefault();
-    if (!isGranted && !isAutoSwiping) {
-      runAutoSwipe();
+    e.stopPropagation();
+    if (cardState === 'hover') {
+      triggerCardFall(true);
     }
   });
 
@@ -486,7 +520,7 @@
   }, { passive: false });
 
   window.addEventListener('touchmove', (e) => {
-    if (isDragging && e.touches && e.touches[0]) {
+    if (cardState === 'drag' && e.touches && e.touches[0]) {
       const touch = e.touches[0];
       onPointerMove({
         clientX: touch.clientX,
@@ -498,78 +532,84 @@
   }, { passive: false });
 
   window.addEventListener('touchend', (e) => {
-    if (isDragging) {
+    if (cardState === 'drag') {
       const touch = e.changedTouches ? e.changedTouches[0] : null;
       onPointerUp({
-        clientX: touch ? touch.clientX : dragStart.x,
-        clientY: touch ? touch.clientY : dragStart.y,
+        clientX: touch ? touch.clientX : lastPointerPos.x,
+        clientY: touch ? touch.clientY : lastPointerPos.y,
         pointerId: 1
       });
     }
   });
 
-  // Clicking reader unit also triggers auto-swipe entry
+  // Direct Click Prevention on Reader: Clicking reader unit does NOT open
   if (readerWrapper) {
     readerWrapper.addEventListener('click', (e) => {
       e.preventDefault();
-      if (!isGranted && !isAutoSwiping) {
-        runAutoSwipe();
-      }
+      e.stopPropagation();
     });
   }
 
-  // Keyboard accessibility: Press ArrowDown, Enter, or Space to swipe into slot
-  cardWrapper.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
-      runAutoSwipe();
-    }
-  });
-
   // --------------------------------------------------------------------------
-  // 8. UNIFIED 60FPS RENDER LOOP (Zero Jitter, Flawless Physics)
+  // 7. UNIFIED 60FPS RENDER & PHYSICS LOOP (Zero Jitter, Flawless Smoothness)
   // --------------------------------------------------------------------------
   function renderLoop() {
-    if (!isGranted && !isAutoSwiping) {
-      if (isDragging) {
-        // Fast, direct 1:1 response during drag
-        currentPos.x += (targetPos.x - currentPos.x) * 0.72;
-        currentPos.y += (targetPos.y - currentPos.y) * 0.72;
-        currentTilt.x += (targetTilt.x - currentTilt.x) * 0.45;
-        currentTilt.y += (targetTilt.y - currentTilt.y) * 0.45;
-        currentTilt.z += (targetTilt.z - currentTilt.z) * 0.45;
-      } else {
-        // Smooth spring damping back to rest target
-        currentPos.x += (targetPos.x - currentPos.x) * 0.16;
-        currentPos.y += (targetPos.y - currentPos.y) * 0.16;
-        currentTilt.x += (targetTilt.x - currentTilt.x) * 0.14;
-        currentTilt.y += (targetTilt.y - currentTilt.y) * 0.14;
-        currentTilt.z += (targetTilt.z - currentTilt.z) * 0.14;
+    const now = performance.now();
+    const dt = Math.min((now - lastFrameTime) / 1000, 0.035) || 0.016;
+    lastFrameTime = now;
 
-        // Gentle ambient hover bob ONLY when card is resting at home
-        const isResting = Math.hypot(currentPos.x, currentPos.y) < 2 && Math.hypot(targetPos.x, targetPos.y) < 1;
-        if (isResting) {
-          hoverTime += 0.035;
-          const bobY = Math.sin(hoverTime) * 3.5;
-          const bobTilt = Math.cos(hoverTime * 0.7) * 0.6;
+    if (cardState === 'fall') {
+      // Physical gravity drop matching mikes.cv Rapier dynamic simulation
+      const gravity = 3000; // px/s²
+      fallVy += gravity * dt;
+      currentPos.y += fallVy * dt;
+      currentPos.x += fallVx * dt;
+      currentPos.z += (targetPos.z - currentPos.z) * 0.35;
+      currentTilt.z += fallVRotZ * dt * 8;
+      currentTilt.x += fallVRotX * dt * 8;
 
-          const posY = currentPos.y + bobY;
-          const tiltZ = currentTilt.z + bobTilt;
-          cardWrapper.style.transform = `translate3d(${currentPos.x.toFixed(2)}px, ${posY.toFixed(2)}px, 0) rotateX(${currentTilt.x.toFixed(2)}deg) rotateY(${currentTilt.y.toFixed(2)}deg) rotateZ(${tiltZ.toFixed(2)}deg)`;
-          requestAnimationFrame(renderLoop);
-          return;
-        }
+      cardWrapper.style.transform = `translate3d(${currentPos.x.toFixed(2)}px, ${currentPos.y.toFixed(2)}px, ${currentPos.z.toFixed(2)}px) rotateX(${currentTilt.x.toFixed(2)}deg) rotateY(${currentTilt.y.toFixed(2)}deg) rotateZ(${currentTilt.z.toFixed(2)}deg)`;
+
+      // When card falls past bottom of the viewport
+      const fallLimit = window.innerHeight * 0.75 + 160;
+      if (currentPos.y > fallLimit && !isRespawning) {
+        respawnCard();
       }
+    } else if (cardState === 'drag') {
+      // Direct, instantaneous 1:1 finger tracking
+      currentPos.x += (targetPos.x - currentPos.x) * 0.85;
+      currentPos.y += (targetPos.y - currentPos.y) * 0.85;
+      currentPos.z += (targetPos.z - currentPos.z) * 0.35;
+      currentTilt.x += (targetTilt.x - currentTilt.x) * 0.35;
+      currentTilt.y += (targetTilt.y - currentTilt.y) * 0.35;
+      currentTilt.z += (targetTilt.z - currentTilt.z) * 0.35;
 
-      cardWrapper.style.transform = `translate3d(${currentPos.x.toFixed(2)}px, ${currentPos.y.toFixed(2)}px, 0) rotateX(${currentTilt.x.toFixed(2)}deg) rotateY(${currentTilt.y.toFixed(2)}deg) rotateZ(${currentTilt.z.toFixed(2)}deg)`;
-    } else if (isGranted && cardWrapper) {
+      cardWrapper.style.transform = `translate3d(${currentPos.x.toFixed(2)}px, ${currentPos.y.toFixed(2)}px, ${currentPos.z.toFixed(2)}px) rotateX(${currentTilt.x.toFixed(2)}deg) rotateY(${currentTilt.y.toFixed(2)}deg) rotateZ(${currentTilt.z.toFixed(2)}deg)`;
+    } else if (cardState === 'hover') {
+      // Gentle spring return to rest origin
+      currentPos.x += (targetPos.x - currentPos.x) * 0.16;
+      currentPos.y += (targetPos.y - currentPos.y) * 0.16;
+      currentPos.z += (targetPos.z - currentPos.z) * 0.16;
+      currentTilt.x += (targetTilt.x - currentTilt.x) * 0.14;
+      currentTilt.y += (targetTilt.y - currentTilt.y) * 0.14;
+      currentTilt.z += (targetTilt.z - currentTilt.z) * 0.14;
+
+      hoverTime += 0.035;
+      const bobY = Math.sin(hoverTime) * 3.5;
+      const bobTilt = Math.cos(hoverTime * 0.7) * 0.6;
+
+      const posY = currentPos.y + bobY;
+      const tiltZ = currentTilt.z + bobTilt;
+      cardWrapper.style.transform = `translate3d(${currentPos.x.toFixed(2)}px, ${posY.toFixed(2)}px, ${currentPos.z.toFixed(2)}px) rotateX(${currentTilt.x.toFixed(2)}deg) rotateY(${currentTilt.y.toFixed(2)}deg) rotateZ(${tiltZ.toFixed(2)}deg)`;
+    } else if (cardState === 'granted' && cardWrapper) {
       // Smooth settle when unlocked
-      currentPos.x += (targetPos.x - currentPos.x) * 0.18;
-      currentPos.y += (targetPos.y - currentPos.y) * 0.18;
-      currentTilt.x *= 0.85;
-      currentTilt.y *= 0.85;
-      currentTilt.z *= 0.85;
-      cardWrapper.style.transform = `translate3d(${currentPos.x.toFixed(2)}px, ${currentPos.y.toFixed(2)}px, 0) rotateX(${currentTilt.x.toFixed(2)}deg) rotateY(${currentTilt.y.toFixed(2)}deg) rotateZ(${currentTilt.z.toFixed(2)}deg)`;
+      currentPos.x += (targetPos.x - currentPos.x) * 0.22;
+      currentPos.y += (targetPos.y - currentPos.y) * 0.22;
+      currentPos.z += (targetPos.z - currentPos.z) * 0.22;
+      currentTilt.x *= 0.75;
+      currentTilt.y *= 0.75;
+      currentTilt.z *= 0.75;
+      cardWrapper.style.transform = `translate3d(${currentPos.x.toFixed(2)}px, ${currentPos.y.toFixed(2)}px, ${currentPos.z.toFixed(2)}px) rotateX(${currentTilt.x.toFixed(2)}deg) rotateY(${currentTilt.y.toFixed(2)}deg) rotateZ(${currentTilt.z.toFixed(2)}deg)`;
     }
 
     requestAnimationFrame(renderLoop);
@@ -577,7 +617,7 @@
   requestAnimationFrame(renderLoop);
 
   // --------------------------------------------------------------------------
-  // 9. INITIALIZE AUTHENTIC CALLIGRAPHY SIGNATURE ON PEARL WHITE CARD
+  // 8. INITIALIZE AUTHENTIC CALLIGRAPHY SIGNATURE ON PEARL WHITE CARD
   // --------------------------------------------------------------------------
   const gateSignature = document.getElementById('gate-card-signature');
   function animateGateSignature() {
@@ -594,11 +634,10 @@
     sessionStorage.removeItem('dev_pass_unlocked');
     gateEl.classList.remove('is-unlocked');
     gateEl.style.display = 'flex';
-    isGranted = false;
-    isDragging = false;
-    isAutoSwiping = false;
-    hasSwiped = false;
+    cardState = 'hover';
     hasMoved = false;
+    isRespawning = false;
+    slotSwipeTrack = null;
     currentPos.x = 0;
     currentPos.y = 0;
     targetPos.x = 0;
@@ -606,7 +645,9 @@
     currentTilt.x = 0;
     currentTilt.y = 0;
     currentTilt.z = 0;
-    cardWrapper.classList.remove('is-in-slot');
+    cardWrapper.classList.remove('is-in-slot', 'is-dragging');
+    cardWrapper.style.opacity = '1';
+    cardWrapper.style.transform = 'translate3d(0px, 0px, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg)';
     setReaderState('idle');
     animateGateSignature();
   };

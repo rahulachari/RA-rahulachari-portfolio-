@@ -75,7 +75,7 @@
   width: 380px;
   height: 232px;
   cursor: grab;
-  z-index: 10;
+  z-index: 30;
   touch-action: none !important;
   transform-style: preserve-3d;
   will-change: transform;
@@ -90,12 +90,13 @@
 
 .card-wrapper.is-dragging {
   cursor: grabbing !important;
-  z-index: 10;
+  z-index: 100 !important;
   transition: none !important;
 }
 
-.card-wrapper.is-in-slot {
-  z-index: 10;
+.card-wrapper.is-in-slot,
+.card-wrapper.is-dragging.is-in-slot {
+  z-index: 10 !important;
 }
 
 /* Luxury Pearl White Signature Pass Card Body with Clean Physical Shadow (NO GLOW) */
@@ -325,6 +326,8 @@
   height: 135px;
   z-index: 5;
   pointer-events: none;
+  transform: translate3d(0, 0, -25px);
+  transform-style: preserve-3d;
 }
 
 .reader-back-body {
@@ -361,8 +364,10 @@
   width: 440px;
   height: 135px;
   z-index: 20;
-  cursor: pointer;
+  cursor: default;
   pointer-events: auto;
+  transform: translate3d(0, 0, 30px);
+  transform-style: preserve-3d;
   transition: transform 0.2s ease;
 }
 

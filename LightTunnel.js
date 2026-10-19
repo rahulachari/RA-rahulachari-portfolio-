@@ -178,6 +178,9 @@ export function createLightTunnel(container, userOptions = {}) {
     return null;
   }
 
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
   const vert = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
   const frag = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
   const program = gl.createProgram();

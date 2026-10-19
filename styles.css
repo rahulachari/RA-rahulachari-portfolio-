@@ -1211,66 +1211,83 @@ html.light .work-section {
   margin-top: 0;
 }
 
+/* Minimalist Precision Project Action Buttons (Theme-Aligned) */
 .project-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.32rem 0.72rem;
+  gap: 0.38rem;
+  padding: 0.28rem 0.65rem;
   font-family: var(--font-mono-2);
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 12;
   cursor: pointer;
-  background: rgba(8, 9, 12, 0.82);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  background: rgba(10, 10, 14, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .btn-github {
-  color: var(--label-1);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .btn-github:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.14);
   color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
 .btn-live {
-  background: rgba(192, 254, 4, 0.16);
-  color: #C0FE04;
-  border: 1px solid rgba(192, 254, 4, 0.55);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(15, 23, 42, 0.72);
 }
 
 .btn-live:hover {
-  background: #C0FE04;
-  color: #000000;
-  border-color: #C0FE04;
-  box-shadow: 0 0 16px rgba(192, 254, 4, 0.6);
-  transform: translateY(-2px);
+  background: rgba(37, 99, 235, 0.24);
+  color: #93c5fd;
+  border-color: rgba(96, 165, 250, 0.55);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
 }
 
 .btn-live-pulse {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: #C0FE04;
-  box-shadow: 0 0 6px #C0FE04;
-  animation: live-dot-pulse 1.5s infinite ease-in-out;
+  background: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.8);
+  display: inline-block;
+  animation: live-dot-pulse 1.8s infinite ease-in-out;
 }
 
-.btn-live:hover .btn-live-pulse {
-  background: #000000;
-  box-shadow: none;
+@keyframes live-dot-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1.0; transform: scale(1.2); }
+}
+
+html.light .project-btn {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+html.light .project-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.28);
+  color: #000000;
 }
 
 .project-img-anchor {
@@ -1354,23 +1371,9 @@ html.light .project-card:hover .project-visual-box {
   filter: contrast(110%) saturate(115%);
 }
 
-/* Category Badge (Top-Left on Image opposite Action Buttons) */
+/* Category Badge Removed by User Request */
 .project-badge {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  z-index: 10;
-  background-color: #C0FE04;
-  border-radius: 4px;
-  color: #000000;
-  font-family: var(--font-mono-2);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 0.25rem 0.65rem;
-  border-radius: 0;
-  line-height: 1.2;
+  display: none !important;
 }
 
 /* ==========================================================================
@@ -1559,7 +1562,7 @@ html.light .project-desc-overlay .project-desc {
   z-index: 1;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: none;
 }
 
 .light-tunnel-mount.is-active {
@@ -2482,6 +2485,113 @@ html.light .footer-section {
   opacity: 0.85;
   animation: rtSpin 14s linear infinite;
   display: inline-block;
+}
+
+/* Mobile-First Touch-Friendly Footer for Accessing Gmail & Resume */
+@media (max-width: 768px) {
+  .footer-bottom-bar {
+    position: relative;
+    padding: 1.5rem var(--site-margin) max(2.5rem, env(safe-area-inset-bottom, 2.5rem));
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+    pointer-events: auto;
+    z-index: 30;
+  }
+
+  .footer-meta-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .footer-email-link {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.85rem 1rem;
+    background: rgba(8, 10, 20, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px dashed rgba(255, 255, 255, 0.28);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    text-align: center;
+    min-height: 48px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .footer-email-link:active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #C0FE04;
+    color: #C0FE04;
+    transform: scale(0.98);
+  }
+
+  .footer-copy-tag {
+    text-align: center;
+    font-size: 0.72rem;
+    opacity: 0.7;
+  }
+
+  .footer-coords-display {
+    display: none;
+  }
+
+  .footer-social-links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
+    width: 100%;
+  }
+
+  .footer-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1px dashed rgba(255, 255, 255, 0.24);
+    background: rgba(8, 10, 20, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.9);
+    min-height: 46px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+
+  .footer-social-link:active {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #C0FE04;
+    color: #C0FE04;
+    transform: scale(0.98);
+  }
+
+  .footer-wire-globe {
+    display: none;
+  }
+}
+
+html.light .footer-email-link {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #000000;
+}
+
+html.light .footer-social-link {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.16);
+  color: #000000;
 }
 
 @keyframes rtSpin {

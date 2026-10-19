@@ -783,13 +783,13 @@ import createLightTunnel from './LightTunnel.js';
     const dist = Math.max(camera.position.z - 0.2, 1.0);
     const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
     const vW = vH * camera.aspect;
-    const targetWidth = isMobile ? Math.min(vW * 0.82, 6.8) : (isTablet ? 15.0 : 21.0);
+    const targetWidth = isMobile ? Math.min(vW * 0.74, 5.2) : (isTablet ? 15.0 : 21.0);
     const baseScale = targetWidth / Math.max(boxSize.x, 1);
 
     rahul3DMesh.userData.baseScale = baseScale;
     rahul3DMesh.scale.set(baseScale, baseScale, baseScale);
     // Positioned in background (z: 0.2) behind the DOM content
-    rahul3DMesh.position.set(0, isMobile ? 0.35 : (isTablet ? 0.2 : 0.08), 0.2);
+    rahul3DMesh.position.set(0, isMobile ? 0.85 : (isTablet ? 0.2 : 0.08), 0.2);
     rahul3DMesh.rotation.set(0, THREE.MathUtils.degToRad(3), 0);
 
     scene.add(rahul3DMesh);
@@ -800,16 +800,17 @@ import createLightTunnel from './LightTunnel.js';
   // Load 3D Cursor Mesh (model/cursor.glb) - Hero Banner & Quote Transition
   gltfLoader.load('model/cursor.glb', (gltf) => {
     const isMobile = window.innerWidth < 768;
+    const heroBaseScale = isMobile ? 0.052 : 0.14;
 
     // 1. Hero Banner Cursor (Positioned beside 'Achari' with clear breathing space)
     cursor3DMesh = gltf.scene;
-    cursor3DMesh.scale.set(0.14, 0.14, 0.14);
+    cursor3DMesh.scale.set(heroBaseScale, heroBaseScale, heroBaseScale);
     cursor3DMesh.rotation.set(
       THREE.MathUtils.degToRad(-10),
       THREE.MathUtils.degToRad(14),
       THREE.MathUtils.degToRad(-18)
     );
-    cursor3DMesh.position.set(isMobile ? 5.0 : 13.2, isMobile ? -0.5 : -0.5, 1.2);
+    cursor3DMesh.position.set(isMobile ? 1.65 : 13.2, isMobile ? -1.35 : -0.5, 1.2);
 
     cursor3DMesh.traverse((child) => {
       if (child.isMesh) {
@@ -1217,7 +1218,7 @@ import createLightTunnel from './LightTunnel.js';
       rahul3DMesh.rotation.x = -state.mouse.y * 0.20 + Math.cos(elapsedTime * 1.2) * 0.03;
       
       // Smooth vertical scroll translation (glides up as user scrolls down)
-      const baseY = isMobile ? 0.35 : (isTablet ? 0.2 : 0.08);
+      const baseY = isMobile ? 0.85 : (isTablet ? 0.2 : 0.08);
       rahul3DMesh.position.y = baseY + floatY + (state.scrollY * 0.016);
       rahul3DMesh.position.z = 0.2;
 
@@ -1239,11 +1240,13 @@ import createLightTunnel from './LightTunnel.js';
       const bannerProgress = Math.min(Math.max(state.scrollY / 700, 0), 1);
       // 720-degree spin on scroll out (afterRotation: [0, 720, 0])
       cursor3DMesh.rotation.y += THREE.MathUtils.degToRad(720) * bannerProgress;
-      cursor3DMesh.position.x = isMobile ? 5.0 : 13.2;
-      cursor3DMesh.position.y = (-0.5 + floatOffset) + (state.scrollY * 0.014 * 0.72);
+      const isMobile = window.innerWidth < 768;
+      const heroScale = isMobile ? 0.052 : 0.14;
+      cursor3DMesh.position.x = isMobile ? 1.65 : 13.2;
+      cursor3DMesh.position.y = (isMobile ? -1.35 : -0.5) + floatOffset + (state.scrollY * 0.014 * 0.72);
 
       const cursorFade = Math.max(0, 1 - bannerProgress * 1.4);
-      cursor3DMesh.scale.set(0.14 * cursorFade, 0.14 * cursorFade, 0.14 * cursorFade);
+      cursor3DMesh.scale.set(heroScale * cursorFade, heroScale * cursorFade, heroScale * cursorFade);
       cursor3DMesh.visible = cursorFade > 0.01;
     }
 
@@ -1346,30 +1349,55 @@ import createLightTunnel from './LightTunnel.js';
             if (fadeOut <= 0.001) {
               transitionCursorGroup.visible = false;
             }
-          } else if (progress >= 0.78 && progress < 0.96) {
-            // Stage End: FUTURE-FIRST ALWAYS with 3D Cyan Cursor
+          } else if (progress >= 0.68 && progress < 0.96) {
+            // Stage Exit: Smooth ZOOM OUT Effect from Fullscreen Cursor (Mirroring the Entrance Zoom In)
             transitionCursorGroup.visible = true;
 
-            const futureT = THREE.MathUtils.clamp((progress - 0.78) / 0.04, 0.0, 1.0);
-            const futureExit = progress >= 0.94 ? THREE.MathUtils.clamp(1.0 - (progress - 0.94) / 0.02, 0.0, 1.0) : 1.0;
-            const opacity = Math.min(futureT, futureExit);
-            transitionCursorMaterial.uniforms.uOpacity.value = opacity;
+            const futureRestScale = isMobile ? 0.22 : 0.28;
+            // Generous, silky-smooth zoom out window: 0.70 -> 0.86
+            const zoomOutSpan = 0.16;
+            const zoomOutProgress = THREE.MathUtils.clamp((progress - 0.70) / zoomOutSpan, 0.0, 1.0);
 
-            // Solid glossy cyan-blue arrow, NO streaks
-            transitionCursorMaterial.uniforms.uStripeReveal.value = 0.0;
+            // Ultra-smooth quintic smootherstep easing for natural deceleration without jumps
+            const easeZoomOut = zoomOutProgress * zoomOutProgress * zoomOutProgress * (zoomOutProgress * (zoomOutProgress * 6 - 15) + 10);
 
-            // Clean tilt: 45 degrees up-left matching Haoqi standard
-            if (transitionTiltA) {
-              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(-45) + state.mouse.x * 0.1;
-              transitionTiltA.rotation.x = -state.mouse.y * 0.1;
-            }
+            // 1. SCALE: Zoom out smoothly from peakScale (fullscreen) down to resting scale
+            const currentScale = THREE.MathUtils.lerp(peakScale, futureRestScale, easeZoomOut);
+            transitionCursorGroup.scale.setScalar(currentScale);
+
+            // 2. POSITION: Centered as it contracts, then smoothly connects with mouse parallax
+            const posX = state.mouse.x * 0.20 * easeZoomOut;
+            const posY = 0.05 * easeZoomOut + -state.mouse.y * 0.15 * easeZoomOut;
+            transitionCursorGroup.position.set(posX, posY, 1.5);
+
+            // 3. ORIENTATION & SPIN: Smooth spin as it zooms out, settling to -45 deg
+            const spinAngle = (1.0 - easeZoomOut) * Math.PI;
             if (transitionSpin) {
-              transitionSpin.rotation.y = 0;
+              transitionSpin.rotation.y = spinAngle;
+            }
+            if (transitionTiltA) {
+              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(-45) + state.mouse.x * 0.1 * easeZoomOut;
+              transitionTiltA.rotation.x = -state.mouse.y * 0.1 * easeZoomOut;
+              transitionTiltA.rotation.y = 0;
             }
 
-            const futureScale = isMobile ? 0.22 : 0.28;
-            transitionCursorGroup.scale.setScalar(futureScale);
-            transitionCursorGroup.position.set(state.mouse.x * 0.2, 0.05 + -state.mouse.y * 0.15, 1.5);
+            // 4. STREAKS REVEAL: Speed-lines collapse inside the cursor as it shrinks
+            const stripeReveal = THREE.MathUtils.clamp(1.0 - easeZoomOut * 1.15, 0.0, 1.0);
+            transitionCursorMaterial.uniforms.uStripeReveal.value = stripeReveal;
+
+            const scrollDrivenTime = Math.max(0, screenH - rect.top) * 0.0018;
+            transitionCursorMaterial.uniforms.iTime.value = scrollDrivenTime;
+
+            transitionCursorMaterial.uniforms.iResolution.value.set(
+              window.innerWidth * Math.min(window.devicePixelRatio, 2),
+              window.innerHeight * Math.min(window.devicePixelRatio, 2),
+              1.0
+            );
+
+            // 5. OPACITY: Clean fade-in at 0.68 and fade-out at end (0.94 -> 0.96)
+            const futureIn = THREE.MathUtils.clamp((progress - 0.68) / 0.02, 0.0, 1.0);
+            const futureExit = progress >= 0.94 ? THREE.MathUtils.clamp(1.0 - (progress - 0.94) / 0.02, 0.0, 1.0) : 1.0;
+            transitionCursorMaterial.uniforms.uOpacity.value = Math.min(futureIn, futureExit);
           } else {
             transitionCursorGroup.visible = false;
           }
@@ -1377,13 +1405,15 @@ import createLightTunnel from './LightTunnel.js';
 
         // --- FULL-SCREEN LIGHT TUNNEL SHADER ENGINE (Screenshot 2) ---
         if (lightTunnel) {
-          if (progress >= 0.08 && progress < 0.74) {
+          if (progress >= 0.08 && progress < 0.68) {
             if (lightTunnelMount) lightTunnelMount.classList.add('is-active');
             const tunnelIn = THREE.MathUtils.clamp((progress - 0.08) / 0.08, 0.0, 1.0);
             lightTunnel.setScrollDynamics(progress, scrollVelocity);
             lightTunnel.setOptions({ opacity: tunnelIn, stripeReveal: 1.0 });
-          } else if (progress >= 0.74 && progress < 0.78) {
-            const tunnelFade = Math.max(0, 1.0 - (progress - 0.74) / 0.04);
+          } else if (progress >= 0.68 && progress < 0.72) {
+            // Smoothly cross-fade out into the fullscreen 3D cursor mesh
+            const tunnelFade = Math.max(0, 1.0 - (progress - 0.68) / 0.04);
+            lightTunnel.setScrollDynamics(progress, scrollVelocity);
             lightTunnel.setOptions({ opacity: tunnelFade });
             if (tunnelFade <= 0.01 && lightTunnelMount) {
               lightTunnelMount.classList.remove('is-active');
@@ -1398,8 +1428,8 @@ import createLightTunnel from './LightTunnel.js';
         // Pre-stage / Resting Entrance: Clean 3D cursor & follower only, no text (progress < 0.08, Screenshot 1)
         // Stage 0A: Innovate with Purpose (progress 0.08 - 0.24)
         // Stage 0B: Innovate with a Human Touch (progress 0.24 - 0.40)
-        // Stage 1: Central Cyber Rings + 4 Manifesto Statements (progress 0.40 - 0.78, Screenshot 2)
-        // Stage End: FUTURE-FIRST ALWAYS (progress 0.78 - 0.95, Screenshot 3)
+        // Stage 1: Central Cyber Rings + 4 Manifesto Statements (progress 0.40 - 0.72, Screenshot 2)
+        // Stage End: FUTURE-FIRST ALWAYS (progress 0.84 - 0.95, Screenshot 3)
         function setStageActive(stageEl, active) {
           if (!stageEl) return;
           if (active) {
@@ -1415,8 +1445,8 @@ import createLightTunnel from './LightTunnel.js';
 
         const inStage0A = progress >= 0.08 && progress < 0.24;
         const inStage0B = progress >= 0.24 && progress < 0.40;
-        const inStage1 = progress >= 0.40 && progress < 0.78;
-        const inStageEnd = progress >= 0.78 && progress < 0.95;
+        const inStage1 = progress >= 0.40 && progress < 0.72;
+        const inStageEnd = progress >= 0.84 && progress < 0.95;
 
         setStageActive(stagePrimary, inStage0A);
         setStageActive(stageSecondary, inStage0B);
@@ -1675,12 +1705,20 @@ import createLightTunnel from './LightTunnel.js';
         const dist = Math.max(camera.position.z - 0.2, 1.0);
         const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
         const vW = vH * camera.aspect;
-        const targetW = isMob ? Math.min(vW * 0.82, 6.8) : (isTab ? 16.0 : 23.5);
+        const targetW = isMob ? Math.min(vW * 0.74, 5.2) : (isTab ? 16.0 : 23.5);
         const newScale = targetW / Math.max(boxX, 1);
         rahul3DMesh.userData.baseScale = newScale;
         rahul3DMesh.scale.set(newScale, newScale, newScale);
-        rahul3DMesh.position.y = isMob ? 0.35 : (isTab ? 0.2 : 0.08);
+        rahul3DMesh.position.y = isMob ? 0.85 : (isTab ? 0.2 : 0.08);
       }
+    }
+
+    if (cursor3DMesh) {
+      const isMob = window.innerWidth < 768;
+      const heroScale = isMob ? 0.052 : 0.14;
+      cursor3DMesh.scale.set(heroScale, heroScale, heroScale);
+      cursor3DMesh.position.x = isMob ? 1.65 : 13.2;
+      cursor3DMesh.position.y = isMob ? -1.35 : -0.5;
     }
   });
 
