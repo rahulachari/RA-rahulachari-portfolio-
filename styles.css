@@ -2487,15 +2487,24 @@ html.light .footer-section {
   display: inline-block;
 }
 
-/* Mobile-First Touch-Friendly Footer for Accessing Gmail & Resume */
+@keyframes rtSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Mobile Responsive Footer: Gmail Left-Aligned & GitHub Fully Visible */
 @media (max-width: 768px) {
   .footer-bottom-bar {
     position: relative;
-    padding: 1.5rem var(--site-margin) max(2.5rem, env(safe-area-inset-bottom, 2.5rem));
+    padding: 1.5rem var(--site-margin) max(2rem, env(safe-area-inset-bottom, 2rem));
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
     gap: 1.25rem;
+    width: 100%;
+    margin-top: 2rem;
     pointer-events: auto;
     z-index: 30;
   }
@@ -2503,98 +2512,65 @@ html.light .footer-section {
   .footer-meta-left {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    align-items: flex-start !important;
+    text-align: left !important;
+    gap: 0.4rem;
     width: 100%;
+    margin: 0;
   }
 
   .footer-email-link {
     font-size: 0.9375rem;
     font-weight: 600;
     letter-spacing: 0.04em;
-    padding: 0.85rem 1rem;
-    background: rgba(8, 10, 20, 0.82);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px dashed rgba(255, 255, 255, 0.28);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #FFFFFF;
-    text-align: center;
-    min-height: 48px;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  }
-
-  .footer-email-link:active {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: #C0FE04;
-    color: #C0FE04;
-    transform: scale(0.98);
+    text-align: left !important;
+    display: inline-block;
   }
 
   .footer-copy-tag {
-    text-align: center;
     font-size: 0.72rem;
-    opacity: 0.7;
+    text-align: left !important;
+    opacity: 0.75;
   }
 
   .footer-coords-display {
-    display: none;
+    display: none !important;
   }
 
   .footer-social-links {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start !important;
+    flex-wrap: wrap;
+    gap: 1.25rem;
     width: 100%;
+    text-align: left !important;
   }
 
   .footer-social-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-align: center;
-    border: 1px dashed rgba(255, 255, 255, 0.24);
-    background: rgba(8, 10, 20, 0.82);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 6px;
-    color: rgba(255, 255, 255, 0.9);
-    min-height: 46px;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  }
-
-  .footer-social-link:active {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #C0FE04;
-    color: #C0FE04;
-    transform: scale(0.98);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
   }
 
   .footer-wire-globe {
-    display: none;
+    width: 18px;
+    height: 18px;
+    margin-left: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  /* Back-to-Top pixel hand sticker positioned well above footer links so it NEVER covers GITHUB */
+  .footer-sticker.sticker-pointer-bottom {
+    right: 1.25rem;
+    bottom: clamp(140px, 20vh, 185px) !important;
+    z-index: 20;
+  }
+
+  .footer-sticker.sticker-pointer-bottom img {
+    width: 72px;
+    height: 72px;
   }
 }
 
-html.light .footer-email-link {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.2);
-  color: #000000;
-}
 
-html.light .footer-social-link {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.16);
-  color: #000000;
-}
-
-@keyframes rtSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}

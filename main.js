@@ -800,17 +800,16 @@ import createLightTunnel from './LightTunnel.js';
   // Load 3D Cursor Mesh (model/cursor.glb) - Hero Banner & Quote Transition
   gltfLoader.load('model/cursor.glb', (gltf) => {
     const isMobile = window.innerWidth < 768;
-    const heroBaseScale = isMobile ? 0.052 : 0.14;
 
     // 1. Hero Banner Cursor (Positioned beside 'Achari' with clear breathing space)
     cursor3DMesh = gltf.scene;
-    cursor3DMesh.scale.set(heroBaseScale, heroBaseScale, heroBaseScale);
+    cursor3DMesh.scale.set(0.14, 0.14, 0.14);
     cursor3DMesh.rotation.set(
       THREE.MathUtils.degToRad(-10),
       THREE.MathUtils.degToRad(14),
       THREE.MathUtils.degToRad(-18)
     );
-    cursor3DMesh.position.set(isMobile ? 1.65 : 13.2, isMobile ? -1.35 : -0.5, 1.2);
+    cursor3DMesh.position.set(isMobile ? 5.0 : 13.2, isMobile ? -0.5 : -0.5, 1.2);
 
     cursor3DMesh.traverse((child) => {
       if (child.isMesh) {
@@ -1240,13 +1239,11 @@ import createLightTunnel from './LightTunnel.js';
       const bannerProgress = Math.min(Math.max(state.scrollY / 700, 0), 1);
       // 720-degree spin on scroll out (afterRotation: [0, 720, 0])
       cursor3DMesh.rotation.y += THREE.MathUtils.degToRad(720) * bannerProgress;
-      const isMobile = window.innerWidth < 768;
-      const heroScale = isMobile ? 0.052 : 0.14;
-      cursor3DMesh.position.x = isMobile ? 1.65 : 13.2;
-      cursor3DMesh.position.y = (isMobile ? -1.35 : -0.5) + floatOffset + (state.scrollY * 0.014 * 0.72);
+      cursor3DMesh.position.x = isMobile ? 5.0 : 13.2;
+      cursor3DMesh.position.y = (-0.5 + floatOffset) + (state.scrollY * 0.014 * 0.72);
 
       const cursorFade = Math.max(0, 1 - bannerProgress * 1.4);
-      cursor3DMesh.scale.set(heroScale * cursorFade, heroScale * cursorFade, heroScale * cursorFade);
+      cursor3DMesh.scale.set(0.14 * cursorFade, 0.14 * cursorFade, 0.14 * cursorFade);
       cursor3DMesh.visible = cursorFade > 0.01;
     }
 
@@ -1705,20 +1702,12 @@ import createLightTunnel from './LightTunnel.js';
         const dist = Math.max(camera.position.z - 0.2, 1.0);
         const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
         const vW = vH * camera.aspect;
-        const targetW = isMob ? Math.min(vW * 0.74, 5.2) : (isTab ? 16.0 : 23.5);
+        const targetW = isMob ? Math.min(vW * 0.82, 6.8) : (isTab ? 16.0 : 23.5);
         const newScale = targetW / Math.max(boxX, 1);
         rahul3DMesh.userData.baseScale = newScale;
         rahul3DMesh.scale.set(newScale, newScale, newScale);
-        rahul3DMesh.position.y = isMob ? 0.85 : (isTab ? 0.2 : 0.08);
+        rahul3DMesh.position.y = isMob ? 0.35 : (isTab ? 0.2 : 0.08);
       }
-    }
-
-    if (cursor3DMesh) {
-      const isMob = window.innerWidth < 768;
-      const heroScale = isMob ? 0.052 : 0.14;
-      cursor3DMesh.scale.set(heroScale, heroScale, heroScale);
-      cursor3DMesh.position.x = isMob ? 1.65 : 13.2;
-      cursor3DMesh.position.y = isMob ? -1.35 : -0.5;
     }
   });
 

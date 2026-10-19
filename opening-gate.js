@@ -126,8 +126,9 @@
     return;
   }
 
-  // Card State Machine: 'hover' | 'drag' | 'fall' | 'granted'
+  // Card State Machine: 'hover' | 'drag' | 'slotted' | 'fall' | 'granted'
   let cardState = 'hover';
+  let stateBeforeDrag = 'hover';
   let hasMoved = false;
   let isRespawning = false;
 
@@ -164,7 +165,7 @@
     if (state === 'idle') {
       screenText.textContent = 'READY';
       if (hintEl) {
-        hintEl.innerHTML = 'Swipe pass across reader to enter';
+        hintEl.innerHTML = 'Drag card into reader to enter';
         hintEl.className = 'gate-hint shimmer';
       }
     } else if (state === 'reading') {
@@ -172,7 +173,7 @@
       ledIndicator.classList.add('is-active');
       screenText.textContent = 'READING...';
       if (hintEl) {
-        hintEl.textContent = 'Swipe across slot to verify...';
+        hintEl.textContent = 'Swipe card across reader to unlock';
         hintEl.className = 'gate-hint';
       }
     } else if (state === 'granted') {
@@ -254,7 +255,7 @@
       fallVRotZ = (Math.random() - 0.5) * 20;
       fallVRotX = 14;
     } else {
-      // Drag release in air or slot without completing horizontal swipe
+      // Drag release in air outside reader
       fallVx = Math.max(-280, Math.min(280, pointerVelocity.x * 0.75));
       fallVy = Math.max(120, pointerVelocity.y * 0.75 + 150);
       fallVRotZ = (Math.random() - 0.5) * 24;
@@ -326,6 +327,7 @@
     getAudioContext();
     playClickSound();
 
+    stateBeforeDrag = cardState;
     cardState = 'drag';
     hasMoved = false;
     slotSwipeTrack = null;
@@ -417,19 +419,24 @@
       targetTilt.z = Math.max(-3, Math.min(3, speedX * 0.3));
       setReaderState('reading');
 
-      // Track horizontal swipe traverse across the reader slot
+      // Track swipe traverse across the reader slot
       if (!slotSwipeTrack) {
-        slotSwipeTrack = { minX: targetPos.x, maxX: targetPos.x, triggered: false };
+        slotSwipeTrack = { minX: targetPos.x, maxX: targetPos.x, startY: targetPos.y, triggered: false };
       } else {
         slotSwipeTrack.minX = Math.min(slotSwipeTrack.minX, targetPos.x);
         slotSwipeTrack.maxX = Math.max(slotSwipeTrack.maxX, targetPos.x);
       }
 
-      const swipeSpan = slotSwipeTrack.maxX - slotSwipeTrack.minX;
+      const swipeSpanX = slotSwipeTrack.maxX - slotSwipeTrack.minX;
+      const swipeSpanY = targetPos.y - slotSwipeTrack.startY;
 
-      // Only a full swipe motion across slot triggers unlock!
-      // Holding or dwelling inside slot strictly keeps showing "READING..." without opening!
-      if (swipeSpan >= 110 && !slotSwipeTrack.triggered) {
+      // Only a swipe motion (horizontal swipe across slot >= 75px, fast swipe >= 40px with velocity, or swipe downward through slot) triggers unlock!
+      // Merely holding or dwelling inside slot strictly keeps showing "READING..." without opening!
+      const isSwipeAction = (swipeSpanX >= 75) ||
+                            (swipeSpanX >= 40 && Math.abs(pointerVelocity.x) > 280) ||
+                            (swipeSpanY >= 95 && pointerVelocity.y > 220);
+
+      if (isSwipeAction && !slotSwipeTrack.triggered) {
         slotSwipeTrack.triggered = true;
         playSwipeSound();
         unlockGate();
@@ -455,20 +462,54 @@
       } catch (_) {}
     }
 
+    cardWrapper.classList.remove('is-dragging');
+    if (readerWrapper) readerWrapper.classList.remove('is-dragging-card');
+
+    if (cardState === 'granted') return;
+
     const clientX = e && e.clientX !== undefined ? e.clientX : lastPointerPos.x;
     const clientY = e && e.clientY !== undefined ? e.clientY : lastPointerPos.y;
     const moved = Math.hypot(clientX - dragStart.x, clientY - dragStart.y);
 
-    // 1. TAP / QUICK CLICK: MANDATORY RULE - DOES NOT OPEN!
-    // While tapping, card falls down under gravity off-screen, then respawns.
+    const isInSlot = targetPos.y >= 55 && targetPos.y <= 260 && Math.abs(targetPos.x) <= 230;
+
+    // 1. TAP / QUICK CLICK:
     if (!hasMoved || moved < 12) {
+      if (stateBeforeDrag === 'slotted' || isInSlot) {
+        // If card was already slotted in reader, tapping keeps it securely held in reader
+        cardState = 'slotted';
+        targetPos.y = Math.max(90, Math.min(150, targetPos.y));
+        targetPos.x = Math.max(-100, Math.min(100, targetPos.x));
+        targetPos.z = 0;
+        targetTilt.x = 0;
+        targetTilt.y = 0;
+        targetTilt.z = 0;
+        cardWrapper.classList.add('is-in-slot');
+        setReaderState('reading');
+        return;
+      }
+      // Tapping card at home origin: falls down under gravity and respawns
       triggerCardFall(true);
       return;
     }
 
-    // 2. DRAGGED AND RELEASED WITHOUT COMPLETING A FULL SWIPE:
-    // Even if released inside the reader slot or anywhere in air,
-    // card falls down under gravity off-screen and respawns.
+    // 2. PLACED / RELEASED INSIDE THE READER SLOT:
+    // THE READER HOLDS THE CARD! DOES NOT FALL!
+    if (isInSlot) {
+      cardState = 'slotted';
+      targetPos.y = Math.max(90, Math.min(150, targetPos.y));
+      targetPos.x = Math.max(-100, Math.min(100, targetPos.x));
+      targetPos.z = 0; // Sandwiched in slot behind front plate
+      targetTilt.x = 0;
+      targetTilt.y = 0;
+      targetTilt.z = 0;
+      cardWrapper.classList.add('is-in-slot');
+      setReaderState('reading');
+      return;
+    }
+
+    // 3. RELEASED OUTSIDE IN AIR:
+    // Card falls down under gravity off-screen, then respawns.
     triggerCardFall(false);
   }
 
@@ -542,8 +583,13 @@
     }
   });
 
-  // Direct Click Prevention on Reader: Clicking reader unit does NOT open
+  // When card is slotted, interacting with reader unit also seamlessly interacts with the card
   if (readerWrapper) {
+    readerWrapper.addEventListener('pointerdown', (e) => {
+      if (cardState === 'slotted') {
+        onPointerDown(e);
+      }
+    });
     readerWrapper.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -559,7 +605,7 @@
     lastFrameTime = now;
 
     if (cardState === 'fall') {
-      // Physical gravity drop matching mikes.cv Rapier dynamic simulation
+      // Physical gravity drop matching dynamic simulation
       const gravity = 3000; // px/s²
       fallVy += gravity * dt;
       currentPos.y += fallVy * dt;
@@ -585,6 +631,18 @@
       currentTilt.z += (targetTilt.z - currentTilt.z) * 0.35;
 
       cardWrapper.style.transform = `translate3d(${currentPos.x.toFixed(2)}px, ${currentPos.y.toFixed(2)}px, ${currentPos.z.toFixed(2)}px) rotateX(${currentTilt.x.toFixed(2)}deg) rotateY(${currentTilt.y.toFixed(2)}deg) rotateZ(${currentTilt.z.toFixed(2)}deg)`;
+    } else if (cardState === 'slotted') {
+      // Settle and hold firmly inside reader slot
+      currentPos.x += (targetPos.x - currentPos.x) * 0.22;
+      currentPos.y += (targetPos.y - currentPos.y) * 0.22;
+      currentPos.z += (targetPos.z - currentPos.z) * 0.35;
+      currentTilt.x += (targetTilt.x - currentTilt.x) * 0.2;
+      currentTilt.y += (targetTilt.y - currentTilt.y) * 0.2;
+      currentTilt.z += (targetTilt.z - currentTilt.z) * 0.2;
+
+      // Subtle hardware vibration / hum while held in reading slot
+      const humY = Math.sin(now * 0.007) * 0.35;
+      cardWrapper.style.transform = `translate3d(${currentPos.x.toFixed(2)}px, ${(currentPos.y + humY).toFixed(2)}px, ${currentPos.z.toFixed(2)}px) rotateX(${currentTilt.x.toFixed(2)}deg) rotateY(${currentTilt.y.toFixed(2)}deg) rotateZ(${currentTilt.z.toFixed(2)}deg)`;
     } else if (cardState === 'hover') {
       // Gentle spring return to rest origin
       currentPos.x += (targetPos.x - currentPos.x) * 0.16;

@@ -365,7 +365,7 @@
   height: 135px;
   z-index: 20;
   cursor: default;
-  pointer-events: auto;
+  pointer-events: none;
   transform: translate3d(0, 0, 30px);
   transform-style: preserve-3d;
   transition: transform 0.2s ease;
