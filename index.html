@@ -13,9 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=Great+Vibes&family=Alex+Brush&family=Caveat:wght@600;700&family=Sacramento&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <link rel="stylesheet" href="styles.css?v=81.0">
-  <link rel="stylesheet" href="LightTunnel.css?v=81.0">
-  <link rel="stylesheet" href="opening-gate.css?v=81.0">
+  <link rel="stylesheet" href="styles.css?v=82.0">
+  <link rel="stylesheet" href="LightTunnel.css?v=82.0">
+  <link rel="stylesheet" href="opening-gate.css?v=82.0">
 
   <!-- Vendor Animation Libraries -->
   <script src="libs/gsap.min.js"></script>
@@ -744,8 +744,9 @@
 
       <div class="footer-bottom-bar">
         <div class="footer-meta-left">
-          <a href="mailto:rahulyc6@gmail.com" class="footer-email-link dotted-box">
-            RAHULYC6@GMAIL.COM
+          <a href="mailto:rahulyc6@gmail.com" class="footer-email-btn" aria-label="Send email to Rahul Achari">
+            <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+            <span>RAHULYC6@GMAIL.COM</span>
           </a>
           <span class="footer-copy-tag">RAHUL (C) 2026</span>
         </div>
@@ -755,16 +756,28 @@
         </div>
 
         <div class="footer-social-links">
-          <a href="https://drive.google.com/file/d/1i_UuYXhXjlP_tjT_mlEIuyFKNsyKDA77/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="footer-social-link dotted-box">RESUME ↗</a>
-          <a href="https://linkedin.com/in/rahulyc" target="_blank" rel="noopener noreferrer" class="footer-social-link dotted-box">LINKEDIN</a>
-          <a href="https://github.com/rahulachari" target="_blank" rel="noopener noreferrer" class="footer-social-link dotted-box">GITHUB</a>
-          <svg class="footer-wire-globe" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
-            <circle cx="16" cy="16" r="14"></circle>
-            <ellipse cx="16" cy="16" rx="6" ry="14"></ellipse>
-            <line x1="2" y1="16" x2="30" y2="16"></line>
-            <line x1="4.5" y1="9" x2="27.5" y2="9"></line>
-            <line x1="4.5" y1="23" x2="27.5" y2="23"></line>
-          </svg>
+          <a href="https://drive.google.com/file/d/1i_UuYXhXjlP_tjT_mlEIuyFKNsyKDA77/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="footer-btn footer-btn-resume" aria-label="Open Resume in new tab">
+            <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+            <span>RESUME</span>
+            <span class="btn-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a href="https://linkedin.com/in/rahulyc" target="_blank" rel="noopener noreferrer" class="footer-btn footer-btn-social" aria-label="LinkedIn Profile">
+            <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+            <span>LINKEDIN</span>
+          </a>
+          <a href="https://github.com/rahulachari" target="_blank" rel="noopener noreferrer" class="footer-btn footer-btn-social" aria-label="GitHub Profile">
+            <i class="fa-brands fa-github" aria-hidden="true"></i>
+            <span>GITHUB</span>
+          </a>
+          <div class="footer-globe-badge" title="Global Coordinates" aria-hidden="true">
+            <svg class="footer-wire-globe" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.2">
+              <circle cx="16" cy="16" r="14"></circle>
+              <ellipse cx="16" cy="16" rx="6" ry="14"></ellipse>
+              <line x1="2" y1="16" x2="30" y2="16"></line>
+              <line x1="4.5" y1="9" x2="27.5" y2="9"></line>
+              <line x1="4.5" y1="23" x2="27.5" y2="23"></line>
+            </svg>
+          </div>
         </div>
       </div>
     </footer>
@@ -788,9 +801,9 @@
   </script>
 
   <!-- Interactive Developer Pass & Reader Controller -->
-  <script src="opening-gate.js?v=81.0"></script>
+  <script src="opening-gate.js?v=82.0"></script>
 
   <!-- Main ES Module Script -->
-  <script type="module" src="main.js?v=81.0"></script>
+  <script type="module" src="main.js?v=82.0"></script>
 </body>
 </html>
