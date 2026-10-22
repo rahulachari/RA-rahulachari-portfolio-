@@ -378,15 +378,6 @@ html.light .footer-atmosphere {
   background: radial-gradient(circle at 50% 50%, #d8e5ff 0%, #bcd3ff 45%, #9abcf5 100%);
 }
 
-#webgl-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-  z-index: 2;
-  pointer-events: none !important;
-}
 
 /* ==========================================================================
    FIXED SYSTEM HEADER & FOOTER OVERLAY (Exact Haoqi Alignment)
@@ -404,11 +395,24 @@ html.light .footer-atmosphere {
   padding: 1.5rem var(--site-margin);
 }
 
-.header-top, .header-bottom {
+.header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+.header-bottom {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .header-bottom {
+    display: flex;
+  }
 }
 
 .header-brand {
@@ -1807,6 +1811,34 @@ html.light .hyperspace-grid-col:first-child {
   .hs-item-title { font-size: clamp(1.2rem, 5.2vw, 1.8rem); }
 }
 
+@media (max-width: 767px) {
+  .hs-stage-manifesto {
+    padding: 3rem 1.25rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 1.25rem !important;
+  }
+  .hs-portal-rings-wrap {
+    width: 230px !important;
+    height: 230px !important;
+  }
+  .hs-manifesto-item.item-1,
+  .hs-manifesto-item.item-2,
+  .hs-manifesto-item.item-3,
+  .hs-manifesto-item.item-4 {
+    grid-column: unset !important;
+    grid-row: unset !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+  .hs-item-title {
+    font-size: 1.15rem !important;
+    line-height: 1.35 !important;
+  }
+}
+
 
 
 /* ==========================================================================
@@ -2125,7 +2157,14 @@ html.light .custom-cursor-ring.is-hovering {
     display: block;
   }
   .hero-col-mid {
-    display: none;
+    display: block !important;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--label-2);
+    border-left: 2px solid rgba(255, 255, 255, 0.22);
+    padding-left: 0.75rem;
+    margin: 0.15rem 0;
   }
   .hero-col-right {
     font-size: 0.875rem;
@@ -2518,7 +2557,7 @@ html.light .footer-section {
     display: flex !important;
     flex-direction: column !important;
     gap: 0.35rem !important;
-    margin: 0 !important;
+    margin: 0 0 6.5rem 0 !important;
     pointer-events: none !important;
     z-index: 12 !important;
   }

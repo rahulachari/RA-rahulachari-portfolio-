@@ -45,11 +45,11 @@ import createLightTunnel from './LightTunnel.js';
     if (!svgSignEl) return;
     const rect = svgSignEl.getBoundingClientRect();
     const vh = window.innerHeight || document.documentElement.clientHeight;
-    if (rect.top < vh * 0.82 && rect.bottom > 40) {
+    if (rect.top < vh * 0.95 && rect.bottom > 20) {
       if (!svgSignEl.classList.contains('is-drawn')) {
         svgSignEl.classList.add('is-drawn');
       }
-    } else if (rect.top > vh * 1.05) {
+    } else if (rect.top > vh * 1.15) {
       if (svgSignEl.classList.contains('is-drawn')) {
         svgSignEl.classList.add('no-transition');
         svgSignEl.classList.remove('is-drawn');
@@ -433,14 +433,12 @@ import createLightTunnel from './LightTunnel.js';
   function createLiquidCobaltMaterial() {
     const isDark = state.theme === 'dark';
     return new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color(isDark ? '#255df4' : '#1d4ed8'),
-      emissive: new THREE.Color(isDark ? '#0b2066' : '#051133'),
-      roughness: 0.08,
-      metalness: 0.10,
+      color: new THREE.Color(isDark ? '#2e6bfa' : '#1d4ed8'),
+      emissive: new THREE.Color(isDark ? '#0f2b8a' : '#051133'),
+      roughness: 0.12,
+      metalness: 0.22,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.03,
-      transmission: 0.0,
-      ior: 1.52,
+      clearcoatRoughness: 0.04,
       reflectivity: 0.98,
       side: THREE.DoubleSide
     });
@@ -783,18 +781,21 @@ import createLightTunnel from './LightTunnel.js';
     const dist = Math.max(camera.position.z - 0.2, 1.0);
     const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
     const vW = vH * camera.aspect;
-    const targetWidth = isMobile ? Math.min(vW * 0.74, 5.2) : (isTablet ? 15.0 : 21.0);
+    const targetWidth = isMobile ? Math.min(vW * 0.88, 7.5) : (isTablet ? 15.0 : 21.0);
     const baseScale = targetWidth / Math.max(boxSize.x, 1);
 
     rahul3DMesh.userData.baseScale = baseScale;
     rahul3DMesh.scale.set(baseScale, baseScale, baseScale);
     // Positioned in background (z: 0.2) behind the DOM content
-    rahul3DMesh.position.set(0, isMobile ? 0.85 : (isTablet ? 0.2 : 0.08), 0.2);
+    // On mobile, sits centered in the open window between top meta and bottom headline
+    rahul3DMesh.position.set(0, isMobile ? -0.80 : (isTablet ? 0.2 : 0.08), 0.2);
     rahul3DMesh.rotation.set(0, THREE.MathUtils.degToRad(3), 0);
 
     scene.add(rahul3DMesh);
+    window.__rahul3DMesh = rahul3DMesh;
+    console.log('[DEBUG 3D] rahul3DMesh added to scene! isMobile:', isMobile, 'baseScale:', baseScale, 'targetWidth:', targetWidth);
   }, undefined, (err) => {
-    console.warn('Could not load pacifico font for 3D text:', err);
+    console.error('Could not load pacifico font for 3D text:', err);
   });
 
   // Load 3D Cursor Mesh (model/cursor.glb) - Hero Banner & Quote Transition
@@ -803,13 +804,14 @@ import createLightTunnel from './LightTunnel.js';
 
     // 1. Hero Banner Cursor (Positioned beside 'Achari' with clear breathing space)
     cursor3DMesh = gltf.scene;
-    cursor3DMesh.scale.set(0.14, 0.14, 0.14);
+    const cScale = isMobile ? 0.065 : 0.14;
+    cursor3DMesh.scale.set(cScale, cScale, cScale);
     cursor3DMesh.rotation.set(
       THREE.MathUtils.degToRad(-10),
       THREE.MathUtils.degToRad(14),
       THREE.MathUtils.degToRad(-18)
     );
-    cursor3DMesh.position.set(isMobile ? 5.0 : 13.2, isMobile ? -0.5 : -0.5, 1.2);
+    cursor3DMesh.position.set(isMobile ? 2.7 : 13.2, isMobile ? -1.15 : -0.5, 1.2);
 
     cursor3DMesh.traverse((child) => {
       if (child.isMesh) {
@@ -817,6 +819,8 @@ import createLightTunnel from './LightTunnel.js';
       }
     });
     scene.add(cursor3DMesh);
+    window.__cursor3DMesh = cursor3DMesh;
+    console.log('[DEBUG 3D] cursor3DMesh added to scene! isMobile:', isMobile, 'pos:', cursor3DMesh.position.toArray());
 
     // 2. Quote Transition Cursor (Hyper-Space Section)
     // Streaks run strictly inside the cursor mesh, centered at middle of screen
@@ -1185,10 +1189,18 @@ import createLightTunnel from './LightTunnel.js';
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
 
-    // Follow mouse with caustic point light
+    // Follow mouse or autonomous mobile caustics
     if (rahulPointLight) {
-      rahulPointLight.position.x = state.mouse.x * 9.0;
-      rahulPointLight.position.y = state.mouse.y * 6.0 + 1.0;
+      if (isMobile) {
+        // Dynamic glistening caustics on mobile so the liquid chrome balloon bevels always shine
+        rahulPointLight.position.x = Math.sin(elapsedTime * 1.5) * 3.5;
+        rahulPointLight.position.y = Math.cos(elapsedTime * 1.2) * 2.0 + 0.2;
+        rahulPointLight.position.z = 5.0 + Math.sin(elapsedTime * 0.8) * 1.5;
+      } else {
+        rahulPointLight.position.x = state.mouse.x * 9.0;
+        rahulPointLight.position.y = state.mouse.y * 6.0 + 1.0;
+        rahulPointLight.position.z = 6.0;
+      }
     }
 
     // Pass liquid wave time & mouse velocity to GPU shader
@@ -1204,7 +1216,7 @@ import createLightTunnel from './LightTunnel.js';
     // Strictly vertical movement (top and bottom only, no left/right movement or horizontal roll)
     if (rahul3DMesh) {
       const bannerProgress = Math.min(Math.max(state.scrollY / 650, 0), 1);
-      const baseScale = rahul3DMesh.userData.baseScale || (isMobile ? 0.7 : (isTablet ? 1.0 : 1.35));
+      const baseScale = rahul3DMesh.userData.baseScale || (isMobile ? 0.38 : (isTablet ? 1.0 : 1.35));
       
       // Dynamic vertical bobbing (strictly top and bottom)
       const floatY = (0.24 * Math.sin(1.3 * elapsedTime) + 0.08 * Math.sin(0.7 * elapsedTime));
@@ -1218,11 +1230,11 @@ import createLightTunnel from './LightTunnel.js';
       rahul3DMesh.rotation.x = -state.mouse.y * 0.20 + Math.cos(elapsedTime * 1.2) * 0.03;
       
       // Smooth vertical scroll translation (glides up as user scrolls down)
-      const baseY = isMobile ? 0.85 : (isTablet ? 0.2 : 0.08);
+      const baseY = isMobile ? -0.80 : (isTablet ? 0.2 : 0.08);
       rahul3DMesh.position.y = baseY + floatY + (state.scrollY * 0.016);
       rahul3DMesh.position.z = 0.2;
 
-      const textFade = Math.max(0, 1 - bannerProgress * 1.35);
+      const textFade = isMobile ? Math.max(0, 1 - bannerProgress * 1.05) : Math.max(0, 1 - bannerProgress * 1.35);
       rahul3DMesh.scale.set(baseScale * textFade, baseScale * textFade, baseScale * textFade);
       rahul3DMesh.visible = textFade > 0.01;
     }
@@ -1240,11 +1252,13 @@ import createLightTunnel from './LightTunnel.js';
       const bannerProgress = Math.min(Math.max(state.scrollY / 700, 0), 1);
       // 720-degree spin on scroll out (afterRotation: [0, 720, 0])
       cursor3DMesh.rotation.y += THREE.MathUtils.degToRad(720) * bannerProgress;
-      cursor3DMesh.position.x = isMobile ? 5.0 : 13.2;
-      cursor3DMesh.position.y = (-0.5 + floatOffset) + (state.scrollY * 0.014 * 0.72);
+      cursor3DMesh.position.x = isMobile ? 2.7 : 13.2;
+      const baseCursorY = isMobile ? -1.15 : -0.5;
+      cursor3DMesh.position.y = (baseCursorY + floatOffset) + (state.scrollY * 0.014 * 0.72);
 
-      const cursorFade = Math.max(0, 1 - bannerProgress * 1.4);
-      cursor3DMesh.scale.set(0.14 * cursorFade, 0.14 * cursorFade, 0.14 * cursorFade);
+      const cursorFade = isMobile ? Math.max(0, 1 - bannerProgress * 1.1) : Math.max(0, 1 - bannerProgress * 1.4);
+      const cScale = isMobile ? 0.065 : 0.14;
+      cursor3DMesh.scale.set(cScale * cursorFade, cScale * cursorFade, cScale * cursorFade);
       cursor3DMesh.visible = cursorFade > 0.01;
     }
 
@@ -1736,11 +1750,11 @@ import createLightTunnel from './LightTunnel.js';
         const dist = Math.max(camera.position.z - 0.2, 1.0);
         const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
         const vW = vH * camera.aspect;
-        const targetW = isMob ? Math.min(vW * 0.82, 6.8) : (isTab ? 16.0 : 23.5);
+        const targetW = isMob ? Math.min(vW * 0.88, 7.5) : (isTab ? 16.0 : 23.5);
         const newScale = targetW / Math.max(boxX, 1);
         rahul3DMesh.userData.baseScale = newScale;
         rahul3DMesh.scale.set(newScale, newScale, newScale);
-        rahul3DMesh.position.y = isMob ? 0.35 : (isTab ? 0.2 : 0.08);
+        rahul3DMesh.position.y = isMob ? -0.80 : (isTab ? 0.2 : 0.08);
       }
     }
 
