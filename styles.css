@@ -127,7 +127,7 @@ button {
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  z-index: 20;
+  z-index: 30;
   mix-blend-mode: difference;
 }
 
@@ -602,7 +602,7 @@ html.light .footer-atmosphere {
    ========================================================================== */
 .site-content {
   position: relative;
-  z-index: 10;
+  z-index: 25;
   width: 100%;
 }
 
@@ -2123,6 +2123,13 @@ html.light .custom-cursor-ring.is-hovering {
   background-color: rgba(0, 102, 255, 0.08);
 }
 
+@media (max-width: 1023px), (pointer: coarse) {
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    display: none !important;
+  }
+}
+
 /* ==========================================================================
    ACCESSIBILITY & REDUCED MOTION
    ========================================================================== */
@@ -2288,7 +2295,7 @@ html.light .custom-cursor-ring.is-hovering {
   overflow: hidden;
   background: transparent !important;
   color: #FFFFFF;
-  z-index: 10;
+  z-index: 25;
 }
 
 html.light .footer-section {
@@ -2548,6 +2555,7 @@ html.light .footer-section {
     overflow: hidden !important;
     box-sizing: border-box !important;
     position: relative !important;
+    z-index: 25 !important;
   }
 
   /* Headline Grid: Centered vertically on mobile with 3D mesh floating directly behind it */
@@ -2559,7 +2567,7 @@ html.light .footer-section {
     gap: 0.35rem !important;
     margin: 0 0 6.5rem 0 !important;
     pointer-events: none !important;
-    z-index: 12 !important;
+    z-index: 25 !important;
   }
 
   .footer-row-1 {

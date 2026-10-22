@@ -781,14 +781,14 @@ import createLightTunnel from './LightTunnel.js';
     const dist = Math.max(camera.position.z - 0.2, 1.0);
     const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
     const vW = vH * camera.aspect;
-    const targetWidth = isMobile ? Math.min(vW * 0.88, 7.5) : (isTablet ? 15.0 : 21.0);
+    const targetWidth = isMobile ? Math.min(vW * 0.60, 5.0) : (isTablet ? 15.0 : 21.0);
     const baseScale = targetWidth / Math.max(boxSize.x, 1);
 
     rahul3DMesh.userData.baseScale = baseScale;
     rahul3DMesh.scale.set(baseScale, baseScale, baseScale);
     // Positioned in background (z: 0.2) behind the DOM content
     // On mobile, sits centered in the open window between top meta and bottom headline
-    rahul3DMesh.position.set(0, isMobile ? -0.80 : (isTablet ? 0.2 : 0.08), 0.2);
+    rahul3DMesh.position.set(0, isMobile ? -1.75 : (isTablet ? 0.2 : 0.08), 0.2);
     rahul3DMesh.rotation.set(0, THREE.MathUtils.degToRad(3), 0);
 
     scene.add(rahul3DMesh);
@@ -804,14 +804,14 @@ import createLightTunnel from './LightTunnel.js';
 
     // 1. Hero Banner Cursor (Positioned beside 'Achari' with clear breathing space)
     cursor3DMesh = gltf.scene;
-    const cScale = isMobile ? 0.065 : 0.14;
+    const cScale = isMobile ? 0.046 : 0.14;
     cursor3DMesh.scale.set(cScale, cScale, cScale);
     cursor3DMesh.rotation.set(
       THREE.MathUtils.degToRad(-10),
       THREE.MathUtils.degToRad(14),
       THREE.MathUtils.degToRad(-18)
     );
-    cursor3DMesh.position.set(isMobile ? 2.7 : 13.2, isMobile ? -1.15 : -0.5, 1.2);
+    cursor3DMesh.position.set(isMobile ? 3.75 : 13.2, isMobile ? -1.95 : -0.5, 1.2);
 
     cursor3DMesh.traverse((child) => {
       if (child.isMesh) {
@@ -883,7 +883,7 @@ import createLightTunnel from './LightTunnel.js';
     cnt3DMesh.add(gltf.scene);
     cnt3DMesh.userData.originalSize = size;
 
-    const targetWidth = isMobile ? 14.5 : 22.0;
+    const targetWidth = isMobile ? 5.0 : 22.0;
     const scale = targetWidth / Math.max(size.x, 1);
     cnt3DMesh.userData.baseScale = scale;
     cnt3DMesh.scale.set(scale, scale, scale);
@@ -1230,7 +1230,7 @@ import createLightTunnel from './LightTunnel.js';
       rahul3DMesh.rotation.x = -state.mouse.y * 0.20 + Math.cos(elapsedTime * 1.2) * 0.03;
       
       // Smooth vertical scroll translation (glides up as user scrolls down)
-      const baseY = isMobile ? -0.80 : (isTablet ? 0.2 : 0.08);
+      const baseY = isMobile ? -1.75 : (isTablet ? 0.2 : 0.08);
       rahul3DMesh.position.y = baseY + floatY + (state.scrollY * 0.016);
       rahul3DMesh.position.z = 0.2;
 
@@ -1252,12 +1252,12 @@ import createLightTunnel from './LightTunnel.js';
       const bannerProgress = Math.min(Math.max(state.scrollY / 700, 0), 1);
       // 720-degree spin on scroll out (afterRotation: [0, 720, 0])
       cursor3DMesh.rotation.y += THREE.MathUtils.degToRad(720) * bannerProgress;
-      cursor3DMesh.position.x = isMobile ? 2.7 : 13.2;
-      const baseCursorY = isMobile ? -1.15 : -0.5;
+      cursor3DMesh.position.x = isMobile ? 3.75 : 13.2;
+      const baseCursorY = isMobile ? -1.95 : -0.5;
       cursor3DMesh.position.y = (baseCursorY + floatOffset) + (state.scrollY * 0.014 * 0.72);
 
       const cursorFade = isMobile ? Math.max(0, 1 - bannerProgress * 1.1) : Math.max(0, 1 - bannerProgress * 1.4);
-      const cScale = isMobile ? 0.065 : 0.14;
+      const cScale = isMobile ? 0.046 : 0.14;
       cursor3DMesh.scale.set(cScale * cursorFade, cScale * cursorFade, cScale * cursorFade);
       cursor3DMesh.visible = cursorFade > 0.01;
     }
@@ -1600,9 +1600,9 @@ import createLightTunnel from './LightTunnel.js';
           cnt3DMesh.rotation.x = Math.sin(elapsedTime * 0.55) * 0.08 - state.mouse.y * 0.18;
           cnt3DMesh.rotation.z = Math.sin(elapsedTime * 0.35) * 0.03;
 
-          // Align comfortably behind headline text in world space (z: 0.4) matching Image 2
-          const targetY = (window.innerHeight / 2 - (rect.top + rect.height / 2)) * 0.016 + 0.15;
-          cnt3DMesh.position.set(0, targetY + floatOffset, 0.4);
+          // Align comfortably behind headline text in world space (z: 0.05) matching Haoqi aesthetic
+          const targetY = (window.innerHeight / 2 - (rect.top + rect.height / 2)) * 0.016 + (isMobile ? -0.10 : 0.15);
+          cnt3DMesh.position.set(0, targetY + floatOffset, 0.05);
         } else {
           cnt3DMesh.visible = false;
         }
@@ -1750,17 +1750,17 @@ import createLightTunnel from './LightTunnel.js';
         const dist = Math.max(camera.position.z - 0.2, 1.0);
         const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * dist;
         const vW = vH * camera.aspect;
-        const targetW = isMob ? Math.min(vW * 0.88, 7.5) : (isTab ? 16.0 : 23.5);
+        const targetW = isMob ? Math.min(vW * 0.60, 5.0) : (isTab ? 16.0 : 23.5);
         const newScale = targetW / Math.max(boxX, 1);
         rahul3DMesh.userData.baseScale = newScale;
         rahul3DMesh.scale.set(newScale, newScale, newScale);
-        rahul3DMesh.position.y = isMob ? -0.80 : (isTab ? 0.2 : 0.08);
+        rahul3DMesh.position.y = isMob ? -1.75 : (isTab ? 0.2 : 0.08);
       }
     }
 
     if (cnt3DMesh && cnt3DMesh.userData.originalSize) {
       const isMob = window.innerWidth < 768;
-      const targetW = isMob ? 14.5 : 22.0;
+      const targetW = isMob ? 5.0 : 22.0;
       const s = targetW / Math.max(cnt3DMesh.userData.originalSize.x, 1);
       cnt3DMesh.scale.set(s, s, s);
     }
