@@ -1544,16 +1544,16 @@ import createLightTunnel from './LightTunnel.js';
           const stage1T = Math.min(Math.max((progress - 0.36) / 0.40, 0.0), 1.0);
           updateC7Rings(stage1T);
 
-          // 4 Manifesto items staggered reveal
+          // 4 Manifesto items reveal smoothly together on entering Stage 1
           const item1 = document.getElementById('hs-item-1');
           const item2 = document.getElementById('hs-item-2');
           const item3 = document.getElementById('hs-item-3');
           const item4 = document.getElementById('hs-item-4');
 
-          if (item1) item1.classList.toggle('is-visible', stage1T >= 0.04);
-          if (item2) item2.classList.toggle('is-visible', stage1T >= 0.16);
-          if (item3) item3.classList.toggle('is-visible', stage1T >= 0.28);
-          if (item4) item4.classList.toggle('is-visible', stage1T >= 0.40);
+          if (item1) item1.classList.toggle('is-visible', stage1T >= 0.02);
+          if (item2) item2.classList.toggle('is-visible', stage1T >= 0.04);
+          if (item3) item3.classList.toggle('is-visible', stage1T >= 0.06);
+          if (item4) item4.classList.toggle('is-visible', stage1T >= 0.08);
         } else {
           const items = document.querySelectorAll('.hs-manifesto-item');
           items.forEach(it => it.classList.remove('is-visible'));

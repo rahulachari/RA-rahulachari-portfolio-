@@ -1789,6 +1789,16 @@ html.light .hyperspace-grid-col:first-child {
   text-align: left;
 }
 
+/* Neon Lime-Yellow Marker beside Item 2 (Exact Haoqi HUD Accent) */
+.hs-item-marker {
+  width: 13px;
+  height: 13px;
+  background-color: #C0FE04;
+  box-shadow: 0 0 10px rgba(192, 254, 4, 0.85);
+  margin-top: 0.85rem;
+  display: block;
+}
+
 /* 3. Clarity first. Delight second */
 .hs-manifesto-item.item-3 {
   grid-column: 2 / span 4;

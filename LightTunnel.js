@@ -54,7 +54,7 @@ vec3 sampleHyperspace(vec2 fragCoord) {
   float time = uScrollProgress * 3.5 + uTime;
   float t = clamp(0.18 + uScrollProgress * 0.82, 0.0, 1.0);
 
-  const float cellDensity = 96.0;
+  const float cellDensity = 72.0;
   vec2 polar = vec2(atan(u.y, u.x) / 3.0, length(u));
   float angleCoord = (6.0 - polar.x) * cellDensity;
   float angleId = floor(angleCoord) + 0.5;
@@ -63,7 +63,7 @@ vec3 sampleHyperspace(vec2 fragCoord) {
   vec2 q = vec2(angleId, radialCoord);
 
   float travel = smoothstep(0.0, 1.0, t);
-  float keepProbability = mix(0.30, 0.95, travel);
+  float keepProbability = mix(0.26, 0.68, travel);
   // Calm, controlled speed progression without high-frequency velocity spikes
   float scrollSpeed = mix(0.65, 1.15, travel);
   float trailLength = mix(2.2, 1.05, travel);
@@ -81,13 +81,14 @@ vec3 sampleHyperspace(vec2 fragCoord) {
   float edge = max(fwidth(channelMix) * 1.5, 2.0 / max(uResolution.y, 1.0));
   float star = smoothstep(0.12 - edge, 0.12 + edge, channelMix);
 
-  const float starThinness = 0.14;
+  const float starThinness = 0.072;
   float thinEdge = max(fwidth(angleCell) * 1.5, 0.002);
   float thinMask = 1.0 - smoothstep(starThinness - thinEdge, starThinness + thinEdge, angleCell);
   star *= thinMask * keepMask;
 
-  float radialBoost = pow(smoothstep(0.06, 0.95, polar.y), 1.25);
-  float intensity = mix(1.0, 7.0, t * 1.2);
+  // Rays radiate smoothly from the center vanishing point through the tunnel
+  float radialBoost = smoothstep(0.04, 0.28, polar.y);
+  float intensity = mix(1.0, 4.2, t);
 
   float stripeBlend = hash21(vec2(angleId, 19.713));
   vec3 stripeRgb = mix(uStripeColorA, uStripeColorB, stripeBlend);
@@ -115,8 +116,8 @@ vec3 sampleHyperspace(vec2 fragCoord) {
   float pulse = mix(0.82, 1.0, smoothstep(0.14, 0.5, channelMix));
   sparkColor *= pulse;
 
-  // Exact Haoqi white core highlights on high-intensity rays
-  float whiteCore = smoothstep(0.48, 0.92, channelMix) * 0.85;
+  // Subtle white core highlight on high-intensity peaks without washing out neon cyan & magenta
+  float whiteCore = smoothstep(0.80, 0.98, channelMix) * 0.45;
   sparkColor = mix(sparkColor, vec3(1.0, 1.0, 1.0), whiteCore);
 
   return intensity * radialBoost * sparkColor * star;
