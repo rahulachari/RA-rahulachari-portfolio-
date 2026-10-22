@@ -1264,8 +1264,11 @@ import createLightTunnel from './LightTunnel.js';
         const stageFuture = document.getElementById('hs-stage-future');
 
         // --- 3D CURSOR HYPERSPACE TRANSITION (EXACT HAOQI ZOOM & FULLSCREEN EXPANSION) ---
-        // Active ONLY during the Stage Exit: FUTURE-FIRST ALWAYS zoom-out (progress 0.70 to 0.95)
-        // Clean separation: entrance is handled purely by the full-screen Light Tunnel shader.
+        // Complete 2-Phase Lifecycle:
+        // 1. Entrance (Opening Animation): Ascends smoothly from below work section boundary, locks at center,
+        //    expands to fullscreen with speed streaks awakening (0 -> 180 deg), then hands off to LightTunnel.
+        // 2. Stage Exit: Zooms out from fullscreen during FUTURE-FIRST ALWAYS, completes 360 deg diagonal tumble,
+        //    and glides downward towards footer before Craft 'N' Taste mesh takes over.
         if (transitionCursorGroup && transitionCursorMaterial) {
           const isMobile = window.innerWidth < 768;
           const vDist = Math.max(camera.position.z - 1.5, 0.1);
@@ -1274,14 +1277,78 @@ import createLightTunnel from './LightTunnel.js';
 
           const cursorRadius = transitionCursorGroup.userData.radius || 5.017;
           const peakScale = Math.hypot(vWidth, vHeight) * 1.64 / cursorRadius;
-          const futureRestScale = isMobile ? 0.22 : 0.28;
+          const restScale = isMobile ? 0.22 : 0.28;
 
           // Check if footer is visible
           const footerSection = document.getElementById('contact');
           const footerTop = footerSection ? footerSection.getBoundingClientRect().top : window.innerHeight;
           const isNearFooter = footerTop < window.innerHeight;
 
-          if (progress >= 0.70 && progress < 0.95 && !isNearFooter) {
+          const screenH = window.innerHeight;
+
+          if (rect.top <= screenH * 0.75 && progress < 0.16 && !isNearFooter) {
+            // =========================================================================
+            // PHASE 1: ENTRANCE OPENING ANIMATION (Directly After Work Section)
+            // =========================================================================
+            transitionCursorGroup.visible = true;
+
+            // 1. Boundary & Vertical Ascent:
+            // Work section bottom edge in Three.js world Y:
+            const boundaryY = (0.5 - rect.top / screenH) * vHeight;
+            // The cursor stays safely below boundaryY until it smoothly locks at dead center (0.0):
+            const targetY = Math.min(0.0, boundaryY - vHeight * 0.16);
+
+            // 2. Expansion Progress (0.0 to 1.0):
+            // While rect.top > 0 (work section is still scrolling out), cursor remains at its sleek resting size.
+            // Once section pins (rect.top <= 0), it smoothly expands to fullscreen engulfing scale by progress = 0.10.
+            const expandT = rect.top > 0 ? 0.0 : THREE.MathUtils.smoothstep(progress, 0.0, 0.10);
+            const easeExpand = expandT * expandT * (3.0 - 2.0 * expandT);
+
+            // 3. SCALE: From resting scale up to peak fullscreen scale
+            const currentScale = THREE.MathUtils.lerp(restScale, peakScale, easeExpand);
+            transitionCursorGroup.scale.setScalar(currentScale);
+
+            // 4. POSITION: Ascends safely below boundary into center, then locks dead center during expansion
+            const posX = state.mouse.x * 0.20 * (1.0 - easeExpand);
+            const posY = (rect.top > 0 ? targetY : 0.0) + (-state.mouse.y * 0.15 * (1.0 - easeExpand));
+            transitionCursorGroup.position.set(posX, posY, 1.5);
+
+            // 5. STREAKS REVEAL: Speed streaks awaken and ignite inside cursor body
+            transitionCursorMaterial.uniforms.uStripeReveal.value = easeExpand;
+
+            // 6. ROTATION: 180-degree spin on diagonal axis during entrance expansion
+            const spinAngle = THREE.MathUtils.lerp(0.0, Math.PI, easeExpand);
+            if (transitionSpin) {
+              transitionSpin.rotation.y = spinAngle;
+            }
+            if (transitionTiltA) {
+              transitionTiltA.rotation.z = THREE.MathUtils.degToRad(45) + (1.0 - easeExpand) * state.mouse.x * 0.08;
+              transitionTiltA.rotation.x = -(1.0 - easeExpand) * state.mouse.y * 0.08;
+              transitionTiltA.rotation.y = 0;
+            }
+
+            const scrollDrivenTime = Math.max(0, screenH - rect.top) * 0.0018;
+            transitionCursorMaterial.uniforms.iTime.value = scrollDrivenTime;
+            transitionCursorMaterial.uniforms.iResolution.value.set(
+              window.innerWidth * Math.min(window.devicePixelRatio, 2),
+              window.innerHeight * Math.min(window.devicePixelRatio, 2),
+              1.0
+            );
+
+            // 7. OPACITY: Fade-in smoothly on arrival, stay 1.0 during expansion,
+            // then seamlessly cross-fade into full-screen LightTunnel shader (progress 0.08 -> 0.14)
+            const entryFadeIn = THREE.MathUtils.clamp((screenH * 0.75 - rect.top) / (screenH * 0.25), 0.0, 1.0);
+            const tunnelHandshake = progress >= 0.08 ? THREE.MathUtils.clamp(1.0 - (progress - 0.08) / 0.05, 0.0, 1.0) : 1.0;
+            const finalOpacity = Math.min(entryFadeIn, tunnelHandshake);
+            transitionCursorMaterial.uniforms.uOpacity.value = finalOpacity;
+
+            if (finalOpacity <= 0.005) {
+              transitionCursorGroup.visible = false;
+            }
+          } else if (progress >= 0.70 && progress < 0.95 && !isNearFooter) {
+            // =========================================================================
+            // PHASE 2: STAGE EXIT ZOOM-OUT & 360-DEGREE DIAGONAL TUMBLE
+            // =========================================================================
             transitionCursorGroup.visible = true;
 
             // Phase 1: Zoom Out & Contract Window (progress 0.70 -> 0.86)
@@ -1289,7 +1356,7 @@ import createLightTunnel from './LightTunnel.js';
             const easeZoomOut = zoomOutProgress * zoomOutProgress * zoomOutProgress * (zoomOutProgress * (zoomOutProgress * 6 - 15) + 10);
 
             // 1. SCALE: Smoothly shrink from peak fullscreen down to resting scale
-            const currentScale = THREE.MathUtils.lerp(peakScale, futureRestScale, easeZoomOut);
+            const currentScale = THREE.MathUtils.lerp(peakScale, restScale, easeZoomOut);
             transitionCursorGroup.scale.setScalar(currentScale);
 
             // 2. SPEED LINES REVEAL: Collapse stripes as cursor shrinks, leaving rich cobalt gloss
@@ -1325,9 +1392,8 @@ import createLightTunnel from './LightTunnel.js';
             const posY = (-vHeight * 0.40 * postProgress) + (-state.mouse.y * 0.15 * easeZoomOut);
             transitionCursorGroup.position.set(posX, posY, 1.5);
 
-            const scrollDrivenTime = Math.max(0, window.innerHeight - rect.top) * 0.0018;
+            const scrollDrivenTime = Math.max(0, screenH - rect.top) * 0.0018;
             transitionCursorMaterial.uniforms.iTime.value = scrollDrivenTime;
-
             transitionCursorMaterial.uniforms.iResolution.value.set(
               window.innerWidth * Math.min(window.devicePixelRatio, 2),
               window.innerHeight * Math.min(window.devicePixelRatio, 2),
@@ -1352,7 +1418,7 @@ import createLightTunnel from './LightTunnel.js';
         if (lightTunnel) {
           if (progress >= 0.08 && progress < 0.68) {
             if (lightTunnelMount) lightTunnelMount.classList.add('is-active');
-            const tunnelIn = THREE.MathUtils.clamp((progress - 0.08) / 0.08, 0.0, 1.0);
+            const tunnelIn = THREE.MathUtils.clamp((progress - 0.08) / 0.05, 0.0, 1.0);
             lightTunnel.setScrollDynamics(progress, scrollVelocity);
             lightTunnel.setOptions({ opacity: tunnelIn, stripeReveal: 1.0 });
           } else if (progress >= 0.68 && progress < 0.72) {
