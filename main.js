@@ -122,6 +122,14 @@ import createLightTunnel from './LightTunnel.js';
         if (u.uDeepColor) u.uDeepColor.value.set('#0a1020');
         if (u.uFresnelColor) u.uFresnelColor.value.set('#38bdf8');
       }
+      if (cnt3DMesh) {
+        cnt3DMesh.traverse((c) => {
+          if (c.isMesh && c.material && c.material.isMeshPhysicalMaterial) {
+            c.material.color.set('#1d4ed8');
+            c.material.emissive.set('#040e2c');
+          }
+        });
+      }
     } else {
       htmlRoot.classList.remove('light');
       htmlRoot.classList.add('dark');
@@ -141,6 +149,14 @@ import createLightTunnel from './LightTunnel.js';
         if (u.uBaseColor) u.uBaseColor.value.set('#009dff');
         if (u.uDeepColor) u.uDeepColor.value.set('#002b66');
         if (u.uFresnelColor) u.uFresnelColor.value.set('#64c3ff');
+      }
+      if (cnt3DMesh) {
+        cnt3DMesh.traverse((c) => {
+          if (c.isMesh && c.material && c.material.isMeshPhysicalMaterial) {
+            c.material.color.set('#2e6bfa');
+            c.material.emissive.set('#0a2278');
+          }
+        });
       }
     }
   }
@@ -429,6 +445,11 @@ import createLightTunnel from './LightTunnel.js';
   rahulPointLight.position.set(0, 2, 6);
   scene.add(rahulPointLight);
 
+  // Dynamic specular highlight light for Footer "Craft 'N' Taste" 3D Balloon
+  const footerPointLight = new THREE.PointLight(0x60a5fa, 4.8, 35);
+  footerPointLight.position.set(0, -100, 5);
+  scene.add(footerPointLight);
+
   // Exact Haoqi Inflatable Glossy Royal Cobalt Blue Balloon Material (Screenshot 2)
   function createLiquidCobaltMaterial() {
     const isDark = state.theme === 'dark';
@@ -440,6 +461,22 @@ import createLightTunnel from './LightTunnel.js';
       clearcoat: 1.0,
       clearcoatRoughness: 0.04,
       reflectivity: 0.98,
+      side: THREE.DoubleSide
+    });
+  }
+
+  // Exact Haoqi Inflatable Balloon Material for "Craft 'N' Taste" (Footer)
+  function createCntInflatableMaterial() {
+    const isDark = state.theme === 'dark';
+    return new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(isDark ? '#2e6bfa' : '#1d4ed8'),
+      emissive: new THREE.Color(isDark ? '#0a2278' : '#040e2c'),
+      roughness: 0.10,
+      metalness: 0.20,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.03,
+      reflectivity: 0.98,
+      ior: 1.45,
       side: THREE.DoubleSide
     });
   }
@@ -873,6 +910,7 @@ import createLightTunnel from './LightTunnel.js';
   // Load 3D Craft 'N' Taste Mesh (model/cnt.gltf) for Footer (Exact Haoqi Reproduction)
   gltfLoader.load('model/cnt.gltf', (gltf) => {
     const isMobile = window.innerWidth < 768;
+    const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     const box = new THREE.Box3().setFromObject(gltf.scene);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
@@ -883,16 +921,21 @@ import createLightTunnel from './LightTunnel.js';
     cnt3DMesh.add(gltf.scene);
     cnt3DMesh.userData.originalSize = size;
 
-    const targetWidth = isMobile ? 5.0 : 22.0;
+    const vDist = Math.max(camera.position.z - 0.05, 1.0);
+    const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * vDist;
+    const vW = vH * camera.aspect;
+
+    // Fills ~86% on mobile (broad sculptural presence matching Haoqi), ~70% on tablet, ~55% on desktop
+    const targetWidth = isMobile ? Math.min(vW * 0.86, 8.8) : (isTablet ? 15.5 : 22.0);
     const scale = targetWidth / Math.max(size.x, 1);
     cnt3DMesh.userData.baseScale = scale;
     cnt3DMesh.scale.set(scale, scale, scale);
-    cnt3DMesh.position.set(0, -200, 1.0);
+    cnt3DMesh.position.set(0, -200, 0.05);
     cnt3DMesh.visible = false;
 
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
-        child.material = createCobaltGlossMaterial('#009dff');
+        child.material = createCntInflatableMaterial();
       }
     });
     scene.add(cnt3DMesh);
@@ -1600,9 +1643,24 @@ import createLightTunnel from './LightTunnel.js';
           cnt3DMesh.rotation.x = Math.sin(elapsedTime * 0.55) * 0.08 - state.mouse.y * 0.18;
           cnt3DMesh.rotation.z = Math.sin(elapsedTime * 0.35) * 0.03;
 
-          // Align comfortably behind headline text in world space (z: 0.05) matching Haoqi aesthetic
-          const targetY = (window.innerHeight / 2 - (rect.top + rect.height / 2)) * 0.016 + (isMobile ? -0.10 : 0.15);
+          // Align dynamically and with 100% precision directly behind the headline text grid
+          const headingGrid = document.querySelector('.footer-heading-grid');
+          const targetElement = headingGrid || footerSection;
+          const headRect = targetElement.getBoundingClientRect();
+          const vDist = Math.max(camera.position.z - 0.05, 1.0);
+          const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * vDist;
+          const unitsPerPixel = vH / window.innerHeight;
+          const targetY = (window.innerHeight / 2 - (headRect.top + headRect.height / 2)) * unitsPerPixel;
           cnt3DMesh.position.set(0, targetY + floatOffset, 0.05);
+
+          // Dedicated dynamic specular highlight point light tracking mouse & sway directly over the 3D letters
+          if (footerPointLight) {
+            footerPointLight.position.set(
+              isMobile ? Math.sin(elapsedTime * 1.5) * 2.8 : state.mouse.x * 9.0,
+              targetY + (isMobile ? Math.cos(elapsedTime * 1.2) * 1.8 : state.mouse.y * 3.5),
+              5.5
+            );
+          }
         } else {
           cnt3DMesh.visible = false;
         }
@@ -1759,9 +1817,14 @@ import createLightTunnel from './LightTunnel.js';
     }
 
     if (cnt3DMesh && cnt3DMesh.userData.originalSize) {
+      const vDist = Math.max(camera.position.z - 0.05, 1.0);
+      const vH = 2.0 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2.0) * vDist;
+      const vW = vH * camera.aspect;
       const isMob = window.innerWidth < 768;
-      const targetW = isMob ? 5.0 : 22.0;
+      const isTab = window.innerWidth >= 768 && window.innerWidth < 1024;
+      const targetW = isMob ? Math.min(vW * 0.86, 8.8) : (isTab ? 15.5 : 22.0);
       const s = targetW / Math.max(cnt3DMesh.userData.originalSize.x, 1);
+      cnt3DMesh.userData.baseScale = s;
       cnt3DMesh.scale.set(s, s, s);
     }
   });
